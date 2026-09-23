@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Kasir Pintar POS - Mobile Cloud & Sheets</title>
+  <title>Kasir Pintar POS Mobile</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome Icons -->
@@ -17,23 +17,12 @@
         extend: {
           fontFamily: {
             sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#ecfdf5',
-              100: '#d1fae5',
-              500: '#10b981',
-              600: '#059669',
-              700: '#047857',
-              800: '#065f46',
-            }
           }
         }
       }
     }
   </script>
   <style>
-    /* Smooth iOS-style touch scroll */
     .mobile-scroll {
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
@@ -41,16 +30,14 @@
     .mobile-scroll::-webkit-scrollbar {
       display: none;
     }
-    /* Voice recording pulse animation */
     @keyframes pulse-ring {
       0% { transform: scale(0.96); opacity: 0.9; }
-      50% { transform: scale(1.16); opacity: 0.35; }
+      50% { transform: scale(1.15); opacity: 0.35; }
       100% { transform: scale(0.96); opacity: 0.9; }
     }
     .mic-active-ring {
       animation: pulse-ring 1.3s infinite cubic-bezier(0.4, 0, 0.6, 1);
     }
-    /* Shake animation for incorrect PIN */
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       20%, 60% { transform: translateX(-8px); }
@@ -59,19 +46,18 @@
     .shake-animation {
       animation: shake 0.4s ease-in-out;
     }
-    /* Prevent text selection when tapping fast on mobile */
     .touch-btn {
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-800 font-sans min-h-screen flex justify-center antialiased selection:bg-brand-500 selection:text-white">
+<body class="bg-slate-900 text-slate-800 font-sans min-h-screen flex justify-center antialiased selection:bg-emerald-500 selection:text-white">
 
-  <!-- Mobile Container (Emulates smartphone screen on desktop, 100% on mobile device) -->
+  <!-- Mobile Screen Container -->
   <div class="w-full max-w-md bg-slate-50 min-h-screen flex flex-col shadow-2xl relative overflow-x-hidden border-x border-slate-800/20">
 
-    <!-- TOP MOBILE APP HEADER -->
+    <!-- TOP HEADER -->
     <header class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-2.5 sticky top-0 z-30 flex items-center justify-between shadow-xs">
       <div class="flex items-center gap-2.5">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-600/25">
@@ -100,7 +86,7 @@
           <i class="fa-solid fa-gear"></i>
         </button>
 
-        <!-- Lock Button (Shows when in Admin mode) -->
+        <!-- Lock Button (Admin Mode) -->
         <button id="lockAdminBtn" onclick="window.lockAdminSession()" title="Kunci Admin" class="touch-btn hidden w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xs active:scale-95 transition">
           <i class="fa-solid fa-lock"></i>
         </button>
@@ -108,11 +94,11 @@
     </header>
 
     <!-- ============================================================== -->
-    <!-- TAB 1: KASIR (Voice POS & Mobile Catalog) -->
+    <!-- TAB 1: KASIR (Voice POS & Katalog Minuman) -->
     <!-- ============================================================== -->
     <main id="tabKasirView" class="flex-1 flex flex-col p-3.5 space-y-3 pb-32 overflow-y-auto mobile-scroll">
       
-      <!-- Voice Order Interactive Card (With Continuous Listening & Multi-Item Parser) -->
+      <!-- Voice Order Interactive Card -->
       <div class="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 rounded-2xl p-3.5 text-white shadow-md relative overflow-hidden border border-emerald-500/20">
         
         <div class="flex items-center justify-between">
@@ -127,12 +113,12 @@
         <div class="mt-1">
           <h2 class="text-sm font-bold text-white">Pesan Banyak Menu Sekaligus</h2>
           <p class="text-[11px] text-emerald-100/80 leading-tight mt-0.5">
-            Bisa sebut hingga 5+ menu sekaligus, contoh: <span class="text-amber-200 font-bold">"aren 5 kentang 2 teh 3 roti 4 mie 1"</span>
+            Bisa sebut 5+ menu, contoh: <span class="text-amber-200 font-bold">"aren 5 teh biasa 2 coklat 3"</span>
           </p>
         </div>
 
         <!-- Voice Live Transcript Area -->
-        <div id="voiceTranscriptBox" class="mt-2.5 bg-black/45 rounded-xl p-2.5 text-xs text-emerald-50 border border-white/10 min-h-[54px] flex flex-col justify-between transition-all">
+        <div id="voiceTranscriptBox" class="mt-2.5 bg-black/45 rounded-xl p-2.5 text-xs text-emerald-50 border border-white/10 min-h-[52px] flex flex-col justify-between transition-all">
           <div class="flex items-start gap-2">
             <span id="voiceLiveIndicator" class="w-2 h-2 rounded-full bg-slate-500 shrink-0 mt-1"></span>
             <p id="transcriptText" class="text-[11px] text-slate-300 font-medium italic leading-relaxed">
@@ -142,46 +128,44 @@
           <div id="voiceDetectedSummary" class="text-[10px] text-emerald-300 font-semibold mt-1 hidden pt-1.5 border-t border-white/10 leading-normal"></div>
         </div>
 
-        <!-- Two Dedicated Buttons: Mulai & Selesai (Analisa) -->
+        <!-- Two Dedicated Buttons: Mulai & Selesai -->
         <div class="grid grid-cols-2 gap-2 mt-3">
-          <!-- Button 1: Mulai Bicara -->
           <button id="btnVoiceStart" onclick="window.startVoiceRecording()" class="touch-btn py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition">
             <i class="fa-solid fa-microphone text-sm" id="micStartIcon"></i>
             <span id="btnVoiceStartText">Mulai Bicara</span>
           </button>
 
-          <!-- Button 2: Selesai (Analisa) -->
           <button id="btnVoiceAnalyze" onclick="window.finishAndAnalyzeVoice()" disabled class="touch-btn py-2.5 px-3 rounded-xl bg-slate-700/60 text-slate-400 font-bold text-xs flex items-center justify-center gap-1.5 transition opacity-60 pointer-events-none">
             <i class="fa-solid fa-check-double text-xs"></i>
             <span>Selesai (Analisa)</span>
           </button>
         </div>
-
       </div>
 
-      <!-- Search & Category Filters -->
+      <!-- Search & Filters -->
       <div class="space-y-2">
         <div class="relative">
           <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-          <input type="text" id="searchInput" oninput="window.filterProducts()" placeholder="Cari menu / ketik kata kunci..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs transition">
+          <input type="text" id="searchInput" oninput="window.filterProducts()" placeholder="Cari menu minuman..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs transition">
         </div>
 
-        <!-- Horizontal scrollable categories -->
+        <!-- Filter Kategori Horizontal -->
         <div class="flex items-center gap-1.5 overflow-x-auto mobile-scroll py-0.5" id="categoryContainer">
-          <button onclick="window.setCategory('Semua')" class="cat-btn touch-btn active px-3 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 text-white whitespace-nowrap shadow-xs">Semua</button>
-          <button onclick="window.setCategory('Minuman')" class="cat-btn touch-btn px-3 py-1.5 text-xs font-bold rounded-xl bg-white border border-slate-200 text-slate-600 whitespace-nowrap">Minuman</button>
-          <button onclick="window.setCategory('Makanan')" class="cat-btn touch-btn px-3 py-1.5 text-xs font-bold rounded-xl bg-white border border-slate-200 text-slate-600 whitespace-nowrap">Makanan</button>
-          <button onclick="window.setCategory('Snack')" class="cat-btn touch-btn px-3 py-1.5 text-xs font-bold rounded-xl bg-white border border-slate-200 text-slate-600 whitespace-nowrap">Snack</button>
+          <button onclick="window.setCategory('Semua')" class="cat-btn touch-btn active px-3 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 text-white whitespace-nowrap shadow-xs">Semua (20)</button>
+          <button onclick="window.setCategory('Teh')" class="cat-btn touch-btn px-3 py-1.5 text-xs font-bold rounded-xl bg-white border border-slate-200 text-slate-600 whitespace-nowrap">Varian Teh</button>
+          <button onclick="window.setCategory('Kopi')" class="cat-btn touch-btn px-3 py-1.5 text-xs font-bold rounded-xl bg-white border border-slate-200 text-slate-600 whitespace-nowrap">Kopi</button>
+          <button onclick="window.setCategory('Segar')" class="cat-btn touch-btn px-3 py-1.5 text-xs font-bold rounded-xl bg-white border border-slate-200 text-slate-600 whitespace-nowrap">Sunkist & Buah</button>
+          <button onclick="window.setCategory('Coklat/Susu')" class="cat-btn touch-btn px-3 py-1.5 text-xs font-bold rounded-xl bg-white border border-slate-200 text-slate-600 whitespace-nowrap">Coklat & Manis</button>
         </div>
       </div>
 
       <!-- 2-Column Product Grid -->
       <div id="productGrid" class="grid grid-cols-2 gap-2.5">
-        <!-- Rendered dynamically from Google Sheets database -->
+        <!-- Rendered dynamically -->
       </div>
     </main>
 
-    <!-- FLOATING BOTTOM CART BAR (On Kasir Tab) -->
+    <!-- FLOATING BOTTOM CART BAR -->
     <div id="floatingCartBar" class="fixed bottom-16 inset-x-0 max-w-md mx-auto px-3 py-2 pointer-events-none z-20 hidden">
       <div onclick="window.openCartDrawer()" class="pointer-events-auto touch-btn bg-slate-900 text-white p-3 rounded-2xl shadow-xl flex items-center justify-between cursor-pointer border border-slate-700/60 active:scale-[0.98] transition">
         <div class="flex items-center gap-2.5">
@@ -205,7 +189,7 @@
     <!-- ============================================================== -->
     <main id="tabAdminView" class="flex-1 flex flex-col p-3.5 space-y-3.5 pb-24 overflow-y-auto mobile-scroll hidden">
       
-      <!-- Admin Sub-Navigation (Katalog & Margin VS Status Promo WA) -->
+      <!-- Admin Sub-Navigation -->
       <div class="bg-slate-200/80 p-1 rounded-xl grid grid-cols-2 gap-1 text-xs font-bold">
         <button id="adminSubMenuBtn" onclick="window.switchAdminSection('products')" class="touch-btn py-1.5 rounded-lg bg-white text-slate-900 shadow-xs flex items-center justify-center gap-1.5 transition">
           <i class="fa-solid fa-boxes-stacked text-emerald-600"></i> Menu & Laba
@@ -222,28 +206,28 @@
           <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs">
             <span class="text-[10px] font-bold text-slate-400 uppercase">Margin Rata-rata</span>
             <p id="kpiAvgMargin" class="text-lg font-black text-emerald-600 mt-0.5">0%</p>
-            <span class="text-[9px] text-slate-400">Keuntungan kotor</span>
+            <span class="text-[9px] text-slate-400">Harga Modal = Harga Jual</span>
           </div>
           <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs">
-            <span class="text-[10px] font-bold text-slate-400 uppercase">Potensi Cuan Stok</span>
-            <p id="kpiPotentialProfit" class="text-sm font-black text-slate-900 mt-1 truncate">Rp 0</p>
-            <span class="text-[9px] text-slate-400">Tersimpan di Google Sheets</span>
+            <span class="text-[10px] font-bold text-slate-400 uppercase">Total Menu Aktif</span>
+            <p id="kpiTotalMenu" class="text-sm font-black text-slate-900 mt-1 truncate">20 Menu</p>
+            <span class="text-[9px] text-slate-400">Database Minuman</span>
           </div>
         </div>
 
-        <!-- Add Product Button & Sheets Live Sync indicator -->
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-            <i class="fa-solid fa-table-cells text-emerald-600"></i> Katalog Google Sheets
-          </h3>
-          <button onclick="window.openProductModal()" class="touch-btn px-2.5 py-1.5 bg-slate-900 text-white text-[11px] font-bold rounded-xl flex items-center gap-1 shadow-xs active:scale-95 transition">
-            <i class="fa-solid fa-plus"></i> Tambah Menu
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-between gap-1.5">
+          <button onclick="window.syncDefaultMenusToSheets()" class="touch-btn flex-1 py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-xl flex items-center justify-center gap-1 shadow-xs active:scale-95 transition">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload 20 Menu ke Sheets
+          </button>
+          <button onclick="window.openProductModal()" class="touch-btn py-1.5 px-3 bg-slate-900 text-white text-[11px] font-bold rounded-xl flex items-center gap-1 shadow-xs active:scale-95 transition">
+            <i class="fa-solid fa-plus"></i> Tambah
           </button>
         </div>
 
-        <!-- Product Cards with Profit Breakdown -->
+        <!-- Product Cards -->
         <div id="adminProductList" class="space-y-2">
-          <!-- Populated from Google Sheets API -->
+          <!-- Populated dynamically -->
         </div>
       </section>
 
@@ -264,25 +248,25 @@
                 ☕ Pagi Semangat
               </button>
               <button onclick="window.applyTemplate('siang')" class="touch-btn text-left p-2 rounded-xl bg-slate-50 border border-slate-200 text-[10px] font-bold text-slate-700 active:bg-emerald-50">
-                🍔 Lunch Flash Sale
+                🍹 Siang Segar
               </button>
               <button onclick="window.applyTemplate('jumat')" class="touch-btn text-left p-2 rounded-xl bg-slate-50 border border-slate-200 text-[10px] font-bold text-slate-700 active:bg-emerald-50">
                 🕌 Jumat Berkah
               </button>
               <button onclick="window.applyTemplate('sore')" class="touch-btn text-left p-2 rounded-xl bg-slate-50 border border-slate-200 text-[10px] font-bold text-slate-700 active:bg-emerald-50">
-                🍪 Ngemil Sore
+                🧋 Ngemil Sore
               </button>
             </div>
           </div>
 
           <div>
             <label class="block text-[11px] font-bold text-slate-700 mb-1">Judul / Headline</label>
-            <input type="text" id="promoTitleInput" placeholder="Contoh: Promo Sarapan Hemat" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <input type="text" id="promoTitleInput" placeholder="Contoh: Promo Segar Siang Hari" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
           </div>
 
           <div>
             <label class="block text-[11px] font-bold text-slate-700 mb-1">Copywriting Status WA</label>
-            <textarea id="promoTextInput" rows="5" placeholder="Ketik format status (*Tebal*, _Miring_, Emoticon)..." class="w-full px-3 py-2 text-xs font-mono border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none leading-relaxed"></textarea>
+            <textarea id="promoTextInput" rows="5" placeholder="Ketik status WhatsApp..." class="w-full px-3 py-2 text-xs font-mono border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none leading-relaxed"></textarea>
           </div>
 
           <div class="grid grid-cols-2 gap-2 pt-1">
@@ -295,23 +279,16 @@
           </div>
         </div>
 
-        <!-- History of Promos -->
         <div class="space-y-1.5">
           <h4 class="text-[11px] font-bold text-slate-600">Arsip Ide Promo:</h4>
-          <div id="promoHistoryList" class="space-y-1.5">
-            <!-- Dynamic items -->
-          </div>
+          <div id="promoHistoryList" class="space-y-1.5"></div>
         </div>
       </section>
 
     </main>
 
-    <!-- ============================================================== -->
-    <!-- TWO-BUTTON BOTTOM NAVIGATION BAR (FIXED FOR SMARTPHONE) -->
-    <!-- ============================================================== -->
+    <!-- BOTTOM NAVIGATION (KASIR & ADMIN) -->
     <nav class="fixed bottom-0 inset-x-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2 z-30 flex items-center justify-around shadow-lg">
-      
-      <!-- BAR 1: KASIR -->
       <button id="navBtnKasir" onclick="window.handleNavClick('kasir')" class="touch-btn flex-1 py-1.5 flex flex-col items-center gap-1 text-emerald-600 transition active:scale-95">
         <div id="navIconKasir" class="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center text-sm font-bold transition">
           <i class="fa-solid fa-cash-register"></i>
@@ -319,7 +296,6 @@
         <span class="text-[11px] font-bold">Kasir</span>
       </button>
 
-      <!-- BAR 2: ADMIN (PIN Protected: 1122) -->
       <button id="navBtnAdmin" onclick="window.handleNavClick('admin')" class="touch-btn flex-1 py-1.5 flex flex-col items-center gap-1 text-slate-400 transition active:scale-95">
         <div id="navIconAdmin" class="w-8 h-8 rounded-xl bg-transparent flex items-center justify-center text-sm font-bold relative transition">
           <i class="fa-solid fa-chart-pie"></i>
@@ -329,12 +305,9 @@
           Admin <i id="navAdminLockIcon" class="fa-solid fa-lock text-[9px] text-slate-400"></i>
         </span>
       </button>
-
     </nav>
 
-    <!-- ============================================================== -->
-    <!-- MODAL 1: PIN SECURITY KEYPAD (PIN Default: 1122) -->
-    <!-- ============================================================== -->
+    <!-- PIN KEYPAD MODAL (PIN: 1122) -->
     <div id="pinModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div id="pinCard" class="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl flex flex-col items-center space-y-5 animate-in slide-in-from-bottom duration-200">
         
@@ -353,7 +326,6 @@
           </button>
         </div>
 
-        <!-- 4 PIN Dots Display -->
         <div id="pinDotsContainer" class="flex items-center gap-4 py-2">
           <div class="pin-dot w-4 h-4 rounded-full border-2 border-slate-300 transition-all duration-150"></div>
           <div class="pin-dot w-4 h-4 rounded-full border-2 border-slate-300 transition-all duration-150"></div>
@@ -363,7 +335,6 @@
         
         <p id="pinErrorMsg" class="text-xs font-semibold text-rose-500 opacity-0 h-4 transition">PIN Salah, coba lagi</p>
 
-        <!-- 3x4 Touch Keypad -->
         <div class="grid grid-cols-3 gap-3 w-full max-w-xs">
           <button onclick="window.pressPinKey('1')" class="touch-btn h-14 rounded-2xl bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-lg font-black text-slate-800 border border-slate-200/80 transition">1</button>
           <button onclick="window.pressPinKey('2')" class="touch-btn h-14 rounded-2xl bg-slate-50 hover:bg-slate-100 active:bg-slate-200 text-lg font-black text-slate-800 border border-slate-200/80 transition">2</button>
@@ -390,9 +361,7 @@
       </div>
     </div>
 
-    <!-- ============================================================== -->
-    <!-- MODAL 2: MOBILE CART BOTTOM SHEET -->
-    <!-- ============================================================== -->
+    <!-- CART BOTTOM SHEET -->
     <div id="cartDrawer" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-end justify-center p-0">
       <div class="w-full max-w-md bg-white rounded-t-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-200">
         
@@ -416,10 +385,8 @@
           </div>
         </div>
 
-        <!-- Cart Items Scroll List -->
         <div id="drawerCartList" class="flex-1 overflow-y-auto p-4 divide-y divide-slate-100 space-y-2 mobile-scroll min-h-[160px]"></div>
 
-        <!-- Checkout Section -->
         <div class="p-4 bg-slate-50 border-t border-slate-100 space-y-3">
           <div class="flex justify-between items-center text-xs font-bold text-slate-700">
             <span>Total Tagihan:</span>
@@ -433,9 +400,7 @@
       </div>
     </div>
 
-    <!-- ============================================================== -->
-    <!-- MODAL 3: PAYMENT CASHIER MODAL -->
-    <!-- ============================================================== -->
+    <!-- PAYMENT MODAL -->
     <div id="paymentModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div class="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto mobile-scroll">
         <div class="flex justify-between items-center pb-2 border-b border-slate-100">
@@ -448,11 +413,10 @@
         </div>
 
         <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-3 text-center">
-          <p class="text-[10px] text-emerald-700 font-extrabold uppercase tracking-wider">Total Yang Harus Dibayar</p>
+          <p class="text-[10px] text-emerald-700 font-extrabold uppercase tracking-wider">Total Tagihan</p>
           <p id="modalGrandTotal" class="text-2xl font-black text-emerald-800 mt-0.5">Rp 0</p>
         </div>
 
-        <!-- Payment Method Tabs -->
         <div>
           <label class="block text-[11px] font-bold text-slate-600 mb-1.5">Metode Bayar:</label>
           <div class="grid grid-cols-3 gap-1.5">
@@ -468,7 +432,6 @@
           </div>
         </div>
 
-        <!-- Cash Section -->
         <div id="cashInputSection" class="space-y-2">
           <label class="block text-[11px] font-bold text-slate-600">Uang Diterima (Rp):</label>
           <input type="number" id="cashReceivedInput" oninput="window.calculateChange()" placeholder="0" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-base font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
@@ -487,13 +450,11 @@
       </div>
     </div>
 
-    <!-- ============================================================== -->
-    <!-- MODAL 4: ADD / EDIT PRODUCT -->
-    <!-- ============================================================== -->
+    <!-- ADD / EDIT PRODUCT MODAL -->
     <div id="productModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div class="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl space-y-3.5 max-h-[90vh] overflow-y-auto mobile-scroll">
         <div class="flex justify-between items-center pb-2 border-b border-slate-100">
-          <h3 id="productModalTitle" class="font-bold text-sm text-slate-900">Tambah Menu Google Sheets</h3>
+          <h3 id="productModalTitle" class="font-bold text-sm text-slate-900">Tambah Menu Minuman</h3>
           <button onclick="window.closeProductModal()" class="touch-btn text-slate-400 hover:text-slate-600">
             <i class="fa-solid fa-xmark"></i>
           </button>
@@ -504,7 +465,7 @@
 
           <div>
             <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama Menu</label>
-            <input type="text" id="prodNama" required placeholder="Contoh: Kopi Susu Aren" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            <input type="text" id="prodNama" required placeholder="Contoh: Es Kopi Gula Aren" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
           </div>
 
           <div class="grid grid-cols-2 gap-2">
@@ -512,14 +473,15 @@
               <label class="block text-[11px] font-bold text-slate-700 mb-1">Kategori</label>
               <select id="prodKategori" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                 <option value="Minuman">Minuman</option>
-                <option value="Makanan">Makanan</option>
-                <option value="Snack">Snack</option>
-                <option value="Lainnya">Lainnya</option>
+                <option value="Teh">Varian Teh</option>
+                <option value="Kopi">Kopi</option>
+                <option value="Segar">Sunkist & Buah</option>
+                <option value="Coklat/Susu">Coklat & Manis</option>
               </select>
             </div>
             <div>
-              <label class="block text-[11px] font-bold text-slate-700 mb-1">Stok Tersedia</label>
-              <input type="number" id="prodStok" min="0" required value="20" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              <label class="block text-[11px] font-bold text-slate-700 mb-1">Stok Awal</label>
+              <input type="number" id="prodStok" min="0" required value="50" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
             </div>
           </div>
 
@@ -534,7 +496,6 @@
             </div>
           </div>
 
-          <!-- Profit Live preview badge -->
           <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex items-center justify-between">
             <span class="text-slate-600 font-medium text-[11px]">Keuntungan Bersih:</span>
             <div class="text-right">
@@ -551,7 +512,7 @@
       </div>
     </div>
 
-    <!-- MODAL 5: SETTINGS & GOOGLE APPS SCRIPT URL -->
+    <!-- SETTINGS MODAL -->
     <div id="configModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div class="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto mobile-scroll">
         <div class="flex justify-between items-center pb-2 border-b border-slate-100">
@@ -565,14 +526,14 @@
 
         <div>
           <label class="block text-[11px] font-bold text-slate-700 mb-1">Web App URL Google Sheets (GAS)</label>
-          <input type="url" id="settingGasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 text-xs font-mono border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          <p class="text-[10px] text-slate-400 mt-1">Stok dan penambahan produk tersinkron langsung ke Google Sheets Anda.</p>
+          <input type="url" id="settingGasUrlInput" class="w-full px-3 py-2 text-xs font-mono border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <p class="text-[10px] text-slate-400 mt-1">Stok dan penjualan langsung tersinkron ke Google Sheets.</p>
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 mb-1">Ganti PIN Admin (4 Digit)</label>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">PIN Admin (4 Digit)</label>
           <input type="password" maxlength="4" id="settingPinInput" placeholder="1122" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          <span class="text-[10px] text-slate-400">PIN default saat ini: <strong class="text-slate-600">1122</strong></span>
+          <span class="text-[10px] text-slate-400">PIN saat ini: <strong class="text-slate-600">1122</strong></span>
         </div>
 
         <div>
@@ -587,24 +548,53 @@
       </div>
     </div>
 
-    <!-- TOAST NOTIFICATIONS (No alert policy) -->
+    <!-- TOAST BOX -->
     <div id="toastBox" class="fixed top-3 inset-x-0 max-w-xs mx-auto z-50 flex flex-col gap-1.5 pointer-events-none px-4"></div>
 
   </div>
 
   <!-- APPLICATION LOGIC -->
   <script>
-    // Google Apps Script endpoint provided
-    const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbxIAiSRF7uE8aXuOu4tZPwPOFJyl-NoJ06GC6eECcQvu30sAQcKV7QdKbUP33orC_vlig/exec";
+    // URL Google Apps Script yang aktif
+    const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbxoYE0p507lkYG7GmnDWVenUQSAWr8CyP0ILBSmaRkLIpmXVownn-Rybv_KL5Ti36QXmg/exec";
 
-    // Application state
-    let gasApiUrl = localStorage.getItem("POS_GAS_URL") || DEFAULT_GAS_URL;
+    // Auto-migrasi URL di localStorage
+    let storedGasUrl = localStorage.getItem("POS_GAS_URL");
+    if (!storedGasUrl || storedGasUrl.includes("AKfycbxIAiSRF7uE8aXuOu4tZPwPOFJyl")) {
+      storedGasUrl = DEFAULT_GAS_URL;
+      localStorage.setItem("POS_GAS_URL", DEFAULT_GAS_URL);
+    }
+    let gasApiUrl = storedGasUrl;
     let cashierName = localStorage.getItem("POS_CASHIER_NAME") || "Kasir 1";
-    let adminPin = localStorage.getItem("POS_ADMIN_PIN") || "1122"; // User PIN 1122
+    let adminPin = localStorage.getItem("POS_ADMIN_PIN") || "1122";
     let enteredPin = "";
     let isAdminUnlocked = false;
 
-    let products = [];
+    // 20 Menu Minuman Lengkap (Harga Modal = Harga Jual)
+    const initialFallbackCatalog = [
+      { id: "MNU001", nama: "Teh Hijau", kategori: "Teh", hargaModal: 5000, hargaJual: 5000, stok: 50 },
+      { id: "MNU002", nama: "Teh Biasa", kategori: "Teh", hargaModal: 5000, hargaJual: 5000, stok: 50 },
+      { id: "MNU003", nama: "Lemon Tea", kategori: "Teh", hargaModal: 5000, hargaJual: 5000, stok: 50 },
+      { id: "MNU004", nama: "Coklat Premium", kategori: "Coklat/Susu", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+      { id: "MNU005", nama: "Cookies and Cream", kategori: "Coklat/Susu", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+      { id: "MNU006", nama: "Green Tea (Kecil)", kategori: "Teh", hargaModal: 10000, hargaJual: 10000, stok: 50 },
+      { id: "MNU007", nama: "Green Tea (Besar)", kategori: "Teh", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+      { id: "MNU008", nama: "Thai Tea (Kecil)", kategori: "Teh", hargaModal: 10000, hargaJual: 10000, stok: 50 },
+      { id: "MNU009", nama: "Thai Tea (Besar)", kategori: "Teh", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+      { id: "MNU010", nama: "Moka Intenso", kategori: "Kopi", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+      { id: "MNU011", nama: "Kopi Gula Aren", kategori: "Kopi", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+      { id: "MNU012", nama: "Blackbi", kategori: "Kopi", hargaModal: 10000, hargaJual: 10000, stok: 50 },
+      { id: "MNU013", nama: "Butterscotch", kategori: "Kopi", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+      { id: "MNU014", nama: "Americano", kategori: "Kopi", hargaModal: 10000, hargaJual: 10000, stok: 50 },
+      { id: "MNU015", nama: "Sunkist Original", kategori: "Segar", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+      { id: "MNU016", nama: "Sunkist Madu", kategori: "Segar", hargaModal: 17000, hargaJual: 17000, stok: 50 },
+      { id: "MNU017", nama: "Sunkist Yakult", kategori: "Segar", hargaModal: 17000, hargaJual: 17000, stok: 50 },
+      { id: "MNU018", nama: "Lemon Fresh", kategori: "Segar", hargaModal: 10000, hargaJual: 10000, stok: 50 },
+      { id: "MNU019", nama: "Jeruk Peras (Kecil)", kategori: "Segar", hargaModal: 10000, hargaJual: 10000, stok: 50 },
+      { id: "MNU020", nama: "Jeruk Peras (Besar)", kategori: "Segar", hargaModal: 15000, hargaJual: 15000, stok: 50 }
+    ];
+
+    let products = [...initialFallbackCatalog];
     let promos = [];
     let cart = [];
     let currentTab = "kasir";
@@ -618,22 +608,10 @@
     let currentSessionFinal = "";
     let currentSessionInterim = "";
 
-    // Default backup catalog (used if Google Sheets is momentarily unreachable)
-    const initialFallbackCatalog = [
-      { id: "PRD001", nama: "Kopi Susu Aren", kategori: "Minuman", hargaModal: 8000, hargaJual: 15000, stok: 50 },
-      { id: "PRD002", nama: "Teh Manis Dingin", kategori: "Minuman", hargaModal: 2000, hargaJual: 5000, stok: 100 },
-      { id: "PRD003", nama: "Roti Bakar Keju", kategori: "Makanan", hargaModal: 7000, hargaJual: 14000, stok: 30 },
-      { id: "PRD004", nama: "Kentang Goreng", kategori: "Snack", hargaModal: 6000, hargaJual: 12000, stok: 40 },
-      { id: "PRD005", nama: "Espresso Single", kategori: "Minuman", hargaModal: 4000, hargaJual: 10000, stok: 45 },
-      { id: "PRD006", nama: "Mie Goreng Telur", kategori: "Makanan", hargaModal: 9000, hargaJual: 18000, stok: 25 }
-    ];
-
-    // Format Rupiah helper
     function formatRupiah(num) {
       return "Rp " + Number(num || 0).toLocaleString("id-ID");
     }
 
-    // Custom Toast Notification Helper
     function showToast(title, msg, type = 'info') {
       const box = document.getElementById('toastBox');
       const toast = document.createElement('div');
@@ -656,9 +634,7 @@
       `;
 
       box.appendChild(toast);
-      requestAnimationFrame(() => {
-        toast.classList.remove('-translate-y-2', 'opacity-0');
-      });
+      requestAnimationFrame(() => toast.classList.remove('-translate-y-2', 'opacity-0'));
 
       setTimeout(() => {
         toast.classList.add('-translate-y-2', 'opacity-0');
@@ -666,9 +642,7 @@
       }, 2600);
     }
 
-    // ==============================================================
-    // GOOGLE SHEETS LIVE SYNC ENGINE (GAS API)
-    // ==============================================================
+    // Sinkronisasi Live dengan Google Sheets
     window.syncFromGoogleSheets = async function(showFeedback = false) {
       const syncDot = document.getElementById('cloudSyncDot');
       const syncText = document.getElementById('cloudSyncStatus');
@@ -679,46 +653,51 @@
       if (syncText) syncText.innerText = "Sinkron Sheets...";
 
       try {
-        const res = await fetch(`${gasApiUrl}?action=getProducts`, {
-          method: 'GET',
-          cache: 'no-cache'
-        });
-        const json = await res.json();
+        const res = await fetch(`${gasApiUrl}?action=getProducts`);
+        const rawText = await res.text();
+        let json;
+        try { json = JSON.parse(rawText); } catch (e) { throw new Error("AUTH_ERROR"); }
 
-        if (json && json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
-          products = json.data;
-          localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
-          renderProductGrid();
-          renderAdminProducts();
+        if (json && json.status === 'success') {
+          if (Array.isArray(json.data) && json.data.length > 0) {
+            products = json.data;
+            localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
+            renderProductGrid();
+            renderAdminProducts();
 
-          if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
-          if (syncText) syncText.innerText = "Sheets Aktif • Stok Live";
-          if (showFeedback) showToast("Sinkron Sukses", `${products.length} menu dimuat langsung dari Sheets`, "success");
+            if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
+            if (syncText) syncText.innerText = "Sheets Aktif • Stok Live";
+            if (showFeedback) showToast("Sinkron Sukses", `${products.length} menu dimuat dari Sheets`, "success");
+          } else {
+            if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
+            if (syncText) syncText.innerText = "Sheets Terhubung (0 Menu)";
+            if (showFeedback) showToast("Sheets Kosong", "Gunakan tombol 'Upload 20 Menu ke Sheets' di Tab Admin", "info");
+          }
         } else {
-          throw new Error("Data produk kosong dari sheets");
+          throw new Error(json.message || "Gagal memuat produk");
         }
       } catch (err) {
-        console.warn("Gagal mengambil live Sheets, memuat cache lokal:", err);
-        // Fallback to local cache if offline
+        console.warn("Gagal terhubung Sheets, menggunakan data lokal:", err);
         const cached = localStorage.getItem("POS_CACHED_PRODUCTS");
         if (cached) {
           try { products = JSON.parse(cached); } catch(e){}
         }
-        if (!products || products.length === 0) {
-          products = [...initialFallbackCatalog];
-        }
+        if (!products || products.length === 0) products = [...initialFallbackCatalog];
+
         renderProductGrid();
         renderAdminProducts();
 
         if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-slate-400";
-        if (syncText) syncText.innerText = "Mode Offline Sedia";
-        if (showFeedback) showToast("Perhatian", "Gagal memuat Google Sheets. Pastikan hak akses Deploy diset 'Anyone'.", "error");
+        if (syncText) syncText.innerText = "Mode Siap Pakai";
+
+        if (showFeedback) {
+          showToast("Info Akses", "Di Apps Script: Pastikan 'Who has access' diatur ke 'Anyone'", "info");
+        }
       } finally {
         if (spinIcon) spinIcon.classList.remove('fa-spin');
       }
     };
 
-    // Helper to send POST safely to GAS without CORS preflight block
     async function postToGoogleSheets(payload) {
       if (!gasApiUrl) return;
       try {
@@ -728,25 +707,22 @@
           body: JSON.stringify(payload)
         });
       } catch (err) {
-        console.error("Gagal mengirim ke Google Sheets:", err);
+        console.error("Gagal kirim ke Google Sheets:", err);
       }
     }
 
-    // ==============================================================
-    // ADVANCED MULTI-VOICE ORDER ENGINE (Anti-Duplication & Multi-Menu)
-    // ==============================================================
+    // Mesin Pengenal Suara Anti-Ganda
     const indonesianNumberMap = {
-      'satu': 1, 'segelas': 1, 'seporsi': 1, 'sebungkus': 1, 'secangkir': 1, 'sebuah': 1,
+      'satu': 1, 'segelas': 1, 'seporsi': 1, 'sebuah': 1, 'secangkir': 1,
       'dua': 2, 'tiga': 3, 'empat': 4, 'lima': 5, 'enam': 6, 'tujuh': 7,
       'delapan': 8, 'sembilan': 9, 'sepuluh': 10, 'sebelas': 11, 'duabelas': 12,
-      'tigabelas': 13, 'empatbelas': 14, 'limabelas': 15, 'enambelas': 16,
-      'tujuhbelas': 17, 'delapanbelas': 18, 'sembilanbelas': 19, 'duapuluh': 20
+      'limabelas': 15, 'duapuluh': 20
     };
 
     function initSpeechEngine() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
-        showToast("Browser Tidak Mendukung", "Gunakan browser Google Chrome atau Safari di HP untuk fitur suara.", "error");
+        showToast("Browser Belum Mendukung", "Gunakan Google Chrome / Safari di HP untuk fitur suara.", "error");
         return null;
       }
 
@@ -760,7 +736,6 @@
         updateVoiceUiState();
       };
 
-      // Single-pass listener preventing transcript duplication
       rec.onresult = (event) => {
         let fText = '';
         let iText = '';
@@ -775,27 +750,21 @@
         currentSessionInterim = iText.trim();
 
         const fullDisplay = [previousSessionsFinal, currentSessionFinal, currentSessionInterim]
-          .filter(Boolean)
-          .join(' ')
-          .replace(/\s+/g, ' ')
-          .trim();
+          .filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
 
         const displayEl = document.getElementById('transcriptText');
-        if (displayEl) {
-          displayEl.innerText = fullDisplay || "Mendengarkan ucapan pesanan...";
-        }
+        if (displayEl) displayEl.innerText = fullDisplay || "Mendengarkan ucapan...";
       };
 
       rec.onerror = (e) => {
         if (e.error === 'not-allowed') {
-          showToast('Izin Ditolak', 'Izinkan akses mikrofon di browser HP Anda.', 'error');
+          showToast('Izin Mikrofon Ditolak', 'Izinkan akses mikrofon di browser HP Anda.', 'error');
           stopVoiceRecording();
         }
       };
 
       rec.onend = () => {
         if (isRecordingVoice) {
-          // Carry forward completed transcript cleanly before restart
           previousSessionsFinal = [previousSessionsFinal, currentSessionFinal].filter(Boolean).join(' ').trim();
           currentSessionFinal = "";
           currentSessionInterim = "";
@@ -815,7 +784,7 @@
       currentSessionInterim = "";
 
       const transcriptEl = document.getElementById('transcriptText');
-      if (transcriptEl) transcriptEl.innerText = "Mendengarkan ucapan... Sebutkan menu & jumlahnya.";
+      if (transcriptEl) transcriptEl.innerText = "Mendengarkan ucapan... Sebutkan menu & porsi.";
 
       const summaryEl = document.getElementById('voiceDetectedSummary');
       if (summaryEl) {
@@ -873,27 +842,21 @@
       }
     }
 
-    // Called when tapping "Selesai (Analisa)" with anti-double-click guard
     window.finishAndAnalyzeVoice = function() {
       if (isAnalyzingVoice) return;
       isAnalyzingVoice = true;
 
       stopVoiceRecording();
 
-      // Read exact spoken text once without double-concatenation
       const textToAnalyze = [previousSessionsFinal, currentSessionFinal, currentSessionInterim]
-        .filter(Boolean)
-        .join(' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+        .filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
 
-      // Clear immediately to prevent any re-analysis duplication
       previousSessionsFinal = "";
       currentSessionFinal = "";
       currentSessionInterim = "";
 
       if (!textToAnalyze || textToAnalyze.includes("Tekan \"Mulai Bicara\"") || textToAnalyze.includes("Mendengarkan ucapan")) {
-        showToast("Suara Belum Masuk", "Belum ada suara yang terdengar. Coba tekan Mulai Bicara lagi.", "info");
+        showToast("Suara Belum Masuk", "Belum ada suara terdengar. Tekan Mulai Bicara lagi.", "info");
         isAnalyzingVoice = false;
         return;
       }
@@ -902,44 +865,75 @@
       isAnalyzingVoice = false;
     };
 
-    /**
-     * Finds best matching product for given text phrase
-     */
+    // Alias cerdas untuk pengucapan ucapan kasir & ukuran
+    const drinkVoiceAliases = [
+      { trigger: ['mau kak', 'moka', 'mokaintenso'], id: 'MNU010' },
+      { trigger: ['butterspot', 'butterscotch', 'butter spot'], id: 'MNU013' },
+      { trigger: ['sanksi', 'sunkis', 'sunkist'], base: 'sunkist' },
+      { trigger: ['green tea', 'greentea'], base: 'greentea' },
+      { trigger: ['thai tea', 'thaitea'], base: 'thaitea' },
+      { trigger: ['jeruk peras', 'jeruk'], base: 'jeruk' },
+      { trigger: ['cookies', 'cream'], id: 'MNU005' },
+      { trigger: ['coklat', 'cokelat'], id: 'MNU004' },
+      { trigger: ['aren', 'gula aren'], id: 'MNU011' },
+      { trigger: ['lemon fresh', 'fresh lemon'], id: 'MNU018' },
+      { trigger: ['lemon tea', 'lemon'], id: 'MNU003' },
+      { trigger: ['teh hijau'], id: 'MNU001' },
+      { trigger: ['teh biasa', 'es teh'], id: 'MNU002' },
+      { trigger: ['blackbi', 'black bi'], id: 'MNU012' },
+      { trigger: ['americano'], id: 'MNU014' }
+    ];
+
     function findBestProductMatch(query) {
       if (!query || !products || products.length === 0) return null;
       const cleanQ = query.toLowerCase().trim();
-      const qWords = cleanQ.split(/\s+/).filter(w => w.length >= 2);
-      if (qWords.length === 0) return null;
+      const hasKecil = cleanQ.includes('kecil');
+      const hasBesar = cleanQ.includes('besar');
 
+      // 1. Cek Alias khusus
+      for (const al of drinkVoiceAliases) {
+        for (const trig of al.trigger) {
+          if (cleanQ.includes(trig)) {
+            if (al.id) {
+              const matched = products.find(p => p.id === al.id);
+              if (matched) return matched;
+            }
+            if (al.base === 'greentea') {
+              return products.find(p => p.id === (hasKecil ? 'MNU006' : (hasBesar ? 'MNU007' : 'MNU007'))) || null;
+            }
+            if (al.base === 'thaitea') {
+              return products.find(p => p.id === (hasKecil ? 'MNU008' : (hasBesar ? 'MNU009' : 'MNU009'))) || null;
+            }
+            if (al.base === 'jeruk') {
+              return products.find(p => p.id === (hasKecil ? 'MNU019' : (hasBesar ? 'MNU020' : 'MNU020'))) || null;
+            }
+            if (al.base === 'sunkist') {
+              if (cleanQ.includes('madu')) return products.find(p => p.id === 'MNU016');
+              if (cleanQ.includes('yakult')) return products.find(p => p.id === 'MNU017');
+              return products.find(p => p.id === 'MNU015');
+            }
+          }
+        }
+      }
+
+      // 2. Pencocokan kata kunci fleksibel
+      const qWords = cleanQ.split(/\s+/).filter(w => w.length >= 2);
       let bestProd = null;
       let bestScore = 0;
 
       for (const p of products) {
         const pName = p.nama.toLowerCase();
-        const pWords = pName.split(/\s+/).map(w => w.replace(/[^a-z0-9]/g, ''));
         let score = 0;
 
-        // Exact full phrase containment
-        if (cleanQ.includes(pName) || pName.includes(cleanQ)) {
-          score += 45;
-        }
+        if (cleanQ.includes(pName) || pName.includes(cleanQ)) score += 40;
+        if (hasKecil && pName.includes('kecil')) score += 25;
+        if (hasBesar && pName.includes('besar')) score += 25;
 
-        // Word-by-word matching
         for (const qw of qWords) {
-          if (pWords.includes(qw)) {
-            score += 30; // e.g. "aren", "kentang", "roti", "mie", "teh"
-          } else if (pName.includes(qw) && qw.length >= 3) {
-            score += 15;
-          } else {
-            for (const pw of pWords) {
-              if (pw.length >= 3 && (pw.startsWith(qw) || qw.startsWith(pw))) {
-                score += 10;
-              }
-            }
-          }
+          if (pName.includes(qw)) score += 20;
         }
 
-        if (score > bestScore && score >= 15) {
+        if (score > bestScore && score >= 20) {
           bestScore = score;
           bestProd = p;
         }
@@ -948,36 +942,30 @@
       return bestProd;
     }
 
-    /**
-     * Advanced Multi-Item Parser with strict deduplication and grouping
-     */
     function processMultiVoiceOrder(fullText) {
       let lower = fullText.toLowerCase().replace(/[,;+.\n\r]/g, ' ').replace(/\s+/g, ' ');
 
-      // Quick system commands
       if (lower.includes('kosongkan') || lower.includes('hapus keranjang')) {
         window.clearCart();
         return;
       }
-      if (lower.includes('bayar') || lower.includes('selesai checkout')) {
+      if (lower.includes('bayar') || lower.includes('checkout')) {
         if (cart.length > 0) window.openPaymentModal();
         return;
       }
 
-      // Remove repeated consecutive words (e.g. "aren aren 5" -> "aren 5")
+      // Hapus kata berulang berturut-turut
       lower = lower.replace(/\b(\w+)\s+\1\b/gi, '$1');
 
-      // Convert written Indonesian numbers to digits
+      // Konversi kata angka bahasa Indonesia ke angka
       for (const [w, n] of Object.entries(indonesianNumberMap)) {
         const regex = new RegExp(`\\b${w}\\b`, 'gi');
         lower = lower.replace(regex, ` ${n} `);
       }
 
-      // Remove conversational fillers and units
-      lower = lower.replace(/\b(tolong|pesan|beli|mau|minta|tambah|dong|ya|kasir|mas|mbak|cup|gelas|porsi|bungkus|buah|biji|paket|pcs)\b/gi, ' ');
+      lower = lower.replace(/\b(tolong|pesan|beli|mau|minta|tambah|dong|ya|kasir|mas|mbak|cup|gelas|porsi|bungkus|buah|pcs)\b/gi, ' ');
       lower = lower.replace(/\s+/g, ' ').trim();
 
-      // Split by connectors first: dan, sama, terus, lalu, serta, juga
       const rawSegments = lower.split(/\s+(?:dan|sama|terus|lalu|serta|juga)\s+/);
       const parsedOrders = [];
 
@@ -992,11 +980,10 @@
         });
 
         if (numberIndices.length === 0) {
-          // No numbers: single item, default quantity 1
           const match = findBestProductMatch(tokens.join(' '));
           if (match) parsedOrders.push({ product: match, qty: 1 });
         } else if (numberIndices[0] === 0) {
-          // Prefix numbers: "5 aren 2 kentang 3 teh"
+          // Format angka depan: "5 aren 2 lemon tea"
           for (let k = 0; k < numberIndices.length; k++) {
             const numIdx = numberIndices[k];
             const qty = parseInt(tokens[numIdx], 10) || 1;
@@ -1008,7 +995,7 @@
             }
           }
         } else {
-          // Suffix numbers: "aren 5 kentang 2 teh 3 roti 4 mie 1"
+          // Format angka belakang: "aren 5 teh biasa 2 coklat 3"
           let prevEnd = 0;
           for (let k = 0; k < numberIndices.length; k++) {
             const numIdx = numberIndices[k];
@@ -1028,7 +1015,7 @@
         }
       }
 
-      // Group by product id to ensure items are NEVER entered twice
+      // Grouping agar menu tidak ganda/terpisah
       const summaryEl = document.getElementById('voiceDetectedSummary');
       if (parsedOrders.length > 0) {
         const groupedMap = new Map();
@@ -1048,19 +1035,17 @@
           addedList.push(`${order.qty}x ${order.product.nama}`);
         });
 
-        summaryEl.innerHTML = `✅ <span class="text-white font-bold">Masuk Keranjang (${addedList.length} menu):</span> ${addedList.join(', ')}`;
+        summaryEl.innerHTML = `✅ <span class="text-white font-bold">Masuk Keranjang:</span> ${addedList.join(', ')}`;
         summaryEl.classList.remove('hidden');
         showToast('Pesanan Masuk!', `${addedList.join(', ')}`, 'success');
       } else {
-        summaryEl.innerHTML = `⚠️ <span class="text-amber-300">Menu belum cocok:</span> "${fullText}". Pastikan menyebut nama menu dengan jelas.`;
+        summaryEl.innerHTML = `⚠️ <span class="text-amber-300">Menu belum cocok:</span> "${fullText}". Sebutkan nama minuman dengan jelas.`;
         summaryEl.classList.remove('hidden');
-        showToast('Tidak Ditemukan', `Suara: "${fullText}" belum cocok dengan menu.`, 'info');
+        showToast('Tidak Ditemukan', `Suara: "${fullText}"`, 'info');
       }
     }
 
-    // ==============================================================
-    // PRODUCT CATALOG & CART FUNCTIONS
-    // ==============================================================
+    // Rendering Grid Menu Kasir
     function renderProductGrid() {
       const grid = document.getElementById('productGrid');
       if (!grid) return;
@@ -1076,8 +1061,8 @@
       if (filtered.length === 0) {
         grid.innerHTML = `
           <div class="col-span-2 py-8 text-center text-slate-400">
-            <i class="fa-solid fa-box-open text-2xl mb-1.5 opacity-40"></i>
-            <p class="text-xs font-semibold">Tidak ada menu yang sesuai</p>
+            <i class="fa-solid fa-mug-hot text-2xl mb-1.5 opacity-40"></i>
+            <p class="text-xs font-semibold">Menu tidak ditemukan</p>
           </div>
         `;
         return;
@@ -1121,7 +1106,7 @@
     window.setCategory = function(cat) {
       activeCategory = cat;
       document.querySelectorAll('.cat-btn').forEach(btn => {
-        if (btn.innerText.trim() === cat) {
+        if (btn.innerText.includes(cat)) {
           btn.className = 'cat-btn touch-btn active px-3 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 text-white whitespace-nowrap shadow-xs';
         } else {
           btn.className = 'cat-btn touch-btn px-3 py-1.5 text-xs font-bold rounded-xl bg-white border border-slate-200 text-slate-600 whitespace-nowrap';
@@ -1166,7 +1151,7 @@
       if (newQty <= 0) {
         cart.splice(idx, 1);
       } else if (prod && newQty > prod.stok) {
-        showToast('Stok Habis', `Hanya ada ${prod.stok} unit`, 'error');
+        showToast('Stok Terbatas', `Hanya ada ${prod.stok} porsi`, 'error');
         return;
       } else {
         cart[idx].qty = newQty;
@@ -1186,7 +1171,7 @@
       const totalCount = cart.reduce((acc, i) => acc + i.qty, 0);
       const totalPrice = cart.reduce((acc, i) => acc + (i.harga * i.qty), 0);
 
-      document.getElementById('barCartQty').innerText = `${totalCount} Menu Dipesan`;
+      document.getElementById('barCartQty').innerText = `${totalCount} Minuman`;
       document.getElementById('barCartTotal').innerText = formatRupiah(totalPrice);
       document.getElementById('drawerCartTotal').innerText = formatRupiah(totalPrice);
 
@@ -1257,7 +1242,7 @@
 
       const quickDiv = document.getElementById('quickCashBadges');
       quickDiv.innerHTML = '';
-      const suggestions = [total, Math.ceil(total/10000)*10000, Math.ceil(total/50000)*50000, 50000, 100000];
+      const suggestions = [total, Math.ceil(total/10000)*10000, 20000, 50000, 100000];
       const uniqueSorted = [...new Set(suggestions)].filter(v => v >= total).sort((a,b) => a - b).slice(0, 4);
 
       uniqueSorted.forEach(val => {
@@ -1311,7 +1296,6 @@
       }
     };
 
-    // Process checkout: deduct stock locally and in Google Sheets
     window.processCheckout = async function() {
       const total = cart.reduce((acc, item) => acc + (item.harga * item.qty), 0);
       const received = Number(document.getElementById('cashReceivedInput').value) || 0;
@@ -1334,14 +1318,12 @@
       };
 
       try {
-        // 1. Immediately deduct local stock for instant response
         cart.forEach(c => {
           const p = products.find(prod => prod.id === c.id);
           if (p) p.stok = Math.max(0, p.stok - c.qty);
         });
         localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
 
-        // 2. Send transaction to Google Apps Script backend
         await postToGoogleSheets(transPayload);
 
         window.closePaymentModal();
@@ -1351,21 +1333,18 @@
         renderProductGrid();
         renderAdminProducts();
 
-        // Refresh stock from sheets in background
         setTimeout(() => window.syncFromGoogleSheets(false), 1200);
 
       } catch (err) {
         console.error("Checkout error:", err);
-        showToast('Tersimpan Lokal', 'Transaksi dicatat di HP (cek koneksi Google Sheets)', 'info');
+        showToast('Tersimpan Lokal', 'Transaksi dicatat di HP', 'info');
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Selesaikan Transaksi';
       }
     };
 
-    // ==============================================================
-    // TAB NAVIGATION & PIN ACCESS MANAGEMENT (PIN: 1122)
-    // ==============================================================
+    // Sistem Navigasi & Keamanan PIN (1122)
     window.handleNavClick = function(tab) {
       if (tab === 'kasir') {
         activateTab('kasir');
@@ -1478,7 +1457,7 @@
         document.getElementById('navAdminLockDot').classList.add('hidden');
         window.closePinModal();
         activateTab('admin');
-        showToast('Akses Diberikan', 'Selamat datang di Panel Admin', 'success');
+        showToast('Akses Diterima', 'Selamat datang di Panel Admin', 'success');
       } else {
         const pinCard = document.getElementById('pinCard');
         pinCard.classList.add('shake-animation');
@@ -1496,12 +1475,10 @@
       document.getElementById('navAdminLockIcon').className = "fa-solid fa-lock text-[9px] text-slate-400";
       document.getElementById('navAdminLockDot').classList.remove('hidden');
       activateTab('kasir');
-      showToast('Terkunci', 'Sesi Admin diamankan kembali dengan PIN', 'info');
+      showToast('Terkunci', 'Sesi Admin diamankan', 'info');
     };
 
-    // ==============================================================
-    // ADMIN DASHBOARD & GOOGLE SHEETS PRODUCT MANAGEMENT
-    // ==============================================================
+    // Panel Admin & Upload 20 Menu ke Google Sheets
     window.switchAdminSection = function(sec) {
       const secProd = document.getElementById('adminSectionProducts');
       const secPromo = document.getElementById('adminSectionPromo');
@@ -1526,14 +1503,9 @@
       if (!list) return;
       list.innerHTML = '';
 
-      let totalPotential = 0;
-      let sumMargin = 0;
-
       products.forEach(p => {
         const profit = p.hargaJual - p.hargaModal;
         const marginPct = p.hargaModal > 0 ? ((profit / p.hargaModal) * 100).toFixed(0) : 0;
-        totalPotential += (profit * p.stok);
-        sumMargin += Number(marginPct);
 
         const card = document.createElement('div');
         card.className = "bg-white p-3 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2";
@@ -1564,7 +1536,7 @@
             </div>
             <div>
               <span class="text-slate-400 block text-[9px]">Laba Bersih:</span>
-              <span class="font-black ${profit >= 0 ? 'text-emerald-600' : 'text-rose-600'}">
+              <span class="font-black text-emerald-600">
                 +${formatRupiah(profit)} (${marginPct}%)
               </span>
             </div>
@@ -1573,17 +1545,35 @@
           <div class="flex justify-between items-center text-[10px] pt-0.5">
             <span class="text-slate-400">Tersisa di Rak:</span>
             <span class="font-bold px-2 py-0.5 rounded-full ${p.stok < 5 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-700'}">
-              ${p.stok} pcs
+              ${p.stok} porsi
             </span>
           </div>
         `;
         list.appendChild(card);
       });
 
-      const avg = products.length > 0 ? (sumMargin / products.length).toFixed(0) : 0;
-      document.getElementById('kpiAvgMargin').innerText = `${avg}%`;
-      document.getElementById('kpiPotentialProfit').innerText = formatRupiah(totalPotential);
+      document.getElementById('kpiTotalMenu').innerText = `${products.length} Menu`;
     }
+
+    // Fungsi 1-Klik Unggah 20 Menu ke Google Sheets
+    window.syncDefaultMenusToSheets = async function() {
+      products = [...initialFallbackCatalog];
+      localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
+      renderProductGrid();
+      renderAdminProducts();
+      showToast('Mengunggah...', 'Menyimpan 20 menu ke Google Sheets...', 'info');
+
+      try {
+        await postToGoogleSheets({
+          action: "saveBatchProducts",
+          products: initialFallbackCatalog
+        });
+        showToast('Berhasil!', '20 menu minuman tersimpan di Google Sheets', 'success');
+        setTimeout(() => window.syncFromGoogleSheets(false), 1200);
+      } catch (err) {
+        showToast('Tersimpan Lokal', '20 menu aktif di aplikasi', 'info');
+      }
+    };
 
     window.calcFormProfit = function() {
       const modal = Number(document.getElementById('prodModal').value) || 0;
@@ -1596,20 +1586,12 @@
 
       valEl.innerText = formatRupiah(profit);
       pctEl.innerText = `${pct}%`;
-
-      if (profit >= 0) {
-        valEl.className = "font-black text-emerald-600 text-xs";
-        pctEl.className = "text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 ml-1";
-      } else {
-        valEl.className = "font-black text-rose-600 text-xs";
-        pctEl.className = "text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 ml-1";
-      }
     };
 
     window.openProductModal = function(isEdit = false) {
       document.getElementById('productForm').reset();
       document.getElementById('editProductId').value = '';
-      document.getElementById('productModalTitle').innerText = isEdit ? "Edit Menu Sheets" : "Tambah Menu Baru ke Sheets";
+      document.getElementById('productModalTitle').innerText = isEdit ? "Edit Menu Minuman" : "Tambah Menu Baru ke Sheets";
       window.calcFormProfit();
       document.getElementById('productModal').classList.remove('hidden');
     };
@@ -1631,7 +1613,6 @@
       window.calcFormProfit();
     };
 
-    // Handles adding/updating product to Google Sheets
     window.handleProductSubmit = async function(e) {
       e.preventDefault();
       const id = document.getElementById('editProductId').value;
@@ -1641,7 +1622,7 @@
       const hargaModal = Number(document.getElementById('prodModal').value) || 0;
       const hargaJual = Number(document.getElementById('prodJual').value) || 0;
 
-      const finalId = id || ("PRD" + ("000" + (products.length + 1)).slice(-3));
+      const finalId = id || ("MNU" + ("000" + (products.length + 1)).slice(-3));
       const payload = { id: finalId, nama, kategori, stok, hargaModal, hargaJual };
       
       const saveBtn = document.getElementById('saveProdBtn');
@@ -1649,25 +1630,21 @@
       saveBtn.innerText = "Menyimpan ke Sheets...";
 
       try {
-        // Update local list first
         const idx = products.findIndex(p => p.id === finalId);
         if (idx !== -1) products[idx] = payload;
         else products.push(payload);
         localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
 
-        // Save directly to Google Sheets via GAS POST
         await postToGoogleSheets({ action: "saveProduct", product: payload });
 
         window.closeProductModal();
-        showToast('Tersimpan di Sheets', `${nama} otomatis masuk database Google Sheets`, 'success');
+        showToast('Tersimpan di Sheets', `${nama} masuk database Google Sheets`, 'success');
         renderAdminProducts();
         renderProductGrid();
 
-        // Refresh from sheets
         setTimeout(() => window.syncFromGoogleSheets(false), 800);
 
       } catch (err) {
-        console.error("Save product error:", err);
         showToast('Tersimpan di Cache', `${nama} dicatat lokal`, 'info');
       } finally {
         saveBtn.disabled = false;
@@ -1685,29 +1662,27 @@
         await postToGoogleSheets({ action: "deleteProduct", id });
         showToast('Dihapus dari Sheets', 'Menu dikeluarkan dari database Sheets', 'info');
       } catch (e) {
-        showToast('Gagal Menghapus', 'Cek koneksi internet Anda', 'error');
+        showToast('Gagal Menghapus', 'Cek koneksi internet', 'error');
       }
     };
 
-    // ==============================================================
-    // PROMO WHATSAPP GENERATOR
-    // ==============================================================
+    // Generator Promo WhatsApp
     const promoTemplates = {
       pagi: {
-        title: "Pagi Semangat & Hemat",
-        text: "☕ *PAGI SEMANGAT BERSAMA KAMI!* ☕\n\nAwali harimu dengan kesegaran *Kopi Susu Aren* dingin favoritmu.\n👉 *Diskon Spesial 20%* khusus order sebelum jam 10.00 WIB!\n\nYuk order sekarang, balas chat ini ya! 🛵💨"
+        title: "Pagi Segar & Hemat",
+        text: "☕ *PAGI SEMANGAT BERSAMA KAMI!* ☕\n\nAwali harimu dengan kesegaran *Kopi Gula Aren* atau *Teh Hijau* dingin favoritmu.\n👉 *Diskon Spesial* khusus order pagi hari ini!\n\nYuk order sekarang, balas chat ini ya! 🛵💨"
       },
       siang: {
-        title: "Lunch Flash Sale Siang",
-        text: "🔥 *LUNCH FLASH SALE HARI INI!* 🔥\n\nMakan kenyang tanpa boncos!\nPaket *Makanan + Minuman Segar* cuma *Rp 18.000*.\n\nStok terbatas hanya 20 porsi pertama. Chat sekarang ya! 👇"
+        title: "Siang Segar Pelepas Dahaga",
+        text: "☀️ *PANAS TERIK? SEGARIN DULU!* ☀️\n\nNikmati segarnya *Sunkist Yakult* & *Lemon Fresh* yang bikin melek lagi!\nHarga mulai Rp 5.000-an aja.\n\nChat sekarang buat delivery cepat! 👇"
       },
       jumat: {
         title: "Jumat Berkah Berbagi",
-        text: "🕌 *JUMAT BERKAH & BAHAGIA* 🕌\n\nSetiap pembelian menu apapun hari ini, kamu langsung mendapatkan *GRATIS 1 Teh Manis Dingin*.\n\nMari rayakan hari berkah ini bersama kami! ✨"
+        text: "🕌 *JUMAT BERKAH & SEGAR* 🕌\n\nSetiap pembelian menu kopi/sunkist hari ini langsung dapat *GRATIS 1 Teh Biasa Segar*.\n\nMari rayakan berkah hari ini bersama kami! ✨"
       },
       sore: {
-        title: "Cemilan Teman Sore",
-        text: "🎉 *NGOPI & NGEMIL SORE ASYIK!* 🎉\n\nBeli 2 Snack Kentang/Roti Bakar hemat langsung Rp 5.000!\nCocok banget nemenin kerjaan sore atau santai bareng teman.\n\nHubungi kasir untuk order cepat! 📲"
+        title: "Nongkrong Santai Sore",
+        text: "🎉 *NGOPI & NGOAS SORE ASYIK!* 🎉\n\nManisnya *Cookies and Cream* dan *Thai Tea* siap nemenin santai soremu.\n\nHubungi kasir untuk order! 📲"
       }
     };
 
@@ -1750,7 +1725,6 @@
       promos.unshift(promoObj);
       renderPromoHistory();
 
-      // Send to sheets
       await postToGoogleSheets({ action: "savePromo", promo: promoObj });
       showToast('Tersimpan di Sheets', 'Ide promo tersimpan ke Sheet Promo', 'success');
     };
@@ -1784,9 +1758,7 @@
       }
     };
 
-    // ==============================================================
-    // SETTINGS MODAL & CONFIG
-    // ==============================================================
+    // Pengaturan Aplikasi
     window.openConfigModal = function() {
       document.getElementById('settingGasUrlInput').value = gasApiUrl;
       document.getElementById('settingCashierInput').value = cashierName;
@@ -1817,20 +1789,30 @@
 
       document.getElementById('cartDrawerCashier').innerText = `Kasir: ${cashierName}`;
       window.closeConfigModal();
-      showToast('Disimpan', 'Pengaturan diperbarui. Mengambil data Sheets...', 'success');
+      showToast('Disimpan', 'Pengaturan diperbarui', 'success');
 
-      // Refresh sheets with updated URL
       window.syncFromGoogleSheets(true);
     };
 
-    // Initialize application on window load
+    // Inisialisasi Aplikasi saat Layar Dibuka
     window.addEventListener('load', () => {
       document.getElementById('pinHintDisplay').innerText = adminPin;
       document.getElementById('cartDrawerCashier').innerText = `Kasir: ${cashierName}`;
-      window.applyTemplate('pagi');
+      window.applyTemplate('siang');
       activateTab('kasir');
 
-      // Initial auto-sync from the provided Google Apps Script URL
+      const cached = localStorage.getItem("POS_CACHED_PRODUCTS");
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length >= 20) {
+            products = parsed;
+          }
+        } catch(e){}
+      }
+
+      renderProductGrid();
+      renderAdminProducts();
       window.syncFromGoogleSheets(false);
     });
   </script>

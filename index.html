@@ -57,7 +57,6 @@
     .shake-error {
       animation: shake 0.4s ease-in-out;
     }
-    /* Touch tap feedback */
     .touch-btn:active {
       transform: scale(0.96);
     }
@@ -87,11 +86,11 @@
 
       <div class="flex items-center gap-1.5">
         <!-- Manual Sync / Refresh Button -->
-        <button onclick="window.syncFromGoogleSheets(true)" title="Sinkron Ulang Data" class="touch-btn w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
+        <button id="headerSyncBtn" onclick="window.syncFromGoogleSheets(true)" title="Sinkron Ulang Data" class="touch-btn w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
           <i class="fa-solid fa-arrows-rotate text-xs" id="syncSpinIcon"></i>
         </button>
 
-        <!-- Lock Admin Button (Hidden by default, shown when Admin is unlocked) -->
+        <!-- Lock Admin Button -->
         <button id="lockAdminBtn" onclick="window.lockAdminSession()" title="Kunci Kembali Admin" class="touch-btn w-8 h-8 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center hidden transition">
           <i class="fa-solid fa-lock text-xs"></i>
         </button>
@@ -108,7 +107,7 @@
     <!-- ============================================================== -->
     <main id="tabKasirView" class="flex-1 flex flex-col p-3.5 space-y-3.5 pb-28 overflow-y-auto mobile-scroll">
       
-      <!-- VOICE ORDER CARD (Mulai & Selesai / Analisa) -->
+      <!-- VOICE ORDER CARD -->
       <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 rounded-2xl p-3.5 text-white shadow-md relative overflow-hidden">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-1.5">
@@ -119,7 +118,7 @@
         </div>
 
         <p class="text-xs text-slate-300 mt-1">
-          Diktekan pesanan, contoh: <span class="text-amber-300 font-semibold italic">"aren 5 teh biasa 2 coklat 3"</span>
+          Diktekan pesanan, contoh: <span class="text-amber-300 font-semibold italic">"aren 3 teh biasa 2 coklat 1"</span>
         </p>
 
         <!-- Live transcript box -->
@@ -167,7 +166,7 @@
       </section>
 
       <!-- Bottom Sticky Floating Cart Bar -->
-      <div id="floatingCartBar" onclick="window.openCartDrawer()" class="fixed bottom-16 left-0 right-0 max-w-md mx-auto px-3.5 z-30 transition-all transform translate-y-0">
+      <div id="floatingCartBar" onclick="window.openCartDrawer()" class="fixed bottom-16 left-0 right-0 max-w-md mx-auto px-3.5 z-30 transition-all transform translate-y-24 opacity-0">
         <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-3 rounded-2xl shadow-xl flex items-center justify-between cursor-pointer border border-emerald-400/30">
           <div class="flex items-center gap-2.5">
             <div class="relative w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white">
@@ -206,14 +205,15 @@
 
       <!-- SECTION 1: DIAGRAM & LAPORAN ANALISIS BISNIS -->
       <section id="adminSectionAnalytics" class="space-y-3">
-        <!-- Filter Periode & Refresh -->
-        <div class="flex items-center justify-between">
+        <!-- Filter Periode (Semua, Hari Ini, Bulan Ini) & Refresh -->
+        <div class="flex items-center justify-between gap-1">
           <div class="flex items-center gap-1 bg-slate-200/70 p-0.5 rounded-xl text-[10px] font-bold">
-            <button id="filterPeriodAllBtn" onclick="window.setAnalyticsPeriod('all')" class="touch-btn px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs transition">Semua</button>
-            <button id="filterPeriodTodayBtn" onclick="window.setAnalyticsPeriod('today')" class="touch-btn px-2.5 py-1 rounded-lg text-slate-600 transition">Hari Ini</button>
+            <button id="filterPeriodAllBtn" onclick="window.setAnalyticsPeriod('all')" class="touch-btn px-2 py-1 rounded-lg bg-white text-slate-900 shadow-xs transition">Semua</button>
+            <button id="filterPeriodTodayBtn" onclick="window.setAnalyticsPeriod('today')" class="touch-btn px-2 py-1 rounded-lg text-slate-600 transition">Hari Ini</button>
+            <button id="filterPeriodMonthBtn" onclick="window.setAnalyticsPeriod('month')" class="touch-btn px-2 py-1 rounded-lg text-slate-600 transition">Bulan Ini</button>
           </div>
-          <button onclick="window.syncFromGoogleSheets(true)" class="touch-btn text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl flex items-center gap-1 active:scale-95 transition">
-            <i class="fa-solid fa-arrows-rotate"></i> Refresh Laporan
+          <button id="refreshAnalyticsBtn" onclick="window.handleRefreshAnalytics()" class="touch-btn text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl flex items-center gap-1 active:scale-95 transition">
+            <i class="fa-solid fa-arrows-rotate text-xs"></i> <span>Refresh</span>
           </button>
         </div>
 
@@ -266,7 +266,7 @@
             <h3 class="font-extrabold text-xs text-slate-900 flex items-center gap-1.5">
               <i class="fa-solid fa-chart-column text-emerald-600"></i> Diagram Penjualan vs Laba
             </h3>
-            <span class="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">Rupiah (Rp)</span>
+            <span class="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full" id="chartPeriodBadge">Semua Waktu</span>
           </div>
           <div class="relative w-full h-48">
             <canvas id="salesProfitChart"></canvas>
@@ -339,8 +339,8 @@
           <button onclick="window.openProductModal(false)" class="touch-btn flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs">
             <i class="fa-solid fa-plus"></i> Tambah Menu
           </button>
-          <button onclick="window.uploadBatch20Menu()" class="touch-btn py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1 shadow-xs" title="Kirim 20 menu default ke Google Sheets">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Upload 20 Menu
+          <button id="uploadBatchBtn" onclick="window.uploadBatch20Menu()" class="touch-btn py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs" title="Kirim 20 menu default ke Google Sheets">
+            <i class="fa-solid fa-cloud-arrow-up"></i> <span>Upload 20 Menu</span>
           </button>
         </div>
 
@@ -364,7 +364,7 @@
             <h3 class="font-extrabold text-sm text-slate-900 mt-1 flex items-center gap-1.5">
               <i class="fa-brands fa-whatsapp text-emerald-600"></i> Buat Status Promo WA
             </h3>
-            <p class="text-[11px] text-slate-500">Salin status siap tayang untuk naikin omset harian.</p>
+            <p class="text-[11px] text-slate-500">Salin status siap tayang untuk menaikkan omset harian.</p>
           </div>
 
           <!-- Quick Templates -->
@@ -384,8 +384,8 @@
             <button onclick="window.copyPromoToClipboard()" class="touch-btn py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs">
               <i class="fa-regular fa-copy"></i> Salin Teks
             </button>
-            <button onclick="window.savePromoToSheets()" class="touch-btn py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs">
-              <i class="fa-solid fa-cloud-arrow-up"></i> Simpan ke Sheets
+            <button id="savePromoBtn" onclick="window.savePromoToSheets()" class="touch-btn py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs">
+              <i class="fa-solid fa-cloud-arrow-up"></i> <span>Simpan ke Sheets</span>
             </button>
           </div>
         </div>
@@ -556,7 +556,7 @@
         </div>
 
         <button id="finishPaymentBtn" onclick="window.executeCheckout()" class="touch-btn w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-2">
-          <i class="fa-solid fa-check"></i> Selesai & Simpan Sheets
+          <i class="fa-solid fa-check"></i> <span>Selesai & Simpan Sheets</span>
         </button>
       </div>
     </div>
@@ -620,7 +620,9 @@
 
           <div class="flex justify-end gap-1.5 pt-2">
             <button type="button" onclick="window.closeProductModal()" class="px-3 py-1.5 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Batal</button>
-            <button type="submit" id="saveProdSubmitBtn" class="px-4 py-1.5 text-xs font-bold text-white bg-slate-900 rounded-xl">Simpan</button>
+            <button type="submit" id="saveProdSubmitBtn" class="px-4 py-1.5 text-xs font-bold text-white bg-slate-900 rounded-xl flex items-center gap-1.5">
+              <span>Simpan</span>
+            </button>
           </div>
         </form>
       </div>
@@ -650,26 +652,28 @@
             <input type="text" id="cashierNameInput" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500">
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-0.5 text-[10px]">PIN Admin (Saat ini: 1122)</label>
+            <label class="block font-bold text-slate-700 mb-0.5 text-[10px]">PIN Admin (Bawaan: 1122)</label>
             <input type="password" id="customPinInput" maxlength="6" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500">
           </div>
         </div>
 
         <div class="flex justify-end gap-1.5 pt-2">
           <button onclick="window.closeApiModal()" class="px-3 py-1.5 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl">Tutup</button>
-          <button onclick="window.saveAppSettings()" class="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 rounded-xl">Simpan</button>
+          <button id="saveSettingsBtn" onclick="window.saveAppSettings()" class="px-4 py-1.5 text-xs font-bold text-white bg-emerald-600 rounded-xl flex items-center gap-1.5">
+            <span>Simpan</span>
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- TOAST NOTIFICATION CONTAINER (Never use alert) -->
+    <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toastContainer" class="fixed bottom-20 left-4 right-4 z-50 pointer-events-none flex flex-col gap-1.5 max-w-md mx-auto"></div>
 
   </div>
 
   <script>
     // -------------------------------------------------------------
-    // MASTER 20 MENU MINUMAN (Lengkap sesuai permintaan)
+    // MASTER 20 MENU MINUMAN LENGKAP
     // -------------------------------------------------------------
     const initialFallbackCatalog = [
       { id: "MNU001", nama: "Teh Hijau", kategori: "Teh", hargaModal: 5000, hargaJual: 5000, stok: 50 },
@@ -709,9 +713,9 @@
     let activeCategory = "Semua";
     let selectedPayment = "Tunai";
     let currentAdminSection = "analytics";
-    let analyticsPeriod = "all"; // 'all' atau 'today'
+    let analyticsPeriod = "all"; // 'all', 'today', 'month'
 
-    // Chart.js references
+    // Chart references
     let salesProfitChartInstance = null;
     let categorySalesChartInstance = null;
 
@@ -723,6 +727,22 @@
 
     function formatRupiah(num) {
       return "Rp " + Number(num || 0).toLocaleString("id-ID");
+    }
+
+    // Helper: Set tombol loading spinner
+    function setBtnLoading(btnId, isLoading, loadingText = "Menyimpan...", originalHtml = "Simpan") {
+      const btn = document.getElementById(btnId);
+      if (!btn) return;
+      if (isLoading) {
+        btn.dataset.originalContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.classList.add('opacity-70', 'cursor-not-allowed');
+        btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin text-xs"></i> <span>${loadingText}</span>`;
+      } else {
+        btn.disabled = false;
+        btn.classList.remove('opacity-70', 'cursor-not-allowed');
+        btn.innerHTML = btn.dataset.originalContent || originalHtml;
+      }
     }
 
     function showToast(title, message, type = "info") {
@@ -768,7 +788,7 @@
       if (syncText) syncText.innerText = "Sinkron Sheets...";
 
       try {
-        // 1. Ambil Produk
+        // 1. Ambil Produk dari Google Sheets
         const res = await fetch(`${gasApiUrl}?action=getProducts`);
         const json = await res.json();
 
@@ -876,6 +896,8 @@
         const isOutOfStock = p.stok <= 0;
         const card = document.createElement('div');
         card.className = `bg-white rounded-2xl border border-slate-200/90 p-2.5 flex flex-col justify-between shadow-2xs transition active:scale-98 ${isOutOfStock ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`;
+        
+        // Silent Click: menambahkan ke keranjang tanpa notifikasi mengganggu
         card.onclick = () => { if (!isOutOfStock) window.addToCart(p.id, 1, false); };
 
         card.innerHTML = `
@@ -1044,7 +1066,7 @@
       cashInput.value = total;
       window.calcChange();
 
-      // Quick cash buttons
+      // Quick cash suggestions
       const quickDiv = document.getElementById('quickCashButtons');
       quickDiv.innerHTML = '';
       const listSuggest = [total, Math.ceil(total / 10000) * 10000, 50000, 100000];
@@ -1107,6 +1129,9 @@
         return;
       }
 
+      // Buffering state on checkout button
+      setBtnLoading('finishPaymentBtn', true, 'Menyimpan ke Sheets...');
+
       const transPayload = {
         action: "saveTransaction",
         kasir: cashierName,
@@ -1123,9 +1148,11 @@
         localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
 
         // Catat ke transaksi lokal seketika
+        const now = new Date();
         const newLocalTrx = {
           id: "TRX" + Date.now().toString().slice(-6),
-          tanggal: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ", " + new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+          tanggal: now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ", " + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+          rawDate: now.toISOString(),
           kasir: cashierName,
           total: total,
           metode: selectedPayment,
@@ -1137,7 +1164,7 @@
         await postToGoogleSheets(transPayload);
 
         window.closePaymentModal();
-        showToast('Transaksi Berhasil!', `Total ${formatRupiah(total)} tercatat di Google Sheets`, 'success');
+        showToast('Transaksi Berhasil!', `Total ${formatRupiah(total)} tercatat`, 'success');
         cart = [];
         updateCartBadgeAndDrawer();
         renderProductGrid();
@@ -1148,6 +1175,8 @@
 
       } catch (err) {
         console.warn("Gagal sync checkout:", err);
+      } finally {
+        setBtnLoading('finishPaymentBtn', false, '', '<i class="fa-solid fa-check"></i> <span>Selesai & Simpan Sheets</span>');
       }
     };
 
@@ -1204,7 +1233,7 @@
 
     window.analyzeVoiceOrder = function() {
       if (!isRecordingVoice && !voiceBufferText) return;
-      if (isAnalyzingVoice) return; // Prevent double trigger
+      if (isAnalyzingVoice) return;
       isAnalyzingVoice = true;
 
       isRecordingVoice = false;
@@ -1212,7 +1241,6 @@
         try { voiceRecognition.stop(); } catch(e){}
       }
 
-      // Reset tampilan tombol
       document.getElementById('voiceStartBtn').className = "touch-btn py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition";
       document.getElementById('voiceStartBtnLabel').innerText = "Mulai Bicara";
       
@@ -1223,7 +1251,6 @@
       const finalSpeech = voiceBufferText.toLowerCase().trim();
       document.getElementById('transcriptText').innerText = `Dianalisa: "${finalSpeech}"`;
 
-      // Ekstraksi NLP Menu & Porsi
       parseVoiceSpeechAndAddToCart(finalSpeech);
 
       setTimeout(() => {
@@ -1235,7 +1262,7 @@
 
     // Dictionary mapping kata kunci ucapan ke ID menu minuman
     const voiceAliasMap = [
-      { id: "MNU011", keys: ["kopi gula aren", "gula aren", "kopi aren", "aren"] },
+      { id: "MNU011", keys: ["kopi gula aren", "kopi aren", "gula aren", "aren"] },
       { id: "MNU001", keys: ["green tea biasa", "teh hijau"] },
       { id: "MNU002", keys: ["teh biasa", "teh manis", "es teh", "teh"] },
       { id: "MNU003", keys: ["lemon tea", "teh lemon"] },
@@ -1271,7 +1298,7 @@
       let text = speech.toLowerCase().replace(/[.,!?:;]/g, ' ').replace(/\s+/g, ' ').trim();
       const ordersDetected = {};
 
-      // Kumpulkan seluruh alias dan urutkan berdasarkan panjang teks terpanjang dahulu
+      // Flatten & urutkan alias terpanjang dulu
       const flattenedAliases = [];
       voiceAliasMap.forEach(item => {
         item.keys.forEach(k => {
@@ -1280,7 +1307,7 @@
       });
       flattenedAliases.sort((a, b) => b.key.length - a.key.length);
 
-      // Cari menu dan kuantitasnya (misal: "aren 3" atau "3 aren")
+      // Cari kata kunci dan jumlahnya (misal: "aren 3" atau "3 aren")
       flattenedAliases.forEach(alias => {
         const escapedKey = alias.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const numPattern = "(\\d+|satu|dua|tiga|empat|lima|enam|tujuh|delapan|sembilan|sepuluh)?";
@@ -1289,18 +1316,17 @@
         const match = text.match(regex);
         if (match) {
           let detectedQty = 1;
-          const qVal = match[2] || match[1]; // Prioritaskan angka setelah nama menu (cth: aren 3), lalu angka sebelum nama (cth: 3 aren)
+          const qVal = match[2] || match[1]; // Prioritaskan angka sesudah kata (cth: aren 3), lalu sebelum kata (cth: 3 aren)
           if (qVal) {
             if (!isNaN(qVal) && parseInt(qVal) > 0) detectedQty = parseInt(qVal);
             else if (indoWordToNum[qVal]) detectedQty = indoWordToNum[qVal];
           }
 
-          // Tetapkan porsi (menghindari duplikasi akibat suara terulang/stuttering)
           if (!ordersDetected[alias.id]) {
             ordersDetected[alias.id] = detectedQty;
           }
 
-          // Sensor bagian yang telah dicocokkan agar tidak memicu kata kunci turunan yang lebih pendek
+          // Sensor bagian yang dicocokkan agar tidak match kata kunci turunan yang lebih pendek
           text = text.replace(match[0], ' --- ');
         }
       });
@@ -1453,7 +1479,6 @@
       const btnProd = document.getElementById('adminSubMenuBtn');
       const btnPromo = document.getElementById('adminSubPromoBtn');
 
-      // Reset style tombol
       [btnAnalytics, btnProd, btnPromo].forEach(btn => {
         btn.className = "touch-btn py-1.5 rounded-lg text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1 transition";
       });
@@ -1479,26 +1504,33 @@
 
     window.setAnalyticsPeriod = function(period) {
       analyticsPeriod = period;
-      const btnAll = document.getElementById('filterPeriodAllBtn');
       const btnToday = document.getElementById('filterPeriodTodayBtn');
+      const btnMonth = document.getElementById('filterPeriodMonthBtn');
+      const btnAll = document.getElementById('filterPeriodAllBtn');
 
-      if (period === 'today') {
+      [btnToday, btnMonth, btnAll].forEach(btn => {
+        if (btn) btn.className = "touch-btn px-2.5 py-1 rounded-lg text-slate-600 transition";
+      });
+
+      if (period === 'today' && btnToday) {
         btnToday.className = "touch-btn px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs transition";
-        btnAll.className = "touch-btn px-2.5 py-1 rounded-lg text-slate-600 transition";
-      } else {
+      } else if (period === 'month' && btnMonth) {
+        btnMonth.className = "touch-btn px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs transition";
+      } else if (period === 'all' && btnAll) {
         btnAll.className = "touch-btn px-2.5 py-1 rounded-lg bg-white text-slate-900 shadow-xs transition";
-        btnToday.className = "touch-btn px-2.5 py-1 rounded-lg text-slate-600 transition";
       }
+
       renderAdminAnalytics();
     };
 
     function renderAdminAnalytics() {
-      // 1. Filter Transaksi Berdasarkan Periode
+      // 1. Filter Transaksi Berdasarkan Periode Menggunakan Mesin Cerdas
       let filteredTrx = [...transactions];
-      const todayStr = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
 
       if (analyticsPeriod === 'today') {
-        filteredTrx = filteredTrx.filter(t => (t.tanggal || '').includes(todayStr));
+        filteredTrx = filteredTrx.filter(t => isTransactionToday(t.tanggal, t.rawDate));
+      } else if (analyticsPeriod === 'month') {
+        filteredTrx = filteredTrx.filter(t => isTransactionThisMonth(t.tanggal, t.rawDate));
       }
 
       // 2. Kalkulasi Omset, Laba Bersih, dan Porsi Terjual
@@ -1547,7 +1579,12 @@
 
       const avgOrder = filteredTrx.length > 0 ? Math.round(totalSales / filteredTrx.length) : 0;
       document.getElementById('dashAvgOrder').innerText = `Rerata: ${formatRupiah(avgOrder)}`;
-      document.getElementById('dashSalesSubtext').innerText = analyticsPeriod === 'today' ? "Penjualan Hari Ini" : "Total Penjualan Kotor";
+      
+      const subtextEl = document.getElementById('dashSalesSubtext');
+      if (subtextEl) {
+        subtextEl.innerText = analyticsPeriod === 'today' ? "Penjualan Hari Ini" :
+                              analyticsPeriod === 'month' ? "Penjualan Bulan Ini" : "Total Penjualan Kotor";
+      }
 
       // 3. Render Diagram 1: Penjualan vs Laba
       renderSalesProfitChart(filteredTrx);
@@ -1565,7 +1602,7 @@
       renderRecentTransactions(filteredTrx);
     }
 
-    function renderSalesProfitChart(trxList) {
+    function renderSalesProfitChart(trxList, currentSales, currentProfit) {
       const ctx = document.getElementById('salesProfitChart');
       if (!ctx) return;
 
@@ -1573,36 +1610,46 @@
         salesProfitChartInstance.destroy();
       }
 
-      // Ambil 6 transaksi terakhir atau kelompokkan
-      const displayTrx = trxList.slice(0, 6).reverse();
-      const labels = displayTrx.map((t, idx) => (t.id ? t.id.slice(-4) : `#${idx + 1}`));
-      const salesData = displayTrx.map(t => Number(t.total) || 0);
-      const profitData = displayTrx.map(t => {
-        let pSum = 0;
-        (t.items || []).forEach(it => {
-          const prod = products.find(p => p.id === it.id);
-          const modal = prod ? (Number(prod.hargaModal) || 0) : 0;
-          const jual = prod ? (Number(prod.hargaJual) || Number(it.harga) || 0) : (Number(it.harga) || 0);
-          pSum += (jual > modal && modal > 0) ? (jual - modal) * it.qty : Math.round(jual * 0.4) * it.qty;
+      let labels = [];
+      let salesData = [];
+      let profitData = [];
+
+      if (trxList.length === 0) {
+        labels = ['Belum Ada Data'];
+        salesData = [0];
+        profitData = [0];
+      } else {
+        // Ambil 6 transaksi terakhir dari data yang telah terfilter
+        const displayTrx = trxList.slice(0, 6).reverse();
+        labels = displayTrx.map((t, idx) => (t.id ? t.id.slice(-4) : `#${idx + 1}`));
+        salesData = displayTrx.map(t => Number(t.total) || 0);
+        profitData = displayTrx.map(t => {
+          let pSum = 0;
+          (t.items || []).forEach(it => {
+            const prod = products.find(p => p.id === it.id);
+            const modal = prod ? (Number(prod.hargaModal) || 0) : 0;
+            const jual = prod ? (Number(prod.hargaJual) || Number(it.harga) || 0) : (Number(it.harga) || 0);
+            pSum += (jual > modal && modal > 0) ? (jual - modal) * it.qty : Math.round(jual * 0.35) * it.qty;
+          });
+          return pSum;
         });
-        return pSum;
-      });
+      }
 
       salesProfitChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: labels.length > 0 ? labels : ['Trx 1', 'Trx 2', 'Trx 3'],
+          labels: labels,
           datasets: [
             {
               label: 'Penjualan',
-              data: salesData.length > 0 ? salesData : [15000, 30000, 25000],
+              data: salesData,
               backgroundColor: '#10b981',
               borderRadius: 6,
               barPercentage: 0.6
             },
             {
               label: 'Keuntungan',
-              data: profitData.length > 0 ? profitData : [6000, 12000, 10000],
+              data: profitData,
               backgroundColor: '#f59e0b',
               borderRadius: 6,
               barPercentage: 0.6
@@ -1649,13 +1696,16 @@
         categorySalesChartInstance.destroy();
       }
 
-      const labels = ['Varian Teh', 'Kopi', 'Sunkist/Segar', 'Coklat/Manis'];
-      const data = [
-        categoryCounts['Teh'] || 4,
-        categoryCounts['Kopi'] || 3,
-        categoryCounts['Segar'] || 2,
-        categoryCounts['Coklat/Susu'] || 2
+      const labels = ['Varian Teh', 'Kopi', 'Segar/Buah', 'Coklat/Manis'];
+      const rawCounts = [
+        categoryCounts['Teh'] || 0,
+        categoryCounts['Kopi'] || 0,
+        categoryCounts['Segar'] || 0,
+        categoryCounts['Coklat/Susu'] || 0
       ];
+
+      const sum = rawCounts.reduce((a, b) => a + b, 0);
+      const data = sum > 0 ? rawCounts : [1, 1, 1, 1]; // Visual placeholder bila belum ada penjualan
 
       categorySalesChartInstance = new Chart(ctx, {
         type: 'doughnut',
@@ -1693,13 +1743,8 @@
       let sorted = Object.values(itemMap).sort((a, b) => b.qty - a.qty).slice(0, 5);
 
       if (sorted.length === 0) {
-        sorted = [
-          { name: "Kopi Gula Aren", qty: 12, revenue: 180000 },
-          { name: "Teh Biasa", qty: 9, revenue: 45000 },
-          { name: "Thai Tea (Besar)", qty: 7, revenue: 105000 },
-          { name: "Sunkist Yakult", qty: 6, revenue: 102000 },
-          { name: "Coklat Premium", qty: 5, revenue: 75000 }
-        ];
+        list.innerHTML = '<p class="text-xs text-slate-400 py-3 text-center italic">Belum ada transaksi di periode ini.</p>';
+        return;
       }
 
       const medals = ['🥇', '🥈', '🥉', '4.', '5.'];
@@ -1881,23 +1926,31 @@
       const hargaModal = Number(document.getElementById('formProdModal').value) || 0;
       const hargaJual = Number(document.getElementById('formProdJual').value) || 0;
 
+      setBtnLoading('saveProdSubmitBtn', true, 'Menyimpan...');
+
       const pData = { id: id || undefined, nama, kategori, stok, hargaModal, hargaJual };
 
-      if (id) {
-        const idx = products.findIndex(p => p.id === id);
-        if (idx !== -1) products[idx] = { id, nama, kategori, stok, hargaModal, hargaJual };
-      } else {
-        const newId = "MNU" + ("000" + (products.length + 1)).slice(-3);
-        products.push({ id: newId, nama, kategori, stok, hargaModal, hargaJual });
+      try {
+        if (id) {
+          const idx = products.findIndex(p => p.id === id);
+          if (idx !== -1) products[idx] = { id, nama, kategori, stok, hargaModal, hargaJual };
+        } else {
+          const newId = "MNU" + ("000" + (products.length + 1)).slice(-3);
+          products.push({ id: newId, nama, kategori, stok, hargaModal, hargaJual });
+        }
+
+        localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
+        await postToGoogleSheets({ action: "saveProduct", product: pData });
+
+        window.closeProductModal();
+        renderProductGrid();
+        renderAdminProducts();
+        showToast('Tersimpan', `Menu ${nama} berhasil disimpan ke Sheets`, 'success');
+      } catch (err) {
+        console.warn("Gagal simpan produk:", err);
+      } finally {
+        setBtnLoading('saveProdSubmitBtn', false, '', '<span>Simpan</span>');
       }
-
-      localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
-      await postToGoogleSheets({ action: "saveProduct", product: pData });
-
-      window.closeProductModal();
-      renderProductGrid();
-      renderAdminProducts();
-      showToast('Tersimpan', `Menu ${nama} berhasil disimpan ke Sheets`, 'success');
     };
 
     window.deleteProduct = async function(id) {
@@ -1910,14 +1963,21 @@
     };
 
     window.uploadBatch20Menu = async function() {
+      setBtnLoading('uploadBatchBtn', true, 'Mengupload...');
       showToast('Mengupload...', 'Mengirim 20 menu minuman ke Google Sheets', 'info');
       products = [...initialFallbackCatalog];
       localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
 
-      await postToGoogleSheets({ action: "saveBatchProducts", products: products });
-      renderProductGrid();
-      renderAdminProducts();
-      showToast('Selesai!', '20 menu berhasil diunggah ke Google Sheets', 'success');
+      try {
+        await postToGoogleSheets({ action: "saveBatchProducts", products: products });
+        renderProductGrid();
+        renderAdminProducts();
+        showToast('Selesai!', '20 menu berhasil diunggah ke Google Sheets', 'success');
+      } catch (err) {
+        console.warn("Gagal upload batch:", err);
+      } finally {
+        setBtnLoading('uploadBatchBtn', false, '', '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Upload 20 Menu</span>');
+      }
     };
 
     const promoPresets = {
@@ -1972,11 +2032,19 @@
         return;
       }
 
-      promos.unshift({ id: "PRM" + Date.now().toString().slice(-4), judul, deskripsi });
-      await postToGoogleSheets({ action: "savePromo", promo: { judul, deskripsi } });
+      setBtnLoading('savePromoBtn', true, 'Menyimpan...');
 
-      renderPromoHistory();
-      showToast('Promo Disimpan', 'Ide promo tersimpan di Google Sheets', 'success');
+      try {
+        promos.unshift({ id: "PRM" + Date.now().toString().slice(-4), judul, deskripsi });
+        await postToGoogleSheets({ action: "savePromo", promo: { judul, deskripsi } });
+
+        renderPromoHistory();
+        showToast('Promo Disimpan', 'Ide promo tersimpan di Google Sheets', 'success');
+      } catch (err) {
+        console.warn("Gagal simpan promo:", err);
+      } finally {
+        setBtnLoading('savePromoBtn', false, '', '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Simpan ke Sheets</span>');
+      }
     };
 
     function renderPromoHistory() {
@@ -2014,10 +2082,12 @@
       document.getElementById('apiConfigModal').classList.add('hidden');
     };
 
-    window.saveAppSettings = function() {
+    window.saveAppSettings = async function() {
       const newUrl = document.getElementById('gasEndpointInput').value.trim();
       const newCashier = document.getElementById('cashierNameInput').value.trim() || "Kasir 1";
       const newPin = document.getElementById('customPinInput').value.trim();
+
+      setBtnLoading('saveSettingsBtn', true, 'Menyimpan...');
 
       gasApiUrl = newUrl || DEFAULT_GAS_URL;
       cashierName = newCashier;
@@ -2027,14 +2097,17 @@
       localStorage.setItem("POS_CASHIER_NAME", cashierName);
       localStorage.setItem("POS_ADMIN_PIN", adminPin);
 
-      window.closeApiModal();
-      showToast('Pengaturan Disimpan', 'Koneksi & identitas diperbarui', 'success');
-      window.syncFromGoogleSheets(true);
+      setTimeout(async () => {
+        setBtnLoading('saveSettingsBtn', false, '', '<span>Simpan</span>');
+        window.closeApiModal();
+        showToast('Pengaturan Disimpan', 'Koneksi & identitas diperbarui', 'success');
+        await window.syncFromGoogleSheets(true);
+      }, 500);
     };
 
     // Lifecycle Onload
     window.addEventListener('DOMContentLoaded', () => {
-      // Muat produk dari cache lokal
+      // 1. Muat produk dari cache lokal
       const cached = localStorage.getItem("POS_CACHED_PRODUCTS");
       if (cached) {
         try {
@@ -2045,18 +2118,18 @@
         } catch(e){}
       }
 
-      // Muat riwayat transaksi dari cache lokal
+      // 2. Muat riwayat transaksi dari cache lokal
       const cachedTrx = localStorage.getItem("POS_CACHED_TRANSACTIONS");
       if (cachedTrx) {
         try {
           transactions = JSON.parse(cachedTrx);
         } catch(e){}
       } else {
-        // Contoh awal agar diagram langsung tampak informatif
+        const todayDateFormatted = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
         transactions = [
           {
             id: "TRX88291",
-            tanggal: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ", 10:15",
+            tanggal: `${todayDateFormatted}, 10:15`,
             kasir: "Kasir 1",
             total: 35000,
             metode: "QRIS",
@@ -2064,7 +2137,7 @@
           },
           {
             id: "TRX88290",
-            tanggal: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ", 09:30",
+            tanggal: `${todayDateFormatted}, 09:30`,
             kasir: "Kasir 1",
             total: 32000,
             metode: "Tunai",

@@ -555,10 +555,8 @@
 
   <!-- APPLICATION LOGIC -->
   <script>
-    // URL Google Apps Script yang aktif
     const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbxoYE0p507lkYG7GmnDWVenUQSAWr8CyP0ILBSmaRkLIpmXVownn-Rybv_KL5Ti36QXmg/exec";
 
-    // Auto-migrasi URL di localStorage
     let storedGasUrl = localStorage.getItem("POS_GAS_URL");
     if (!storedGasUrl || storedGasUrl.includes("AKfycbxIAiSRF7uE8aXuOu4tZPwPOFJyl")) {
       storedGasUrl = DEFAULT_GAS_URL;
@@ -642,7 +640,7 @@
       }, 2600);
     }
 
-    // Sinkronisasi Live dengan Google Sheets
+    // Mengambil data Produk dari Google Sheets
     window.syncFromGoogleSheets = async function(showFeedback = false) {
       const syncDot = document.getElementById('cloudSyncDot');
       const syncText = document.getElementById('cloudSyncStatus');
@@ -654,30 +652,22 @@
 
       try {
         const res = await fetch(`${gasApiUrl}?action=getProducts`);
-        const rawText = await res.text();
-        let json;
-        try { json = JSON.parse(rawText); } catch (e) { throw new Error("AUTH_ERROR"); }
+        const json = await res.json();
 
-        if (json && json.status === 'success') {
-          if (Array.isArray(json.data) && json.data.length > 0) {
-            products = json.data;
-            localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
-            renderProductGrid();
-            renderAdminProducts();
+        if (json && json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
+          products = json.data;
+          localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
+          renderProductGrid();
+          renderAdminProducts();
 
-            if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
-            if (syncText) syncText.innerText = "Sheets Aktif • Stok Live";
-            if (showFeedback) showToast("Sinkron Sukses", `${products.length} menu dimuat dari Sheets`, "success");
-          } else {
-            if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
-            if (syncText) syncText.innerText = "Sheets Terhubung (0 Menu)";
-            if (showFeedback) showToast("Sheets Kosong", "Gunakan tombol 'Upload 20 Menu ke Sheets' di Tab Admin", "info");
-          }
+          if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
+          if (syncText) syncText.innerText = "Sheets Terhubung • Stok Live";
+          if (showFeedback) showToast("Sinkron Berhasil", `${products.length} menu dimuat langsung dari Sheets`, "success");
         } else {
-          throw new Error(json.message || "Gagal memuat produk");
+          throw new Error("Data kosong dari Sheets");
         }
       } catch (err) {
-        console.warn("Gagal terhubung Sheets, menggunakan data lokal:", err);
+        console.warn("Menggunakan data lokal:", err);
         const cached = localStorage.getItem("POS_CACHED_PRODUCTS");
         if (cached) {
           try { products = JSON.parse(cached); } catch(e){}
@@ -687,31 +677,33 @@
         renderProductGrid();
         renderAdminProducts();
 
-        if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-slate-400";
-        if (syncText) syncText.innerText = "Mode Siap Pakai";
+        if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
+        if (syncText) syncText.innerText = "Siap Digunakan";
 
         if (showFeedback) {
-          showToast("Info Akses", "Di Apps Script: Pastikan 'Who has access' diatur ke 'Anyone'", "info");
+          showToast("Koneksi Sheets", "Tekan 'Upload 20 Menu ke Sheets' di menu Admin untuk menulis ke Sheets", "info");
         }
       } finally {
         if (spinIcon) spinIcon.classList.remove('fa-spin');
       }
     };
 
+    // Kirim POST ke Google Sheets
     async function postToGoogleSheets(payload) {
       if (!gasApiUrl) return;
       try {
         await fetch(gasApiUrl, {
           method: 'POST',
+          mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
         });
       } catch (err) {
-        console.error("Gagal kirim ke Google Sheets:", err);
+        console.error("Gagal POST ke Sheets:", err);
       }
     }
 
-    // Mesin Pengenal Suara Anti-Ganda
+    // Voice Engine
     const indonesianNumberMap = {
       'satu': 1, 'segelas': 1, 'seporsi': 1, 'sebuah': 1, 'secangkir': 1,
       'dua': 2, 'tiga': 3, 'empat': 4, 'lima': 5, 'enam': 6, 'tujuh': 7,
@@ -865,7 +857,6 @@
       isAnalyzingVoice = false;
     };
 
-    // Alias cerdas untuk pengucapan ucapan kasir & ukuran
     const drinkVoiceAliases = [
       { trigger: ['mau kak', 'moka', 'mokaintenso'], id: 'MNU010' },
       { trigger: ['butterspot', 'butterscotch', 'butter spot'], id: 'MNU013' },
@@ -890,7 +881,6 @@
       const hasKecil = cleanQ.includes('kecil');
       const hasBesar = cleanQ.includes('besar');
 
-      // 1. Cek Alias khusus
       for (const al of drinkVoiceAliases) {
         for (const trig of al.trigger) {
           if (cleanQ.includes(trig)) {
@@ -899,13 +889,13 @@
               if (matched) return matched;
             }
             if (al.base === 'greentea') {
-              return products.find(p => p.id === (hasKecil ? 'MNU006' : (hasBesar ? 'MNU007' : 'MNU007'))) || null;
+              return products.find(p => p.id === (hasKecil ? 'MNU006' : 'MNU007')) || null;
             }
             if (al.base === 'thaitea') {
-              return products.find(p => p.id === (hasKecil ? 'MNU008' : (hasBesar ? 'MNU009' : 'MNU009'))) || null;
+              return products.find(p => p.id === (hasKecil ? 'MNU008' : 'MNU009')) || null;
             }
             if (al.base === 'jeruk') {
-              return products.find(p => p.id === (hasKecil ? 'MNU019' : (hasBesar ? 'MNU020' : 'MNU020'))) || null;
+              return products.find(p => p.id === (hasKecil ? 'MNU019' : 'MNU020')) || null;
             }
             if (al.base === 'sunkist') {
               if (cleanQ.includes('madu')) return products.find(p => p.id === 'MNU016');
@@ -916,7 +906,6 @@
         }
       }
 
-      // 2. Pencocokan kata kunci fleksibel
       const qWords = cleanQ.split(/\s+/).filter(w => w.length >= 2);
       let bestProd = null;
       let bestScore = 0;
@@ -954,10 +943,8 @@
         return;
       }
 
-      // Hapus kata berulang berturut-turut
       lower = lower.replace(/\b(\w+)\s+\1\b/gi, '$1');
 
-      // Konversi kata angka bahasa Indonesia ke angka
       for (const [w, n] of Object.entries(indonesianNumberMap)) {
         const regex = new RegExp(`\\b${w}\\b`, 'gi');
         lower = lower.replace(regex, ` ${n} `);
@@ -983,7 +970,6 @@
           const match = findBestProductMatch(tokens.join(' '));
           if (match) parsedOrders.push({ product: match, qty: 1 });
         } else if (numberIndices[0] === 0) {
-          // Format angka depan: "5 aren 2 lemon tea"
           for (let k = 0; k < numberIndices.length; k++) {
             const numIdx = numberIndices[k];
             const qty = parseInt(tokens[numIdx], 10) || 1;
@@ -995,7 +981,6 @@
             }
           }
         } else {
-          // Format angka belakang: "aren 5 teh biasa 2 coklat 3"
           let prevEnd = 0;
           for (let k = 0; k < numberIndices.length; k++) {
             const numIdx = numberIndices[k];
@@ -1015,7 +1000,6 @@
         }
       }
 
-      // Grouping agar menu tidak ganda/terpisah
       const summaryEl = document.getElementById('voiceDetectedSummary');
       if (parsedOrders.length > 0) {
         const groupedMap = new Map();
@@ -1045,7 +1029,6 @@
       }
     }
 
-    // Rendering Grid Menu Kasir
     function renderProductGrid() {
       const grid = document.getElementById('productGrid');
       if (!grid) return;
@@ -1327,13 +1310,13 @@
         await postToGoogleSheets(transPayload);
 
         window.closePaymentModal();
-        showToast('Transaksi Berhasil!', `Total ${formatRupiah(total)} tercatat & stok dipotong di Sheets`, 'success');
+        showToast('Transaksi Berhasil!', `Total ${formatRupiah(total)} tercatat di Google Sheets`, 'success');
         cart = [];
         updateCartBadgeAndDrawer();
         renderProductGrid();
         renderAdminProducts();
 
-        setTimeout(() => window.syncFromGoogleSheets(false), 1200);
+        setTimeout(() => window.syncFromGoogleSheets(false), 1500);
 
       } catch (err) {
         console.error("Checkout error:", err);
@@ -1344,7 +1327,7 @@
       }
     };
 
-    // Sistem Navigasi & Keamanan PIN (1122)
+    // Navigasi & PIN Admin
     window.handleNavClick = function(tab) {
       if (tab === 'kasir') {
         activateTab('kasir');
@@ -1478,7 +1461,6 @@
       showToast('Terkunci', 'Sesi Admin diamankan', 'info');
     };
 
-    // Panel Admin & Upload 20 Menu ke Google Sheets
     window.switchAdminSection = function(sec) {
       const secProd = document.getElementById('adminSectionProducts');
       const secPromo = document.getElementById('adminSectionPromo');
@@ -1555,7 +1537,7 @@
       document.getElementById('kpiTotalMenu').innerText = `${products.length} Menu`;
     }
 
-    // Fungsi 1-Klik Unggah 20 Menu ke Google Sheets
+    // Tombol Cepat: Simpan 20 Menu ke Google Sheets
     window.syncDefaultMenusToSheets = async function() {
       products = [...initialFallbackCatalog];
       localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
@@ -1569,7 +1551,7 @@
           products: initialFallbackCatalog
         });
         showToast('Berhasil!', '20 menu minuman tersimpan di Google Sheets', 'success');
-        setTimeout(() => window.syncFromGoogleSheets(false), 1200);
+        setTimeout(() => window.syncFromGoogleSheets(false), 1500);
       } catch (err) {
         showToast('Tersimpan Lokal', '20 menu aktif di aplikasi', 'info');
       }
@@ -1642,7 +1624,7 @@
         renderAdminProducts();
         renderProductGrid();
 
-        setTimeout(() => window.syncFromGoogleSheets(false), 800);
+        setTimeout(() => window.syncFromGoogleSheets(false), 1000);
 
       } catch (err) {
         showToast('Tersimpan di Cache', `${nama} dicatat lokal`, 'info');
@@ -1666,7 +1648,7 @@
       }
     };
 
-    // Generator Promo WhatsApp
+    // Promo WA
     const promoTemplates = {
       pagi: {
         title: "Pagi Segar & Hemat",
@@ -1758,7 +1740,6 @@
       }
     };
 
-    // Pengaturan Aplikasi
     window.openConfigModal = function() {
       document.getElementById('settingGasUrlInput').value = gasApiUrl;
       document.getElementById('settingCashierInput').value = cashierName;
@@ -1794,7 +1775,6 @@
       window.syncFromGoogleSheets(true);
     };
 
-    // Inisialisasi Aplikasi saat Layar Dibuka
     window.addEventListener('load', () => {
       document.getElementById('pinHintDisplay').innerText = adminPin;
       document.getElementById('cartDrawerCashier').innerText = `Kasir: ${cashierName}`;

@@ -805,9 +805,11 @@
             transactions = jsonTrx.data.map(t => {
               let parsedItems = [];
               try { parsedItems = JSON.parse(t.detail); } catch(e){}
+              const parsedDate = parseUniversalDate(t.tanggal, t.rawDate);
               return {
                 id: t.id,
                 tanggal: t.tanggal,
+                rawDate: t.rawDate || (parsedDate ? parsedDate.toISOString() : null),
                 kasir: t.kasir,
                 total: Number(t.total) || 0,
                 metode: t.metode || "Tunai",
@@ -1523,6 +1525,98 @@
       renderAdminAnalytics();
     };
 
+    // Mesin Pengenal Tanggal Universal (Mendukung DD/MM/YYYY, ISO, dan Format Google Sheets)
+    function parseUniversalDate(dateStr, rawDate) {
+      if (rawDate) {
+        const d = new Date(rawDate);
+        if (!isNaN(d.getTime())) return d;
+      }
+      if (!dateStr) return null;
+      if (dateStr instanceof Date && !isNaN(dateStr.getTime())) return dateStr;
+
+      let d = new Date(dateStr);
+      if (!isNaN(d.getTime())) return d;
+
+      const str = String(dateStr).trim();
+
+      // Format DD/MM/YYYY atau DD-MM-YYYY dengan opsional jam (cth: "23/09/2026, 14.30.00")
+      const dmyMatch = str.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+      if (dmyMatch) {
+        const day = parseInt(dmyMatch[1], 10);
+        const month = parseInt(dmyMatch[2], 10) - 1;
+        const year = parseInt(dmyMatch[3], 10);
+        let hours = 0, minutes = 0, seconds = 0;
+        const timeMatch = str.match(/(\d{1,2})[:\.](\d{1,2})(?:[:\.](\d{1,2}))?/);
+        if (timeMatch) {
+          hours = parseInt(timeMatch[1], 10) || 0;
+          minutes = parseInt(timeMatch[2], 10) || 0;
+          seconds = parseInt(timeMatch[3], 10) || 0;
+        }
+        const resultDate = new Date(year, month, day, hours, minutes, seconds);
+        if (!isNaN(resultDate.getTime())) return resultDate;
+      }
+
+      // Format singkatan nama bulan Indonesia (cth: "23 Sep 2026", "23 September 2026")
+      const indoMonths = {
+        'jan': 0, 'januari': 0,
+        'feb': 1, 'februari': 1,
+        'mar': 2, 'maret': 2,
+        'apr': 3, 'april': 3,
+        'mei': 4,
+        'jun': 5, 'juni': 5,
+        'jul': 6, 'juli': 6,
+        'agu': 7, 'agustus': 7, 'agt': 7,
+        'sep': 8, 'september': 8,
+        'okt': 9, 'oktober': 9,
+        'nop': 10, 'nov': 10, 'november': 10,
+        'des': 11, 'desember': 11
+      };
+
+      const textMatch = str.toLowerCase().match(/(\d{1,2})\s+([a-z]+)\s+(\d{4})/);
+      if (textMatch) {
+        const day = parseInt(textMatch[1], 10);
+        const mStr = textMatch[2].slice(0, 3);
+        const year = parseInt(textMatch[3], 10);
+        if (indoMonths[mStr] !== undefined) {
+          const resultDate = new Date(year, indoMonths[mStr], day);
+          if (!isNaN(resultDate.getTime())) return resultDate;
+        }
+      }
+
+      return null;
+    }
+
+    function isTransactionToday(dateStr, rawDate) {
+      const tDate = parseUniversalDate(dateStr, rawDate);
+      if (!tDate) return false;
+      const now = new Date();
+      return (
+        tDate.getDate() === now.getDate() &&
+        tDate.getMonth() === now.getMonth() &&
+        tDate.getFullYear() === now.getFullYear()
+      );
+    }
+
+    function isTransactionThisMonth(dateStr, rawDate) {
+      const tDate = parseUniversalDate(dateStr, rawDate);
+      if (!tDate) return false;
+      const now = new Date();
+      return (
+        tDate.getMonth() === now.getMonth() &&
+        tDate.getFullYear() === now.getFullYear()
+      );
+    }
+
+    window.handleRefreshAnalytics = async function() {
+      setBtnLoading('refreshAnalyticsBtn', true, 'Memuat...');
+      await window.syncFromGoogleSheets(false);
+      renderAdminAnalytics();
+      setTimeout(() => {
+        setBtnLoading('refreshAnalyticsBtn', false, '', '<i class="fa-solid fa-arrows-rotate text-xs"></i> <span>Refresh</span>');
+        showToast('Laporan Diperbarui', 'Data diagram & transaksi disinkronkan', 'success');
+      }, 400);
+    };
+
     function renderAdminAnalytics() {
       // 1. Filter Transaksi Berdasarkan Periode Menggunakan Mesin Cerdas
       let filteredTrx = [...transactions];
@@ -1584,6 +1678,12 @@
       if (subtextEl) {
         subtextEl.innerText = analyticsPeriod === 'today' ? "Penjualan Hari Ini" :
                               analyticsPeriod === 'month' ? "Penjualan Bulan Ini" : "Total Penjualan Kotor";
+      }
+
+      const chartBadge = document.getElementById('chartPeriodBadge');
+      if (chartBadge) {
+        chartBadge.innerText = analyticsPeriod === 'today' ? "Hari Ini" :
+                               analyticsPeriod === 'month' ? "Bulan Ini" : "Semua Waktu";
       }
 
       // 3. Render Diagram 1: Penjualan vs Laba
@@ -2130,6 +2230,7 @@
           {
             id: "TRX88291",
             tanggal: `${todayDateFormatted}, 10:15`,
+            rawDate: new Date().toISOString(),
             kasir: "Kasir 1",
             total: 35000,
             metode: "QRIS",
@@ -2138,6 +2239,7 @@
           {
             id: "TRX88290",
             tanggal: `${todayDateFormatted}, 09:30`,
+            rawDate: new Date().toISOString(),
             kasir: "Kasir 1",
             total: 32000,
             metode: "Tunai",

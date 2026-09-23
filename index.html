@@ -876,7 +876,7 @@
         const isOutOfStock = p.stok <= 0;
         const card = document.createElement('div');
         card.className = `bg-white rounded-2xl border border-slate-200/90 p-2.5 flex flex-col justify-between shadow-2xs transition active:scale-98 ${isOutOfStock ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`;
-        card.onclick = () => { if (!isOutOfStock) window.addToCart(p.id, 1); };
+        card.onclick = () => { if (!isOutOfStock) window.addToCart(p.id, 1, false); };
 
         card.innerHTML = `
           <div>
@@ -915,7 +915,7 @@
       renderProductGrid();
     };
 
-    window.addToCart = function(productId, qtyToAdd = 1) {
+    window.addToCart = function(productId, qtyToAdd = 1, showFeedback = false) {
       const prod = products.find(p => p.id === productId);
       if (!prod) return;
 
@@ -939,7 +939,9 @@
       }
 
       updateCartBadgeAndDrawer();
-      showToast('Masuk Keranjang', `${qtyToAdd}x ${prod.nama}`, 'success');
+      if (showFeedback) {
+        showToast('Masuk Keranjang', `${qtyToAdd}x ${prod.nama}`, 'success');
+      }
     };
 
     window.updateCartQty = function(id, delta) {
@@ -1179,15 +1181,12 @@
       voiceRecognition.interimResults = true;
 
       voiceRecognition.onresult = (event) => {
-        let interim = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            voiceBufferText += ' ' + event.results[i][0].transcript;
-          } else {
-            interim += event.results[i][0].transcript;
-          }
+        let fullSpeech = '';
+        for (let i = 0; i < event.results.length; ++i) {
+          fullSpeech += event.results[i][0].transcript + ' ';
         }
-        txt.innerText = (voiceBufferText + ' ' + interim).trim() || "Mendengarkan ucapan kasir...";
+        voiceBufferText = fullSpeech.trim();
+        txt.innerText = voiceBufferText || "Mendengarkan ucapan kasir...";
       };
 
       voiceRecognition.onerror = (e) => {
@@ -1236,18 +1235,18 @@
 
     // Dictionary mapping kata kunci ucapan ke ID menu minuman
     const voiceAliasMap = [
-      { id: "MNU011", keys: ["aren", "gula aren", "kopi aren", "kopi gula aren"] },
-      { id: "MNU001", keys: ["teh hijau", "green tea biasa"] },
+      { id: "MNU011", keys: ["kopi gula aren", "gula aren", "kopi aren", "aren"] },
+      { id: "MNU001", keys: ["green tea biasa", "teh hijau"] },
       { id: "MNU002", keys: ["teh biasa", "teh manis", "es teh", "teh"] },
       { id: "MNU003", keys: ["lemon tea", "teh lemon"] },
-      { id: "MNU004", keys: ["coklat premium", "coklat", "cokelat"] },
+      { id: "MNU004", keys: ["coklat premium", "cokelat", "coklat"] },
       { id: "MNU005", keys: ["cookies and cream", "cookies", "cream", "oreo"] },
       { id: "MNU006", keys: ["green tea kecil", "greentea kecil"] },
       { id: "MNU007", keys: ["green tea besar", "greentea besar", "green tea", "greentea"] },
       { id: "MNU008", keys: ["thai tea kecil", "thaitea kecil"] },
       { id: "MNU009", keys: ["thai tea besar", "thaitea besar", "thai tea", "thaitea"] },
-      { id: "MNU010", keys: ["moka", "moka intenso", "mau kak", "mocca"] },
-      { id: "MNU012", keys: ["blackbi", "black bee", "black"] },
+      { id: "MNU010", keys: ["moka intenso", "mau kak", "mocca", "moka"] },
+      { id: "MNU012", keys: ["black bee", "blackbi", "black"] },
       { id: "MNU013", keys: ["butterscotch", "butterspot", "butter"] },
       { id: "MNU014", keys: ["americano", "kopi hitam"] },
       { id: "MNU015", keys: ["sunkist original", "sunkis original", "sunkist", "sunkis"] },
@@ -1269,70 +1268,46 @@
         return;
       }
 
-      // 1. Pecah kalimat multi-menu berdasarkan kata pemisah
-      const clauses = speech.split(/ dan | lalu | terus | sama |,|\+/g);
+      let text = speech.toLowerCase().replace(/[.,!?:;]/g, ' ').replace(/\s+/g, ' ').trim();
       const ordersDetected = {};
 
-      clauses.forEach(clause => {
-        const words = clause.trim().split(/\s+/);
-        if (words.length === 0) return;
-
-        // Cari apakah ada angka dalam klausa
-        let detectedQty = 1;
-        let qtyFound = false;
-
-        for (let w of words) {
-          if (!isNaN(w) && parseInt(w) > 0) {
-            detectedQty = parseInt(w);
-            qtyFound = true;
-            break;
-          } else if (indoWordToNum[w]) {
-            detectedQty = indoWordToNum[w];
-            qtyFound = true;
-            break;
-          }
-        }
-
-        // Cari menu yang paling cocok
-        let bestMatchedId = null;
-        let longestKeyMatch = 0;
-
-        voiceAliasMap.forEach(item => {
-          item.keys.forEach(key => {
-            if (clause.includes(key) && key.length > longestKeyMatch) {
-              longestKeyMatch = key.length;
-              bestMatchedId = item.id;
-            }
-          });
+      // Kumpulkan seluruh alias dan urutkan berdasarkan panjang teks terpanjang dahulu
+      const flattenedAliases = [];
+      voiceAliasMap.forEach(item => {
+        item.keys.forEach(k => {
+          flattenedAliases.push({ key: k, id: item.id });
         });
+      });
+      flattenedAliases.sort((a, b) => b.key.length - a.key.length);
 
-        if (bestMatchedId) {
-          ordersDetected[bestMatchedId] = (ordersDetected[bestMatchedId] || 0) + detectedQty;
+      // Cari menu dan kuantitasnya (misal: "aren 3" atau "3 aren")
+      flattenedAliases.forEach(alias => {
+        const escapedKey = alias.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const numPattern = "(\\d+|satu|dua|tiga|empat|lima|enam|tujuh|delapan|sembilan|sepuluh)?";
+        const regex = new RegExp(`(?:^|\\s)${numPattern}\\s*${escapedKey}\\s*${numPattern}(?:\\s|$)`, 'i');
+
+        const match = text.match(regex);
+        if (match) {
+          let detectedQty = 1;
+          const qVal = match[2] || match[1]; // Prioritaskan angka setelah nama menu (cth: aren 3), lalu angka sebelum nama (cth: 3 aren)
+          if (qVal) {
+            if (!isNaN(qVal) && parseInt(qVal) > 0) detectedQty = parseInt(qVal);
+            else if (indoWordToNum[qVal]) detectedQty = indoWordToNum[qVal];
+          }
+
+          // Tetapkan porsi (menghindari duplikasi akibat suara terulang/stuttering)
+          if (!ordersDetected[alias.id]) {
+            ordersDetected[alias.id] = detectedQty;
+          }
+
+          // Sensor bagian yang telah dicocokkan agar tidak memicu kata kunci turunan yang lebih pendek
+          text = text.replace(match[0], ' --- ');
         }
       });
 
-      // 2. Jika regex klausa tidak memecah dengan baik, coba cari langsung kata kunci per kata
-      if (Object.keys(ordersDetected).length === 0) {
-        voiceAliasMap.forEach(item => {
-          item.keys.forEach(key => {
-            const regex = new RegExp(`(\\d+|satu|dua|tiga|empat|lima)?\\s*${key}\\s*(\\d+|satu|dua|tiga|empat|lima)?`, 'i');
-            const match = speech.match(regex);
-            if (match) {
-              let q = 1;
-              const qStr = match[1] || match[2];
-              if (qStr) {
-                if (!isNaN(qStr)) q = parseInt(qStr);
-                else if (indoWordToNum[qStr]) q = indoWordToNum[qStr];
-              }
-              if (!ordersDetected[item.id]) ordersDetected[item.id] = q;
-            }
-          });
-        });
-      }
-
       const itemIds = Object.keys(ordersDetected);
       if (itemIds.length === 0) {
-        showToast('Menu Tidak Cocok', `Coba katakan: "aren 2" atau "coklat 3"`, 'error');
+        showToast('Menu Tidak Cocok', `Coba katakan: "aren 3" atau "coklat 2"`, 'error');
         return;
       }
 
@@ -1341,12 +1316,12 @@
         const qty = ordersDetected[id];
         const p = products.find(prod => prod.id === id);
         if (p) {
-          window.addToCart(p.id, qty);
+          window.addToCart(p.id, qty, false);
           summaryNames.push(`${qty}x ${p.nama}`);
         }
       });
 
-      showToast('Suara Teranalisa!', summaryNames.join(', '), 'success');
+      showToast('Pesanan Ditambahkan', summaryNames.join(', '), 'success');
     }
 
     window.activateTab = function(tab) {

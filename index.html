@@ -612,8 +612,11 @@
     let selectedPayment = "Tunai";
 
     let isRecordingVoice = false;
+    let isAnalyzingVoice = false;
     let recognition = null;
-    let accumulatedTranscript = "";
+    let previousSessionsFinal = "";
+    let currentSessionFinal = "";
+    let currentSessionInterim = "";
 
     // Default backup catalog (used if Google Sheets is momentarily unreachable)
     const initialFallbackCatalog = [
@@ -730,7 +733,7 @@
     }
 
     // ==============================================================
-    // ADVANCED MULTI-VOICE ORDER ENGINE (Multi-Menu in 1 Sentence)
+    // ADVANCED MULTI-VOICE ORDER ENGINE (Anti-Duplication & Multi-Menu)
     // ==============================================================
     const indonesianNumberMap = {
       'satu': 1, 'segelas': 1, 'seporsi': 1, 'sebungkus': 1, 'secangkir': 1, 'sebuah': 1,
@@ -757,17 +760,30 @@
         updateVoiceUiState();
       };
 
+      // Single-pass listener preventing transcript duplication
       rec.onresult = (event) => {
-        let interimText = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
+        let fText = '';
+        let iText = '';
+        for (let i = 0; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
-            accumulatedTranscript += ' ' + event.results[i][0].transcript;
+            fText += ' ' + event.results[i][0].transcript;
           } else {
-            interimText += ' ' + event.results[i][0].transcript;
+            iText += ' ' + event.results[i][0].transcript;
           }
         }
-        const fullLiveText = (accumulatedTranscript + ' ' + interimText).trim();
-        document.getElementById('transcriptText').innerText = fullLiveText || "Mendengarkan ucapan pesanan...";
+        currentSessionFinal = fText.trim();
+        currentSessionInterim = iText.trim();
+
+        const fullDisplay = [previousSessionsFinal, currentSessionFinal, currentSessionInterim]
+          .filter(Boolean)
+          .join(' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+
+        const displayEl = document.getElementById('transcriptText');
+        if (displayEl) {
+          displayEl.innerText = fullDisplay || "Mendengarkan ucapan pesanan...";
+        }
       };
 
       rec.onerror = (e) => {
@@ -779,6 +795,10 @@
 
       rec.onend = () => {
         if (isRecordingVoice) {
+          // Carry forward completed transcript cleanly before restart
+          previousSessionsFinal = [previousSessionsFinal, currentSessionFinal].filter(Boolean).join(' ').trim();
+          currentSessionFinal = "";
+          currentSessionInterim = "";
           try { rec.start(); } catch(e){}
         } else {
           updateVoiceUiState();
@@ -789,12 +809,23 @@
     }
 
     window.startVoiceRecording = function() {
-      accumulatedTranscript = "";
-      document.getElementById('transcriptText').innerText = "Mendengarkan ucapan... Sebutkan menu & jumlahnya.";
-      document.getElementById('voiceDetectedSummary').classList.add('hidden');
+      if (isAnalyzingVoice) return;
+      previousSessionsFinal = "";
+      currentSessionFinal = "";
+      currentSessionInterim = "";
+
+      const transcriptEl = document.getElementById('transcriptText');
+      if (transcriptEl) transcriptEl.innerText = "Mendengarkan ucapan... Sebutkan menu & jumlahnya.";
+
+      const summaryEl = document.getElementById('voiceDetectedSummary');
+      if (summaryEl) {
+        summaryEl.innerHTML = "";
+        summaryEl.classList.add('hidden');
+      }
 
       if (!recognition) recognition = initSpeechEngine();
       if (recognition) {
+        try { recognition.abort(); } catch(e){}
         try { recognition.start(); } catch(e){}
       }
       isRecordingVoice = true;
@@ -842,17 +873,33 @@
       }
     }
 
-    // Called when tapping "Selesai (Analisa)"
+    // Called when tapping "Selesai (Analisa)" with anti-double-click guard
     window.finishAndAnalyzeVoice = function() {
-      stopVoiceRecording();
-      const textToAnalyze = (accumulatedTranscript + " " + (document.getElementById('transcriptText').innerText || "")).trim();
+      if (isAnalyzingVoice) return;
+      isAnalyzingVoice = true;
 
-      if (!textToAnalyze || textToAnalyze.includes("Tekan \"Mulai Bicara\"") || textToAnalyze.includes("Mendengarkan ucapan...")) {
+      stopVoiceRecording();
+
+      // Read exact spoken text once without double-concatenation
+      const textToAnalyze = [previousSessionsFinal, currentSessionFinal, currentSessionInterim]
+        .filter(Boolean)
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      // Clear immediately to prevent any re-analysis duplication
+      previousSessionsFinal = "";
+      currentSessionFinal = "";
+      currentSessionInterim = "";
+
+      if (!textToAnalyze || textToAnalyze.includes("Tekan \"Mulai Bicara\"") || textToAnalyze.includes("Mendengarkan ucapan")) {
         showToast("Suara Belum Masuk", "Belum ada suara yang terdengar. Coba tekan Mulai Bicara lagi.", "info");
+        isAnalyzingVoice = false;
         return;
       }
 
       processMultiVoiceOrder(textToAnalyze);
+      isAnalyzingVoice = false;
     };
 
     /**
@@ -879,7 +926,6 @@
 
         // Word-by-word matching
         for (const qw of qWords) {
-          // Direct word match in menu
           if (pWords.includes(qw)) {
             score += 30; // e.g. "aren", "kentang", "roti", "mie", "teh"
           } else if (pName.includes(qw) && qw.length >= 3) {
@@ -903,9 +949,7 @@
     }
 
     /**
-     * Advanced Multi-Item Parser:
-     * Handles sentences like: "aren 5 kentang 2 teh 3 roti 4 mie 1"
-     * Handles connectors: "2 kopi aren dan 3 teh manis sama 1 kentang goreng"
+     * Advanced Multi-Item Parser with strict deduplication and grouping
      */
     function processMultiVoiceOrder(fullText) {
       let lower = fullText.toLowerCase().replace(/[,;+.\n\r]/g, ' ').replace(/\s+/g, ' ');
@@ -919,6 +963,9 @@
         if (cart.length > 0) window.openPaymentModal();
         return;
       }
+
+      // Remove repeated consecutive words (e.g. "aren aren 5" -> "aren 5")
+      lower = lower.replace(/\b(\w+)\s+\1\b/gi, '$1');
 
       // Convert written Indonesian numbers to digits
       for (const [w, n] of Object.entries(indonesianNumberMap)) {
@@ -981,18 +1028,29 @@
         }
       }
 
-      // Consolidate duplicate detections in same speech and add to cart
+      // Group by product id to ensure items are NEVER entered twice
       const summaryEl = document.getElementById('voiceDetectedSummary');
       if (parsedOrders.length > 0) {
-        const addedList = [];
+        const groupedMap = new Map();
         for (const order of parsedOrders) {
+          if (!order.product || !order.product.id) continue;
+          const pid = order.product.id;
+          if (groupedMap.has(pid)) {
+            groupedMap.get(pid).qty += order.qty;
+          } else {
+            groupedMap.set(pid, { product: order.product, qty: order.qty });
+          }
+        }
+
+        const addedList = [];
+        groupedMap.forEach(order => {
           window.addToCart(order.product.id, order.qty);
           addedList.push(`${order.qty}x ${order.product.nama}`);
-        }
+        });
 
         summaryEl.innerHTML = `✅ <span class="text-white font-bold">Masuk Keranjang (${addedList.length} menu):</span> ${addedList.join(', ')}`;
         summaryEl.classList.remove('hidden');
-        showToast('Multi-Pesanan Masuk!', `${addedList.length} menu berhasil ditambahkan`, 'success');
+        showToast('Pesanan Masuk!', `${addedList.join(', ')}`, 'success');
       } else {
         summaryEl.innerHTML = `⚠️ <span class="text-amber-300">Menu belum cocok:</span> "${fullText}". Pastikan menyebut nama menu dengan jelas.`;
         summaryEl.classList.remove('hidden');

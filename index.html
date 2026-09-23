@@ -666,8 +666,8 @@
       </div>
     </div>
 
-    <!-- TOAST NOTIFICATION CONTAINER -->
-    <div id="toastContainer" class="fixed bottom-20 left-4 right-4 z-50 pointer-events-none flex flex-col gap-1.5 max-w-md mx-auto"></div>
+    <!-- TOAST NOTIFICATION CONTAINER (POSISI ATAS AGAR TIDAK MENGGANGGU TAMPILAN BAWAH) -->
+    <div id="toastContainer" class="fixed top-14 left-4 right-4 z-50 pointer-events-none flex flex-col gap-1.5 max-w-md mx-auto"></div>
 
   </div>
 
@@ -749,7 +749,7 @@
       const container = document.getElementById("toastContainer");
       if (!container) return;
       const t = document.createElement("div");
-      t.className = `pointer-events-auto flex items-start gap-2.5 p-3 rounded-2xl shadow-xl border text-xs transform transition duration-300 translate-y-3 opacity-0 ${
+      t.className = `pointer-events-auto flex items-start gap-2.5 p-3 rounded-2xl shadow-xl border text-xs transform transition duration-300 -translate-y-4 opacity-0 ${
         type === "success" ? "bg-emerald-950 text-white border-emerald-800" :
         type === "error" ? "bg-rose-950 text-white border-rose-800" :
         "bg-slate-900 text-white border-slate-700"
@@ -769,11 +769,11 @@
       container.appendChild(t);
 
       requestAnimationFrame(() => {
-        t.classList.remove("translate-y-3", "opacity-0");
+        t.classList.remove("-translate-y-4", "opacity-0");
       });
 
       setTimeout(() => {
-        t.classList.add("opacity-0", "translate-y-2");
+        t.classList.add("opacity-0", "-translate-y-3");
         setTimeout(() => t.remove(), 300);
       }, 3500);
     }
@@ -986,6 +986,26 @@
       updateCartBadgeAndDrawer();
     };
 
+    window.setCartQtyManual = function(id, value) {
+      const idx = cart.findIndex(c => c.id === id);
+      if (idx === -1) return;
+
+      const prod = products.find(p => p.id === id);
+      const availableStock = prod ? prod.stok : 999;
+      let parsedQty = parseInt(value, 10);
+
+      if (isNaN(parsedQty) || parsedQty <= 0) {
+        cart.splice(idx, 1);
+        showToast('Menu Dihapus', `${prod ? prod.nama : 'Minuman'} dikeluarkan dari keranjang`, 'info');
+      } else if (parsedQty > availableStock) {
+        showToast('Stok Terbatas', `Maksimal stok ${prod ? prod.nama : ''} hanya ${availableStock}`, 'error');
+        cart[idx].qty = availableStock;
+      } else {
+        cart[idx].qty = parsedQty;
+      }
+      updateCartBadgeAndDrawer();
+    };
+
     window.clearCart = function() {
       if (cart.length === 0) return;
       cart = [];
@@ -1032,6 +1052,9 @@
       }
 
       cart.forEach(item => {
+        const prod = products.find(p => p.id === item.id);
+        const maxStock = prod ? prod.stok : 999;
+
         const row = document.createElement('div');
         row.className = "py-2 flex items-center justify-between text-xs";
         row.innerHTML = `
@@ -1040,9 +1063,9 @@
             <p class="text-[10px] text-slate-400">${formatRupiah(item.harga)}</p>
           </div>
           <div class="flex items-center gap-1.5">
-            <button onclick="window.updateCartQty('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-black flex items-center justify-center">-</button>
-            <span class="w-5 text-center font-bold text-slate-900">${item.qty}</span>
-            <button onclick="window.updateCartQty('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-black flex items-center justify-center">+</button>
+            <button onclick="window.updateCartQty('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-black flex items-center justify-center active:scale-90 transition">-</button>
+            <input type="number" min="1" max="${maxStock}" value="${item.qty}" onchange="window.setCartQtyManual('${item.id}', this.value)" class="w-10 h-7 text-center font-black text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition" title="Sentuh untuk ketik porsi manual">
+            <button onclick="window.updateCartQty('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-black flex items-center justify-center active:scale-90 transition">+</button>
           </div>
           <span class="font-black text-slate-900 min-w-[65px] text-right ml-2">${formatRupiah(item.harga * item.qty)}</span>
         `;

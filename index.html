@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Kasir Pintar POS - Mobile Cloud App</title>
+  <title>Kasir Pintar POS - Mobile Cloud & Sheets</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome Icons -->
@@ -44,7 +44,7 @@
     /* Voice recording pulse animation */
     @keyframes pulse-ring {
       0% { transform: scale(0.96); opacity: 0.9; }
-      50% { transform: scale(1.18); opacity: 0.3; }
+      50% { transform: scale(1.16); opacity: 0.35; }
       100% { transform: scale(0.96); opacity: 0.9; }
     }
     .mic-active-ring {
@@ -84,12 +84,17 @@
           </div>
           <p id="headerSubtitle" class="text-[10px] text-slate-400 font-medium flex items-center gap-1">
             <span id="cloudSyncDot" class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span id="cloudSyncStatus">Cloud Aktif • Data Tersimpan</span>
+            <span id="cloudSyncStatus">Sinkron Google Sheets</span>
           </p>
         </div>
       </div>
 
       <div class="flex items-center gap-1.5">
+        <!-- Manual Re-Sync Button -->
+        <button onclick="window.syncFromGoogleSheets(true)" title="Tarik Data Sheets Terbaru" class="touch-btn w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-xs text-slate-600 active:scale-95 transition">
+          <i class="fa-solid fa-arrows-rotate" id="syncSpinIcon"></i>
+        </button>
+
         <!-- Settings Button -->
         <button onclick="window.openConfigModal()" title="Pengaturan Aplikasi" class="touch-btn w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-xs text-slate-600 active:scale-95 transition">
           <i class="fa-solid fa-gear"></i>
@@ -107,12 +112,12 @@
     <!-- ============================================================== -->
     <main id="tabKasirView" class="flex-1 flex flex-col p-3.5 space-y-3 pb-32 overflow-y-auto mobile-scroll">
       
-      <!-- Voice Order Interactive Card (With Start & Analyze Buttons) -->
+      <!-- Voice Order Interactive Card (With Continuous Listening & Multi-Item Parser) -->
       <div class="bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-950 rounded-2xl p-3.5 text-white shadow-md relative overflow-hidden border border-emerald-500/20">
         
         <div class="flex items-center justify-between">
           <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-amber-300 uppercase tracking-wider">
-            <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> Smart Voice Order
+            <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> Smart Multi-Voice Order
           </span>
           <span id="voiceBadgeState" class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-emerald-300">
             Siap Digunakan
@@ -120,21 +125,21 @@
         </div>
 
         <div class="mt-1">
-          <h2 class="text-sm font-bold text-white">Pesan Lewat Suara</h2>
+          <h2 class="text-sm font-bold text-white">Pesan Banyak Menu Sekaligus</h2>
           <p class="text-[11px] text-emerald-100/80 leading-tight mt-0.5">
-            Cukup sebut 1 kata menu & jumlahnya, contoh: <span class="text-amber-200 font-bold">"aren 5"</span> atau <span class="text-amber-200 font-bold">"kentang 2 dan teh 3"</span>
+            Bisa sebut hingga 5+ menu sekaligus, contoh: <span class="text-amber-200 font-bold">"aren 5 kentang 2 teh 3 roti 4 mie 1"</span>
           </p>
         </div>
 
         <!-- Voice Live Transcript Area -->
-        <div id="voiceTranscriptBox" class="mt-2.5 bg-black/40 rounded-xl p-2.5 text-xs text-emerald-50 border border-white/10 min-h-[50px] flex flex-col justify-between transition-all">
+        <div id="voiceTranscriptBox" class="mt-2.5 bg-black/45 rounded-xl p-2.5 text-xs text-emerald-50 border border-white/10 min-h-[54px] flex flex-col justify-between transition-all">
           <div class="flex items-start gap-2">
             <span id="voiceLiveIndicator" class="w-2 h-2 rounded-full bg-slate-500 shrink-0 mt-1"></span>
             <p id="transcriptText" class="text-[11px] text-slate-300 font-medium italic leading-relaxed">
               Tekan "Mulai Bicara", sebutkan pesanan Anda, lalu tekan "Selesai (Analisa)".
             </p>
           </div>
-          <div id="voiceDetectedSummary" class="text-[10px] text-emerald-300 font-semibold mt-1 hidden pt-1 border-t border-white/10"></div>
+          <div id="voiceDetectedSummary" class="text-[10px] text-emerald-300 font-semibold mt-1 hidden pt-1.5 border-t border-white/10 leading-normal"></div>
         </div>
 
         <!-- Two Dedicated Buttons: Mulai & Selesai (Analisa) -->
@@ -158,7 +163,7 @@
       <div class="space-y-2">
         <div class="relative">
           <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-          <input type="text" id="searchInput" oninput="window.filterProducts()" placeholder="Cari nama menu / ketik kata kunci..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs transition">
+          <input type="text" id="searchInput" oninput="window.filterProducts()" placeholder="Cari menu / ketik kata kunci..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs transition">
         </div>
 
         <!-- Horizontal scrollable categories -->
@@ -172,7 +177,7 @@
 
       <!-- 2-Column Product Grid -->
       <div id="productGrid" class="grid grid-cols-2 gap-2.5">
-        <!-- Rendered dynamically from persistent database -->
+        <!-- Rendered dynamically from Google Sheets database -->
       </div>
     </main>
 
@@ -196,7 +201,7 @@
     </div>
 
     <!-- ============================================================== -->
-    <!-- TAB 2: ADMIN (Protected by PIN) -->
+    <!-- TAB 2: ADMIN (Protected by PIN 1122) -->
     <!-- ============================================================== -->
     <main id="tabAdminView" class="flex-1 flex flex-col p-3.5 space-y-3.5 pb-24 overflow-y-auto mobile-scroll hidden">
       
@@ -222,14 +227,14 @@
           <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs">
             <span class="text-[10px] font-bold text-slate-400 uppercase">Potensi Cuan Stok</span>
             <p id="kpiPotentialProfit" class="text-sm font-black text-slate-900 mt-1 truncate">Rp 0</p>
-            <span class="text-[9px] text-slate-400">Tersimpan di Cloud</span>
+            <span class="text-[9px] text-slate-400">Tersimpan di Google Sheets</span>
           </div>
         </div>
 
-        <!-- Add Product Button -->
+        <!-- Add Product Button & Sheets Live Sync indicator -->
         <div class="flex items-center justify-between">
           <h3 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-            <i class="fa-solid fa-calculator text-emerald-600"></i> Katalog & Stok Real-time
+            <i class="fa-solid fa-table-cells text-emerald-600"></i> Katalog Google Sheets
           </h3>
           <button onclick="window.openProductModal()" class="touch-btn px-2.5 py-1.5 bg-slate-900 text-white text-[11px] font-bold rounded-xl flex items-center gap-1 shadow-xs active:scale-95 transition">
             <i class="fa-solid fa-plus"></i> Tambah Menu
@@ -238,7 +243,7 @@
 
         <!-- Product Cards with Profit Breakdown -->
         <div id="adminProductList" class="space-y-2">
-          <!-- Populated from Cloud DB -->
+          <!-- Populated from Google Sheets API -->
         </div>
       </section>
 
@@ -314,7 +319,7 @@
         <span class="text-[11px] font-bold">Kasir</span>
       </button>
 
-      <!-- BAR 2: ADMIN (PIN Protected) -->
+      <!-- BAR 2: ADMIN (PIN Protected: 1122) -->
       <button id="navBtnAdmin" onclick="window.handleNavClick('admin')" class="touch-btn flex-1 py-1.5 flex flex-col items-center gap-1 text-slate-400 transition active:scale-95">
         <div id="navIconAdmin" class="w-8 h-8 rounded-xl bg-transparent flex items-center justify-center text-sm font-bold relative transition">
           <i class="fa-solid fa-chart-pie"></i>
@@ -328,7 +333,7 @@
     </nav>
 
     <!-- ============================================================== -->
-    <!-- MODAL 1: PIN SECURITY KEYPAD -->
+    <!-- MODAL 1: PIN SECURITY KEYPAD (PIN Default: 1122) -->
     <!-- ============================================================== -->
     <div id="pinModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div id="pinCard" class="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl flex flex-col items-center space-y-5 animate-in slide-in-from-bottom duration-200">
@@ -380,7 +385,7 @@
         </div>
 
         <div class="text-center pt-1">
-          <p class="text-[11px] text-slate-400">PIN Bawaan: <span class="font-bold text-slate-700" id="pinHintDisplay">1234</span></p>
+          <p class="text-[11px] text-slate-400">PIN Masuk: <span class="font-bold text-slate-700" id="pinHintDisplay">1122</span></p>
         </div>
       </div>
     </div>
@@ -488,7 +493,7 @@
     <div id="productModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div class="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl space-y-3.5 max-h-[90vh] overflow-y-auto mobile-scroll">
         <div class="flex justify-between items-center pb-2 border-b border-slate-100">
-          <h3 id="productModalTitle" class="font-bold text-sm text-slate-900">Tambah Menu</h3>
+          <h3 id="productModalTitle" class="font-bold text-sm text-slate-900">Tambah Menu Google Sheets</h3>
           <button onclick="window.closeProductModal()" class="touch-btn text-slate-400 hover:text-slate-600">
             <i class="fa-solid fa-xmark"></i>
           </button>
@@ -540,18 +545,18 @@
 
           <div class="flex justify-end gap-2 pt-1">
             <button type="button" onclick="window.closeProductModal()" class="touch-btn px-4 py-2 text-xs font-semibold bg-slate-100 text-slate-600 rounded-xl">Batal</button>
-            <button type="submit" id="saveProdBtn" class="touch-btn px-4 py-2 text-xs font-bold bg-slate-900 text-white rounded-xl">Simpan Menu</button>
+            <button type="submit" id="saveProdBtn" class="touch-btn px-4 py-2 text-xs font-bold bg-slate-900 text-white rounded-xl">Simpan Menu ke Sheets</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- MODAL 5: SETTINGS / API & PIN MANAGEMENT -->
+    <!-- MODAL 5: SETTINGS & GOOGLE APPS SCRIPT URL -->
     <div id="configModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div class="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto mobile-scroll">
         <div class="flex justify-between items-center pb-2 border-b border-slate-100">
           <h3 class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-            <i class="fa-solid fa-gear text-emerald-600"></i> Pengaturan Aplikasi
+            <i class="fa-solid fa-gear text-emerald-600"></i> Pengaturan Google Sheets
           </h3>
           <button onclick="window.closeConfigModal()" class="touch-btn text-slate-400 hover:text-slate-600">
             <i class="fa-solid fa-xmark"></i>
@@ -559,9 +564,15 @@
         </div>
 
         <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Web App URL Google Sheets (GAS)</label>
+          <input type="url" id="settingGasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 text-xs font-mono border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <p class="text-[10px] text-slate-400 mt-1">Stok dan penambahan produk tersinkron langsung ke Google Sheets Anda.</p>
+        </div>
+
+        <div>
           <label class="block text-[11px] font-bold text-slate-700 mb-1">Ganti PIN Admin (4 Digit)</label>
-          <input type="password" maxlength="4" id="settingPinInput" placeholder="1234" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          <span class="text-[10px] text-slate-400">PIN tersimpan otomatis di database cloud.</span>
+          <input type="password" maxlength="4" id="settingPinInput" placeholder="1122" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <span class="text-[10px] text-slate-400">PIN default saat ini: <strong class="text-slate-600">1122</strong></span>
         </div>
 
         <div>
@@ -569,15 +580,9 @@
           <input type="text" id="settingCashierInput" value="Kasir 1" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
         </div>
 
-        <div>
-          <label class="block text-[11px] font-bold text-slate-700 mb-1">Web App URL Google Sheets (Opsional)</label>
-          <input type="url" id="settingGasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          <p class="text-[10px] text-slate-400 mt-1">Data master otomatis tersimpan di Cloud Database.</p>
-        </div>
-
         <div class="flex justify-end gap-2 pt-2">
           <button onclick="window.closeConfigModal()" class="touch-btn px-4 py-2 text-xs font-semibold bg-slate-100 text-slate-600 rounded-xl">Batal</button>
-          <button onclick="window.saveAppSettings()" class="touch-btn px-4 py-2 text-xs font-bold bg-emerald-600 text-white rounded-xl shadow-xs">Simpan</button>
+          <button onclick="window.saveAppSettings()" class="touch-btn px-4 py-2 text-xs font-bold bg-emerald-600 text-white rounded-xl shadow-xs">Simpan & Tarik Data</button>
         </div>
       </div>
     </div>
@@ -587,49 +592,45 @@
 
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  <!-- APPLICATION LOGIC -->
+  <script>
+    // Google Apps Script endpoint provided
+    const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbxIAiSRF7uE8aXuOu4tZPwPOFJyl-NoJ06GC6eECcQvu30sAQcKV7QdKbUP33orC_vlig/exec";
 
     // Application state
+    let gasApiUrl = localStorage.getItem("POS_GAS_URL") || DEFAULT_GAS_URL;
+    let cashierName = localStorage.getItem("POS_CASHIER_NAME") || "Kasir 1";
+    let adminPin = localStorage.getItem("POS_ADMIN_PIN") || "1122"; // User PIN 1122
+    let enteredPin = "";
+    let isAdminUnlocked = false;
+
     let products = [];
     let promos = [];
     let cart = [];
     let currentTab = "kasir";
-    let isAdminUnlocked = false;
-    let adminPin = "1234";
-    let enteredPin = "";
     let activeCategory = "Semua";
     let selectedPayment = "Tunai";
+
     let isRecordingVoice = false;
     let recognition = null;
     let accumulatedTranscript = "";
-    let gasApiUrl = "";
-    let cashierName = "Kasir 1";
-    let currentUser = null;
-    let isDbReady = false;
 
-    // Initial default catalog (Used ONLY once if cloud collection is brand new)
-    const defaultCatalog = [
-      { id: "PRD001", nama: "Kopi Susu Aren", kategori: "Minuman", hargaModal: 8000, hargaJual: 15000, stok: 45 },
-      { id: "PRD002", nama: "Teh Manis Dingin", kategori: "Minuman", hargaModal: 2000, hargaJual: 5000, stok: 90 },
-      { id: "PRD003", nama: "Roti Bakar Keju", kategori: "Makanan", hargaModal: 7000, hargaJual: 14000, stok: 25 },
-      { id: "PRD004", nama: "Kentang Goreng", kategori: "Snack", hargaModal: 6000, hargaJual: 12000, stok: 35 },
-      { id: "PRD005", nama: "Espresso Single", kategori: "Minuman", hargaModal: 4000, hargaJual: 10000, stok: 40 },
-      { id: "PRD006", nama: "Mie Goreng Telur", kategori: "Makanan", hargaModal: 9000, hargaJual: 18000, stok: 20 }
+    // Default backup catalog (used if Google Sheets is momentarily unreachable)
+    const initialFallbackCatalog = [
+      { id: "PRD001", nama: "Kopi Susu Aren", kategori: "Minuman", hargaModal: 8000, hargaJual: 15000, stok: 50 },
+      { id: "PRD002", nama: "Teh Manis Dingin", kategori: "Minuman", hargaModal: 2000, hargaJual: 5000, stok: 100 },
+      { id: "PRD003", nama: "Roti Bakar Keju", kategori: "Makanan", hargaModal: 7000, hargaJual: 14000, stok: 30 },
+      { id: "PRD004", nama: "Kentang Goreng", kategori: "Snack", hargaModal: 6000, hargaJual: 12000, stok: 40 },
+      { id: "PRD005", nama: "Espresso Single", kategori: "Minuman", hargaModal: 4000, hargaJual: 10000, stok: 45 },
+      { id: "PRD006", nama: "Mie Goreng Telur", kategori: "Makanan", hargaModal: 9000, hargaJual: 18000, stok: 25 }
     ];
 
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'pos-app-default';
-    let db = null;
-    let auth = null;
-
-    // Helper: Rupiah formatter
+    // Format Rupiah helper
     function formatRupiah(num) {
       return "Rp " + Number(num || 0).toLocaleString("id-ID");
     }
 
-    // Helper: Toast UI
+    // Custom Toast Notification Helper
     function showToast(title, msg, type = 'info') {
       const box = document.getElementById('toastBox');
       const toast = document.createElement('div');
@@ -659,135 +660,96 @@
       setTimeout(() => {
         toast.classList.add('-translate-y-2', 'opacity-0');
         setTimeout(() => toast.remove(), 250);
-      }, 2500);
+      }, 2600);
     }
 
-    // Initialize Cloud Database (Firestore)
-    async function initCloudDatabase() {
+    // ==============================================================
+    // GOOGLE SHEETS LIVE SYNC ENGINE (GAS API)
+    // ==============================================================
+    window.syncFromGoogleSheets = async function(showFeedback = false) {
+      const syncDot = document.getElementById('cloudSyncDot');
+      const syncText = document.getElementById('cloudSyncStatus');
+      const spinIcon = document.getElementById('syncSpinIcon');
+
+      if (spinIcon) spinIcon.classList.add('fa-spin');
+      if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping";
+      if (syncText) syncText.innerText = "Sinkron Sheets...";
+
       try {
-        if (typeof __firebase_config === 'undefined') {
-          // Fallback to in-memory mode if environment doesn't provide Firebase
-          products = [...defaultCatalog];
+        const res = await fetch(`${gasApiUrl}?action=getProducts`, {
+          method: 'GET',
+          cache: 'no-cache'
+        });
+        const json = await res.json();
+
+        if (json && json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
+          products = json.data;
+          localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
           renderProductGrid();
-          return;
-        }
+          renderAdminProducts();
 
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        db = getFirestore(app);
-        auth = getAuth(app);
-
-        // Rule 3: Auth before queries
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
+          if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
+          if (syncText) syncText.innerText = "Sheets Aktif • Stok Live";
+          if (showFeedback) showToast("Sinkron Sukses", `${products.length} menu dimuat langsung dari Sheets`, "success");
         } else {
-          await signInAnonymously(auth);
+          throw new Error("Data produk kosong dari sheets");
         }
-
-        currentUser = auth.currentUser;
-        if (!currentUser) return;
-        isDbReady = true;
-
-        // 1. Realtime Listen to Products collection (Rule 1 & Rule 2 compliant)
-        const productsCol = collection(db, 'artifacts', appId, 'public', 'data', 'products');
-        onSnapshot(productsCol, async (snapshot) => {
-          if (snapshot.empty) {
-            // Seed initial products to cloud once
-            for (const item of defaultCatalog) {
-              await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', item.id), item);
-            }
-          } else {
-            products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderProductGrid();
-            renderAdminProducts();
-            updateCloudIndicator(true);
-          }
-        }, (err) => {
-          console.error("Firestore products error:", err);
-          updateCloudIndicator(false);
-        });
-
-        // 2. Realtime Listen to Config / Settings (PIN, Cashier name, etc.)
-        const configCol = collection(db, 'artifacts', appId, 'public', 'data', 'config');
-        onSnapshot(configCol, (snapshot) => {
-          snapshot.forEach(docSnap => {
-            if (docSnap.id === 'app_config') {
-              const data = docSnap.data();
-              if (data.adminPin) {
-                adminPin = data.adminPin;
-                document.getElementById('pinHintDisplay').innerText = adminPin;
-              }
-              if (data.cashierName) {
-                cashierName = data.cashierName;
-                document.getElementById('cartDrawerCashier').innerText = `Kasir: ${cashierName}`;
-              }
-              if (data.gasApiUrl) {
-                gasApiUrl = data.gasApiUrl;
-              }
-            }
-          });
-        }, (err) => {
-          console.error("Firestore config error:", err);
-        });
-
-        // 3. Realtime Listen to Promos
-        const promosCol = collection(db, 'artifacts', appId, 'public', 'data', 'promos');
-        onSnapshot(promosCol, (snapshot) => {
-          if (!snapshot.empty) {
-            promos = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderPromoHistory();
-          }
-        }, (err) => {
-          console.error("Firestore promos error:", err);
-        });
-
       } catch (err) {
-        console.error("Database connection error:", err);
-        products = [...defaultCatalog];
+        console.warn("Gagal mengambil live Sheets, memuat cache lokal:", err);
+        // Fallback to local cache if offline
+        const cached = localStorage.getItem("POS_CACHED_PRODUCTS");
+        if (cached) {
+          try { products = JSON.parse(cached); } catch(e){}
+        }
+        if (!products || products.length === 0) {
+          products = [...initialFallbackCatalog];
+        }
         renderProductGrid();
-        updateCloudIndicator(false);
-      }
-    }
+        renderAdminProducts();
 
-    function updateCloudIndicator(isOnline) {
-      const dot = document.getElementById('cloudSyncDot');
-      const text = document.getElementById('cloudSyncStatus');
-      if (isOnline) {
-        dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
-        text.innerText = "Cloud Aktif • Data Tersimpan";
-      } else {
-        dot.className = "w-1.5 h-1.5 rounded-full bg-amber-500";
-        text.innerText = "Mode Siap Sedia";
+        if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-slate-400";
+        if (syncText) syncText.innerText = "Mode Offline Sedia";
+        if (showFeedback) showToast("Perhatian", "Gagal memuat Google Sheets. Pastikan hak akses Deploy diset 'Anyone'.", "error");
+      } finally {
+        if (spinIcon) spinIcon.classList.remove('fa-spin');
       }
-    }
-
-    // ==============================================================
-    // ADVANCED VOICE ORDER ENGINE (Mulai & Selesai/Analisa)
-    // ==============================================================
-    const indoNumberMap = {
-      'satu': 1, 'se': 1, 'dua': 2, 'tiga': 3, 'empat': 4,
-      'lima': 5, 'enam': 6, 'tujuh': 7, 'delapan': 8, 'sembilan': 9,
-      'sepuluh': 10, 'sebelas': 11, 'duabelas': 12, 'limabelas': 15, 'duapuluh': 20
     };
 
-    function parseQuantityFromWord(str) {
-      if (!str) return null;
-      const clean = str.toLowerCase().trim();
-      if (!isNaN(clean) && parseInt(clean, 10) > 0) return parseInt(clean, 10);
-      if (indoNumberMap[clean]) return indoNumberMap[clean];
-      return null;
+    // Helper to send POST safely to GAS without CORS preflight block
+    async function postToGoogleSheets(payload) {
+      if (!gasApiUrl) return;
+      try {
+        await fetch(gasApiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.error("Gagal mengirim ke Google Sheets:", err);
+      }
     }
+
+    // ==============================================================
+    // ADVANCED MULTI-VOICE ORDER ENGINE (Multi-Menu in 1 Sentence)
+    // ==============================================================
+    const indonesianNumberMap = {
+      'satu': 1, 'segelas': 1, 'seporsi': 1, 'sebungkus': 1, 'secangkir': 1, 'sebuah': 1,
+      'dua': 2, 'tiga': 3, 'empat': 4, 'lima': 5, 'enam': 6, 'tujuh': 7,
+      'delapan': 8, 'sembilan': 9, 'sepuluh': 10, 'sebelas': 11, 'duabelas': 12,
+      'tigabelas': 13, 'empatbelas': 14, 'limabelas': 15, 'enambelas': 16,
+      'tujuhbelas': 17, 'delapanbelas': 18, 'sembilanbelas': 19, 'duapuluh': 20
+    };
 
     function initSpeechEngine() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
-        showToast("Browser Tidak Mendukung", "Gunakan browser Google Chrome / Safari di HP untuk suara.", "error");
+        showToast("Browser Tidak Mendukung", "Gunakan browser Google Chrome atau Safari di HP untuk fitur suara.", "error");
         return null;
       }
 
       const rec = new SpeechRecognition();
       rec.lang = 'id-ID';
-      rec.continuous = true; // DO NOT cut off automatically
+      rec.continuous = true;
       rec.interimResults = true;
 
       rec.onstart = () => {
@@ -805,18 +767,17 @@
           }
         }
         const fullLiveText = (accumulatedTranscript + ' ' + interimText).trim();
-        document.getElementById('transcriptText').innerText = fullLiveText || "Mendengarkan ucapan kasir...";
+        document.getElementById('transcriptText').innerText = fullLiveText || "Mendengarkan ucapan pesanan...";
       };
 
       rec.onerror = (e) => {
         if (e.error === 'not-allowed') {
-          showToast('Izin Ditolak', 'Izinkan akses mikrofon di browser Anda.', 'error');
+          showToast('Izin Ditolak', 'Izinkan akses mikrofon di browser HP Anda.', 'error');
           stopVoiceRecording();
         }
       };
 
       rec.onend = () => {
-        // Keep active if user has not tapped Selesai / Analisa
         if (isRecordingVoice) {
           try { rec.start(); } catch(e){}
         } else {
@@ -829,16 +790,12 @@
 
     window.startVoiceRecording = function() {
       accumulatedTranscript = "";
-      document.getElementById('transcriptText').innerText = "Mendengarkan ucapan... Silakan sebut menu & porsi.";
+      document.getElementById('transcriptText').innerText = "Mendengarkan ucapan... Sebutkan menu & jumlahnya.";
       document.getElementById('voiceDetectedSummary').classList.add('hidden');
 
       if (!recognition) recognition = initSpeechEngine();
       if (recognition) {
-        try {
-          recognition.start();
-        } catch (e) {
-          // Already running
-        }
+        try { recognition.start(); } catch(e){}
       }
       isRecordingVoice = true;
       updateVoiceUiState();
@@ -895,18 +852,65 @@
         return;
       }
 
-      processVoiceSpeech(textToAnalyze);
+      processMultiVoiceOrder(textToAnalyze);
     };
 
     /**
-     * Smart Keyword & Quantity Extractor:
-     * Handles: "aren 5", "5 aren", "roti 2 dan teh 3", "2 kopi susu aren", etc.
-     * Rule: Even 1 single matching keyword (>=3 letters) in the menu matches the item!
+     * Finds best matching product for given text phrase
      */
-    function processVoiceSpeech(fullText) {
-      const lower = fullText.toLowerCase();
+    function findBestProductMatch(query) {
+      if (!query || !products || products.length === 0) return null;
+      const cleanQ = query.toLowerCase().trim();
+      const qWords = cleanQ.split(/\s+/).filter(w => w.length >= 2);
+      if (qWords.length === 0) return null;
 
-      // Check special actions
+      let bestProd = null;
+      let bestScore = 0;
+
+      for (const p of products) {
+        const pName = p.nama.toLowerCase();
+        const pWords = pName.split(/\s+/).map(w => w.replace(/[^a-z0-9]/g, ''));
+        let score = 0;
+
+        // Exact full phrase containment
+        if (cleanQ.includes(pName) || pName.includes(cleanQ)) {
+          score += 45;
+        }
+
+        // Word-by-word matching
+        for (const qw of qWords) {
+          // Direct word match in menu
+          if (pWords.includes(qw)) {
+            score += 30; // e.g. "aren", "kentang", "roti", "mie", "teh"
+          } else if (pName.includes(qw) && qw.length >= 3) {
+            score += 15;
+          } else {
+            for (const pw of pWords) {
+              if (pw.length >= 3 && (pw.startsWith(qw) || qw.startsWith(pw))) {
+                score += 10;
+              }
+            }
+          }
+        }
+
+        if (score > bestScore && score >= 15) {
+          bestScore = score;
+          bestProd = p;
+        }
+      }
+
+      return bestProd;
+    }
+
+    /**
+     * Advanced Multi-Item Parser:
+     * Handles sentences like: "aren 5 kentang 2 teh 3 roti 4 mie 1"
+     * Handles connectors: "2 kopi aren dan 3 teh manis sama 1 kentang goreng"
+     */
+    function processMultiVoiceOrder(fullText) {
+      let lower = fullText.toLowerCase().replace(/[,;+.\n\r]/g, ' ').replace(/\s+/g, ' ');
+
+      // Quick system commands
       if (lower.includes('kosongkan') || lower.includes('hapus keranjang')) {
         window.clearCart();
         return;
@@ -916,79 +920,83 @@
         return;
       }
 
-      // Split multiple items by conjunctions ("dan", "lalu", "terus", "sama", "serta", ",", "+")
-      const segments = lower.split(/(?: dan | lalu | terus | sama | serta |,|;|\+)+/gi);
-      const detectedItems = [];
+      // Convert written Indonesian numbers to digits
+      for (const [w, n] of Object.entries(indonesianNumberMap)) {
+        const regex = new RegExp(`\\b${w}\\b`, 'gi');
+        lower = lower.replace(regex, ` ${n} `);
+      }
 
-      segments.forEach(seg => {
-        const trimmed = seg.trim();
-        if (!trimmed) return;
+      // Remove conversational fillers and units
+      lower = lower.replace(/\b(tolong|pesan|beli|mau|minta|tambah|dong|ya|kasir|mas|mbak|cup|gelas|porsi|bungkus|buah|biji|paket|pcs)\b/gi, ' ');
+      lower = lower.replace(/\s+/g, ' ').trim();
 
-        // Tokenize words
-        const tokens = trimmed.split(/\s+/);
-        let extractedQty = 1;
-        let qtyFound = false;
+      // Split by connectors first: dan, sama, terus, lalu, serta, juga
+      const rawSegments = lower.split(/\s+(?:dan|sama|terus|lalu|serta|juga)\s+/);
+      const parsedOrders = [];
 
-        // 1. Scan for quantity number in tokens (digits or Indonesian number words)
-        // Checks both at the end (e.g., "aren 5") and at the start (e.g., "5 aren")
-        const filteredTokens = [];
-        for (const tok of tokens) {
-          const num = parseQuantityFromWord(tok);
-          if (num !== null && !qtyFound) {
-            extractedQty = num;
-            qtyFound = true;
-          } else {
-            // Filter out fluff/units (porsi, gelas, cup, bungkus, paket, pcs, tolong, beli, pesan)
-            const cleanWord = tok.replace(/[^a-z0-9]/g, '');
-            const ignoredWords = ['porsi', 'gelas', 'cup', 'buah', 'bungkus', 'paket', 'biji', 'pcs', 'tolong', 'beli', 'pesan', 'mau', 'minta', 'tambah', 'ya', 'dong', 'nya'];
-            if (!ignoredWords.includes(cleanWord) && cleanWord.length > 0) {
-              filteredTokens.push(cleanWord);
+      for (const rawSeg of rawSegments) {
+        const seg = rawSeg.trim();
+        if (!seg) continue;
+
+        const tokens = seg.split(/\s+/).filter(Boolean);
+        const numberIndices = [];
+        tokens.forEach((t, i) => {
+          if (/^\d+$/.test(t)) numberIndices.push(i);
+        });
+
+        if (numberIndices.length === 0) {
+          // No numbers: single item, default quantity 1
+          const match = findBestProductMatch(tokens.join(' '));
+          if (match) parsedOrders.push({ product: match, qty: 1 });
+        } else if (numberIndices[0] === 0) {
+          // Prefix numbers: "5 aren 2 kentang 3 teh"
+          for (let k = 0; k < numberIndices.length; k++) {
+            const numIdx = numberIndices[k];
+            const qty = parseInt(tokens[numIdx], 10) || 1;
+            const nextIdx = (k + 1 < numberIndices.length) ? numberIndices[k + 1] : tokens.length;
+            const itemQuery = tokens.slice(numIdx + 1, nextIdx).join(' ');
+            if (itemQuery) {
+              const match = findBestProductMatch(itemQuery);
+              if (match) parsedOrders.push({ product: match, qty });
             }
           }
-        }
-
-        // 2. Match remaining keyword(s) with product catalog
-        // Requirement: "buat aja ada 1 kata yg ada dalam menu maka akan masuk ke keranjang"
-        let matchedProduct = null;
-        let bestScore = 0;
-
-        for (const prod of products) {
-          const prodName = prod.nama.toLowerCase();
-          const prodWords = prodName.split(/\s+/).map(w => w.replace(/[^a-z0-9]/g, ''));
-          let score = 0;
-
-          for (const token of filteredTokens) {
-            // Check direct inclusion or match
-            if (prodWords.includes(token)) {
-              score += 25; // Exact word match (e.g. "aren" in "Kopi Susu Aren")
-            } else if (token.length >= 3 && prodName.includes(token)) {
-              score += 15; // Substring match (e.g. "kopi" in "Kopi Susu Aren")
-            } else if (prodWords.some(pw => pw.length >= 3 && pw.includes(token))) {
-              score += 10;
+        } else {
+          // Suffix numbers: "aren 5 kentang 2 teh 3 roti 4 mie 1"
+          let prevEnd = 0;
+          for (let k = 0; k < numberIndices.length; k++) {
+            const numIdx = numberIndices[k];
+            const qty = parseInt(tokens[numIdx], 10) || 1;
+            const itemQuery = tokens.slice(prevEnd, numIdx).join(' ');
+            prevEnd = numIdx + 1;
+            if (itemQuery) {
+              const match = findBestProductMatch(itemQuery);
+              if (match) parsedOrders.push({ product: match, qty });
             }
           }
-
-          if (score > bestScore && score >= 10) {
-            bestScore = score;
-            matchedProduct = prod;
+          if (prevEnd < tokens.length) {
+            const leftover = tokens.slice(prevEnd).join(' ');
+            const match = findBestProductMatch(leftover);
+            if (match) parsedOrders.push({ product: match, qty: 1 });
           }
         }
+      }
 
-        if (matchedProduct) {
-          window.addToCart(matchedProduct.id, extractedQty);
-          detectedItems.push(`${extractedQty}x ${matchedProduct.nama}`);
-        }
-      });
-
+      // Consolidate duplicate detections in same speech and add to cart
       const summaryEl = document.getElementById('voiceDetectedSummary');
-      if (detectedItems.length > 0) {
-        summaryEl.innerHTML = `✅ <span class="text-white">Dimasukkan:</span> ${detectedItems.join(', ')}`;
+      if (parsedOrders.length > 0) {
+        const addedList = [];
+        for (const order of parsedOrders) {
+          window.addToCart(order.product.id, order.qty);
+          addedList.push(`${order.qty}x ${order.product.nama}`);
+        }
+
+        summaryEl.innerHTML = `✅ <span class="text-white font-bold">Masuk Keranjang (${addedList.length} menu):</span> ${addedList.join(', ')}`;
         summaryEl.classList.remove('hidden');
-        showToast('Pesanan Ditambahkan', detectedItems.join(', '), 'success');
+        showToast('Multi-Pesanan Masuk!', `${addedList.length} menu berhasil ditambahkan`, 'success');
       } else {
-        summaryEl.innerHTML = `⚠️ <span class="text-amber-300">Tidak ada menu cocok:</span> "${fullText}". Coba sebutkan nama menu lebih spesifik.`;
+        summaryEl.innerHTML = `⚠️ <span class="text-amber-300">Menu belum cocok:</span> "${fullText}". Pastikan menyebut nama menu dengan jelas.`;
         summaryEl.classList.remove('hidden');
-        showToast('Menu Tidak Ditemukan', `Kata: "${fullText}" belum cocok dengan menu.`, 'info');
+        showToast('Tidak Ditemukan', `Suara: "${fullText}" belum cocok dengan menu.`, 'info');
       }
     }
 
@@ -1088,7 +1096,6 @@
       }
 
       updateCartBadgeAndDrawer();
-      showToast('Masuk Keranjang', `${qtyToAdd}x ${prod.nama}`, 'success');
     };
 
     window.updateCartItemQty = function(id, delta) {
@@ -1246,7 +1253,7 @@
       }
     };
 
-    // Checkout: Deduct stock in Cloud DB (Permanently preserved across refreshes and other devices)
+    // Process checkout: deduct stock locally and in Google Sheets
     window.processCheckout = async function() {
       const total = cart.reduce((acc, item) => acc + (item.harga * item.qty), 0);
       const received = Number(document.getElementById('cashReceivedInput').value) || 0;
@@ -1258,59 +1265,40 @@
 
       const submitBtn = document.getElementById('submitOrderBtn');
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan ke Cloud...';
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan ke Sheets...';
 
-      const transId = "TRX" + Date.now().toString().slice(-8);
       const transPayload = {
-        id: transId,
+        action: "saveTransaction",
         kasir: cashierName,
         total: total,
         metode: selectedPayment,
-        items: cart.map(i => ({ id: i.id, nama: i.nama, qty: i.qty, harga: i.harga })),
-        timestamp: new Date().toISOString()
+        items: cart.map(i => ({ id: i.id, nama: i.nama, qty: i.qty, harga: i.harga }))
       };
 
       try {
-        // 1. Update stock in Cloud Database
-        if (db && currentUser) {
-          for (const c of cart) {
-            const prod = products.find(p => p.id === c.id);
-            if (prod) {
-              const updatedStock = Math.max(0, prod.stok - c.qty);
-              const prodRef = doc(db, 'artifacts', appId, 'public', 'data', 'products', prod.id);
-              await setDoc(prodRef, { ...prod, stok: updatedStock });
-            }
-          }
-          // Save transaction to cloud
-          const transRef = doc(db, 'artifacts', appId, 'public', 'data', 'transactions', transId);
-          await setDoc(transRef, transPayload);
-        } else {
-          // Local fallback
-          cart.forEach(c => {
-            const p = products.find(prod => prod.id === c.id);
-            if (p) p.stok = Math.max(0, p.stok - c.qty);
-          });
-        }
+        // 1. Immediately deduct local stock for instant response
+        cart.forEach(c => {
+          const p = products.find(prod => prod.id === c.id);
+          if (p) p.stok = Math.max(0, p.stok - c.qty);
+        });
+        localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
 
-        // Optional: Send to Google Sheets if URL provided
-        if (gasApiUrl) {
-          try {
-            fetch(gasApiUrl, {
-              method: 'POST',
-              body: JSON.stringify({ action: "saveTransaction", ...transPayload })
-            });
-          } catch(e){}
-        }
+        // 2. Send transaction to Google Apps Script backend
+        await postToGoogleSheets(transPayload);
 
         window.closePaymentModal();
-        showToast('Transaksi Berhasil!', `Total ${formatRupiah(total)} tercatat & stok terpotong`, 'success');
+        showToast('Transaksi Berhasil!', `Total ${formatRupiah(total)} tercatat & stok dipotong di Sheets`, 'success');
         cart = [];
         updateCartBadgeAndDrawer();
         renderProductGrid();
+        renderAdminProducts();
+
+        // Refresh stock from sheets in background
+        setTimeout(() => window.syncFromGoogleSheets(false), 1200);
 
       } catch (err) {
         console.error("Checkout error:", err);
-        showToast('Error', 'Gagal memproses transaksi', 'error');
+        showToast('Tersimpan Lokal', 'Transaksi dicatat di HP (cek koneksi Google Sheets)', 'info');
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Selesaikan Transaksi';
@@ -1318,7 +1306,7 @@
     };
 
     // ==============================================================
-    // TAB NAVIGATION & PIN ACCESS MANAGEMENT
+    // TAB NAVIGATION & PIN ACCESS MANAGEMENT (PIN: 1122)
     // ==============================================================
     window.handleNavClick = function(tab) {
       if (tab === 'kasir') {
@@ -1359,7 +1347,6 @@
         lockAdminBtn.classList.remove('hidden');
 
         renderAdminProducts();
-        renderPromoHistory();
       } else {
         viewAdmin.classList.add('hidden');
         viewKasir.classList.remove('hidden');
@@ -1455,7 +1442,7 @@
     };
 
     // ==============================================================
-    // ADMIN DASHBOARD & MENU/PROFIT MANAGEMENT
+    // ADMIN DASHBOARD & GOOGLE SHEETS PRODUCT MANAGEMENT
     // ==============================================================
     window.switchAdminSection = function(sec) {
       const secProd = document.getElementById('adminSectionProducts');
@@ -1564,7 +1551,7 @@
     window.openProductModal = function(isEdit = false) {
       document.getElementById('productForm').reset();
       document.getElementById('editProductId').value = '';
-      document.getElementById('productModalTitle').innerText = isEdit ? "Edit Menu" : "Tambah Menu Baru";
+      document.getElementById('productModalTitle').innerText = isEdit ? "Edit Menu Sheets" : "Tambah Menu Baru ke Sheets";
       window.calcFormProfit();
       document.getElementById('productModal').classList.remove('hidden');
     };
@@ -1586,6 +1573,7 @@
       window.calcFormProfit();
     };
 
+    // Handles adding/updating product to Google Sheets
     window.handleProductSubmit = async function(e) {
       e.preventDefault();
       const id = document.getElementById('editProductId').value;
@@ -1597,50 +1585,54 @@
 
       const finalId = id || ("PRD" + ("000" + (products.length + 1)).slice(-3));
       const payload = { id: finalId, nama, kategori, stok, hargaModal, hargaJual };
+      
       const saveBtn = document.getElementById('saveProdBtn');
       saveBtn.disabled = true;
-      saveBtn.innerText = "Menyimpan ke Cloud...";
+      saveBtn.innerText = "Menyimpan ke Sheets...";
 
       try {
-        if (db && currentUser) {
-          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', finalId), payload);
-        } else {
-          const idx = products.findIndex(p => p.id === finalId);
-          if (idx !== -1) products[idx] = payload;
-          else products.push(payload);
-        }
+        // Update local list first
+        const idx = products.findIndex(p => p.id === finalId);
+        if (idx !== -1) products[idx] = payload;
+        else products.push(payload);
+        localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
+
+        // Save directly to Google Sheets via GAS POST
+        await postToGoogleSheets({ action: "saveProduct", product: payload });
 
         window.closeProductModal();
-        showToast('Tersimpan di Cloud', `${nama} siap dijual`, 'success');
+        showToast('Tersimpan di Sheets', `${nama} otomatis masuk database Google Sheets`, 'success');
         renderAdminProducts();
         renderProductGrid();
 
+        // Refresh from sheets
+        setTimeout(() => window.syncFromGoogleSheets(false), 800);
+
       } catch (err) {
         console.error("Save product error:", err);
-        showToast('Error', 'Gagal menyimpan menu', 'error');
+        showToast('Tersimpan di Cache', `${nama} dicatat lokal`, 'info');
       } finally {
         saveBtn.disabled = false;
-        saveBtn.innerText = "Simpan Menu";
+        saveBtn.innerText = "Simpan Menu ke Sheets";
       }
     };
 
     window.deleteProduct = async function(id) {
       try {
-        if (db && currentUser) {
-          await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'products', id));
-        } else {
-          products = products.filter(p => p.id !== id);
-        }
+        products = products.filter(p => p.id !== id);
+        localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
         renderAdminProducts();
         renderProductGrid();
-        showToast('Dihapus', 'Menu dikeluarkan dari katalog cloud', 'info');
+
+        await postToGoogleSheets({ action: "deleteProduct", id });
+        showToast('Dihapus dari Sheets', 'Menu dikeluarkan dari database Sheets', 'info');
       } catch (e) {
         showToast('Gagal Menghapus', 'Cek koneksi internet Anda', 'error');
       }
     };
 
     // ==============================================================
-    // PROMO WA GENERATOR
+    // PROMO WHATSAPP GENERATOR
     // ==============================================================
     const promoTemplates = {
       pagi: {
@@ -1697,17 +1689,12 @@
       const promoId = "PRM" + Date.now().toString().slice(-6);
       const promoObj = { id: promoId, tanggal: "Baru saja", judul, deskripsi };
 
-      try {
-        if (db && currentUser) {
-          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'promos', promoId), promoObj);
-        } else {
-          promos.unshift(promoObj);
-          renderPromoHistory();
-        }
-        showToast('Tersimpan di Cloud', 'Ide promo tersimpan di database', 'success');
-      } catch (e) {
-        showToast('Error', 'Gagal menyimpan promo', 'error');
-      }
+      promos.unshift(promoObj);
+      renderPromoHistory();
+
+      // Send to sheets
+      await postToGoogleSheets({ action: "savePromo", promo: promoObj });
+      showToast('Tersimpan di Sheets', 'Ide promo tersimpan ke Sheet Promo', 'success');
     };
 
     function renderPromoHistory() {
@@ -1740,7 +1727,7 @@
     };
 
     // ==============================================================
-    // SETTINGS MODAL & CONFIG SYNC
+    // SETTINGS MODAL & CONFIG
     // ==============================================================
     window.openConfigModal = function() {
       document.getElementById('settingGasUrlInput').value = gasApiUrl;
@@ -1753,39 +1740,40 @@
       document.getElementById('configModal').classList.add('hidden');
     };
 
-    window.saveAppSettings = async function() {
-      gasApiUrl = document.getElementById('settingGasUrlInput').value.trim();
-      cashierName = document.getElementById('settingCashierInput').value.trim() || "Kasir 1";
+    window.saveAppSettings = function() {
+      const newUrl = document.getElementById('settingGasUrlInput').value.trim();
+      const newCashier = document.getElementById('settingCashierInput').value.trim() || "Kasir 1";
       const newPin = document.getElementById('settingPinInput').value.trim();
+
+      if (newUrl) gasApiUrl = newUrl;
+      cashierName = newCashier;
 
       if (newPin && newPin.length === 4 && !isNaN(newPin)) {
         adminPin = newPin;
+        localStorage.setItem("POS_ADMIN_PIN", adminPin);
         document.getElementById('pinHintDisplay').innerText = adminPin;
       }
 
+      localStorage.setItem("POS_GAS_URL", gasApiUrl);
+      localStorage.setItem("POS_CASHIER_NAME", cashierName);
+
       document.getElementById('cartDrawerCashier').innerText = `Kasir: ${cashierName}`;
-
-      // Persist config to cloud database (Rule 1 compliant)
-      if (db && currentUser) {
-        try {
-          await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'app_config'), {
-            adminPin,
-            cashierName,
-            gasApiUrl
-          });
-        } catch(e){}
-      }
-
       window.closeConfigModal();
-      showToast('Disimpan di Cloud', 'Pengaturan PIN & Kasir diperbarui', 'success');
+      showToast('Disimpan', 'Pengaturan diperbarui. Mengambil data Sheets...', 'success');
+
+      // Refresh sheets with updated URL
+      window.syncFromGoogleSheets(true);
     };
 
     // Initialize application on window load
     window.addEventListener('load', () => {
+      document.getElementById('pinHintDisplay').innerText = adminPin;
       document.getElementById('cartDrawerCashier').innerText = `Kasir: ${cashierName}`;
       window.applyTemplate('pagi');
       activateTab('kasir');
-      initCloudDatabase();
+
+      // Initial auto-sync from the provided Google Apps Script URL
+      window.syncFromGoogleSheets(false);
     });
   </script>
 </body>

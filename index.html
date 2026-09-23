@@ -105,29 +105,29 @@
     <!-- ============================================================== -->
     <!-- TAB 1: KASIR (Voice Order & Fast Sales Catalog) -->
     <!-- ============================================================== -->
-    <main id="tabKasirView" class="flex-1 flex flex-col p-3.5 space-y-3.5 pb-28 overflow-y-auto mobile-scroll">
+    <main id="tabKasirView" class="flex-1 flex flex-col p-3.5 space-y-3 pb-28 overflow-y-auto mobile-scroll">
       
       <!-- VOICE ORDER CARD -->
-      <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 rounded-2xl p-3.5 text-white shadow-md relative overflow-hidden">
+      <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 rounded-2xl p-3 text-white shadow-md relative overflow-hidden">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
             <span class="text-[10px] font-extrabold tracking-wider uppercase text-emerald-300">Voice Order Pintar</span>
           </div>
-          <span class="text-[9px] bg-white/10 text-slate-300 px-2 py-0.5 rounded-full font-medium">Bisa Banyak Menu</span>
+          <span class="text-[9px] bg-white/10 text-slate-300 px-2 py-0.5 rounded-full font-medium">Bisa Multi-Menu</span>
         </div>
 
         <p class="text-xs text-slate-300 mt-1">
-          Diktekan pesanan, contoh: <span class="text-amber-300 font-semibold italic">"aren 3 teh biasa 2 coklat 1"</span>
+          Diktekan pesanan, contoh: <span class="text-amber-300 font-semibold italic">"macha oreo 2 kebab daging 1 aren 3"</span>
         </p>
 
         <!-- Live transcript box -->
-        <div id="voiceTranscriptBox" class="mt-2.5 bg-black/40 border border-white/10 rounded-xl p-2.5 text-xs text-emerald-100 flex items-center gap-2 hidden">
+        <div id="voiceTranscriptBox" class="mt-2 bg-black/40 border border-white/10 rounded-xl p-2 text-xs text-emerald-100 flex items-center gap-2 hidden">
           <span id="transcriptLiveDot" class="w-2 h-2 rounded-full bg-red-400 animate-ping shrink-0"></span>
           <p id="transcriptText" class="truncate flex-1 font-medium italic text-[11px]">Mendengarkan ucapan kasir...</p>
         </div>
 
-        <div class="grid grid-cols-2 gap-2 mt-3">
+        <div class="grid grid-cols-2 gap-2 mt-2.5">
           <button id="voiceStartBtn" onclick="window.startVoiceOrder()" class="touch-btn py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition">
             <i class="fa-solid fa-microphone text-xs" id="voiceMicIcon"></i>
             <span id="voiceStartBtnLabel">Mulai Bicara</span>
@@ -140,27 +140,51 @@
         </div>
       </section>
 
-      <!-- Search Input & Quick Filters -->
+      <!-- Search Input & Category Pills (WRAP KE BAWAH - ANTI SCROLL KESAMPING) -->
       <section class="space-y-2">
         <div class="relative">
           <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-          <input type="text" id="kasirSearchInput" oninput="window.renderProductGrid()" placeholder="Cari nama minuman..." class="w-full pl-9 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs">
+          <input type="text" id="kasirSearchInput" oninput="window.renderProductGrid()" placeholder="Cari menu minuman atau kebab..." class="w-full pl-9 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs">
           <button onclick="document.getElementById('kasirSearchInput').value=''; window.renderProductGrid();" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 text-xs">
             <i class="fa-solid fa-circle-xmark"></i>
           </button>
         </div>
 
-        <!-- Category Horizontal Pills -->
-        <div class="flex items-center gap-1.5 overflow-x-auto mobile-scroll py-0.5" id="categoryPillsContainer">
-          <button onclick="window.setCategory('Semua')" class="cat-pill active px-3 py-1.5 text-[11px] font-bold rounded-xl bg-emerald-600 text-white whitespace-nowrap shadow-2xs transition">Semua (20)</button>
-          <button onclick="window.setCategory('Teh')" class="cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-600 whitespace-nowrap transition">Varian Teh</button>
-          <button onclick="window.setCategory('Kopi')" class="cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-600 whitespace-nowrap transition">Kopi Pilihan</button>
-          <button onclick="window.setCategory('Segar')" class="cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-600 whitespace-nowrap transition">Segar & Buah</button>
-          <button onclick="window.setCategory('Coklat/Susu')" class="cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-600 whitespace-nowrap transition">Coklat & Manis</button>
+        <!-- Pilihan Kategori Rapi (Otomatis Ke Bawah Jika Penuh - Gercep Langsung Klik) -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pilih Kategori Cepat:</span>
+            <span id="categoryActiveIndicator" class="text-[10px] font-extrabold text-emerald-700">Semua Menu</span>
+          </div>
+          <div class="flex flex-wrap gap-1.5" id="categoryPillsContainer">
+            <button onclick="window.setCategory('Semua')" class="cat-pill active px-3 py-1.5 text-[11px] font-bold rounded-xl bg-emerald-600 text-white shadow-2xs transition flex items-center gap-1">
+              <span>🌟 Semua</span>
+              <span class="text-[9px] opacity-80" id="catCountSemua">(26)</span>
+            </button>
+            <button onclick="window.setCategory('Makanan')" class="cat-pill px-3 py-1.5 text-[11px] font-bold rounded-xl bg-white border border-amber-300 text-amber-900 transition flex items-center gap-1">
+              <span>🌯 Kebab</span>
+              <span class="text-[9px] bg-amber-100 text-amber-800 px-1 rounded-full font-extrabold">Menu Baru</span>
+            </button>
+            <button onclick="window.setCategory('Matcha')" class="cat-pill px-3 py-1.5 text-[11px] font-bold rounded-xl bg-white border border-emerald-300 text-emerald-800 transition flex items-center gap-1">
+              <span>🍵 Matcha</span>
+            </button>
+            <button onclick="window.setCategory('Kopi')" class="cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1">
+              <span>☕ Kopi</span>
+            </button>
+            <button onclick="window.setCategory('Teh')" class="cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1">
+              <span>🍃 Teh</span>
+            </button>
+            <button onclick="window.setCategory('Segar')" class="cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1">
+              <span>🍊 Segar Buah</span>
+            </button>
+            <button onclick="window.setCategory('Coklat/Susu')" class="cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1">
+              <span>🍫 Coklat & Susu</span>
+            </button>
+          </div>
         </div>
       </section>
 
-      <!-- Product Grid (2 Kolom Mobile) -->
+      <!-- Product Grid (2 Kolom Mobile Desain Gercep dengan Visual Tag) -->
       <section id="productGrid" class="grid grid-cols-2 gap-2.5">
         <!-- Rendered dynamically by JavaScript -->
       </section>
@@ -186,7 +210,7 @@
     </main>
 
     <!-- ============================================================== -->
-    <!-- TAB 2: ADMIN (Protected by PIN 1122) -->
+    <!-- TAB 2: ADMIN (Protected by PIN) -->
     <!-- ============================================================== -->
     <main id="tabAdminView" class="flex-1 flex flex-col p-3.5 space-y-3.5 pb-24 overflow-y-auto mobile-scroll hidden">
       
@@ -239,14 +263,14 @@
             <p id="dashProfitMargin" class="text-[9px] text-emerald-200/90 mt-0.5">Margin: 0%</p>
           </div>
 
-          <!-- Total Cup Terjual -->
+          <!-- Total Porsi Terjual -->
           <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs">
             <div class="flex items-center justify-between text-slate-400 text-[10px] font-bold uppercase">
-              <span>Minuman Terjual</span>
-              <i class="fa-solid fa-mug-hot text-emerald-600"></i>
+              <span>Porsi Terjual</span>
+              <i class="fa-solid fa-bowl-food text-emerald-600"></i>
             </div>
-            <p id="dashTotalCups" class="text-base font-black text-slate-900 mt-1">0 Cup</p>
-            <p class="text-[9px] text-slate-400 mt-0.5">Porsi Terlayani</p>
+            <p id="dashTotalCups" class="text-base font-black text-slate-900 mt-1">0 Porsi</p>
+            <p class="text-[9px] text-slate-400 mt-0.5">Menu Terlayani</p>
           </div>
 
           <!-- Total Nota Transaksi -->
@@ -281,7 +305,7 @@
           </div>
         </div>
 
-        <!-- DIAGRAM 2: Porsi Terjual per Kategori Minuman (Doughnut Chart) -->
+        <!-- DIAGRAM 2: Porsi Terjual per Kategori Minuman & Kebab (Doughnut Chart) -->
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
           <div class="flex items-center justify-between">
             <h3 class="font-extrabold text-xs text-slate-900 flex items-center gap-1.5">
@@ -294,7 +318,7 @@
           </div>
         </div>
 
-        <!-- TOP 5 BEST SELLER DRINKS -->
+        <!-- TOP 5 BEST SELLER ITEMS -->
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs space-y-2.5">
           <div class="flex items-center justify-between">
             <h3 class="font-extrabold text-xs text-slate-900 flex items-center gap-1.5">
@@ -339,8 +363,8 @@
           <button onclick="window.openProductModal(false)" class="touch-btn flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs">
             <i class="fa-solid fa-plus"></i> Tambah Menu
           </button>
-          <button id="uploadBatchBtn" onclick="window.uploadBatch20Menu()" class="touch-btn py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs" title="Kirim 20 menu default ke Google Sheets">
-            <i class="fa-solid fa-cloud-arrow-up"></i> <span>Upload 20 Menu</span>
+          <button id="uploadBatchBtn" onclick="window.uploadBatchAllMenu()" class="touch-btn py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs" title="Kirim seluruh menu default ke Google Sheets">
+            <i class="fa-solid fa-cloud-arrow-up"></i> <span>Upload Semua Menu</span>
           </button>
         </div>
 
@@ -369,14 +393,14 @@
 
           <!-- Quick Templates -->
           <div class="flex flex-wrap gap-1 pt-1">
-            <button onclick="window.applyPromoTemplate('pagi')" class="touch-btn px-2.5 py-1 text-[10px] font-bold rounded-lg bg-slate-100 text-slate-700">☕ Pagi</button>
+            <button onclick="window.applyPromoTemplate('kebab')" class="touch-btn px-2.5 py-1 text-[10px] font-bold rounded-lg bg-amber-100 text-amber-900">🌯 Promo Kebab</button>
+            <button onclick="window.applyPromoTemplate('macha')" class="touch-btn px-2.5 py-1 text-[10px] font-bold rounded-lg bg-emerald-100 text-emerald-800">🍵 Matcha</button>
             <button onclick="window.applyPromoTemplate('siang')" class="touch-btn px-2.5 py-1 text-[10px] font-bold rounded-lg bg-slate-100 text-slate-700">🔥 Siang</button>
             <button onclick="window.applyPromoTemplate('jumat')" class="touch-btn px-2.5 py-1 text-[10px] font-bold rounded-lg bg-slate-100 text-slate-700">🕌 Jumat</button>
-            <button onclick="window.applyPromoTemplate('double')" class="touch-btn px-2.5 py-1 text-[10px] font-bold rounded-lg bg-slate-100 text-slate-700">🎉 Diskon 2 Cup</button>
           </div>
 
           <div class="space-y-2 pt-1">
-            <input type="text" id="promoTitleInput" placeholder="Judul Promo (misal: Semangat Pagi)" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+            <input type="text" id="promoTitleInput" placeholder="Judul Promo (misal: Gurihnya Kebab Siang)" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
             <textarea id="promoTextInput" rows="5" placeholder="Ketik format status WhatsApp (*tebal*, _miring_)..." class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 leading-relaxed"></textarea>
           </div>
 
@@ -412,7 +436,7 @@
         <span>Kasir</span>
       </button>
 
-      <!-- Tab 2: Admin (PIN 1122 Protected) -->
+      <!-- Tab 2: Admin (Protected by PIN) -->
       <button id="navAdminBtn" onclick="window.activateTab('admin')" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[11px] transition">
         <div class="w-9 h-9 rounded-2xl bg-transparent flex items-center justify-center text-slate-500 relative">
           <i class="fa-solid fa-chart-pie text-base"></i>
@@ -425,7 +449,7 @@
     </nav>
 
     <!-- ============================================================== -->
-    <!-- MODAL 1: NUMERIC PIN KEYPAD MODAL (PIN: 1122) -->
+    <!-- MODAL 1: NUMERIC PIN KEYPAD MODAL -->
     <!-- ============================================================== -->
     <div id="pinModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex flex-col justify-end max-w-md mx-auto">
       <div id="pinModalCard" class="bg-white rounded-t-3xl p-6 shadow-2xl space-y-4">
@@ -498,7 +522,7 @@
         <div class="pt-2 border-t border-slate-100 space-y-2">
           <div class="flex items-center justify-between text-xs text-slate-500">
             <span>Total Item:</span>
-            <span id="cartDrawerTotalItems" class="font-bold text-slate-800">0 Cup</span>
+            <span id="cartDrawerTotalItems" class="font-bold text-slate-800">0 Porsi</span>
           </div>
           <div class="flex items-center justify-between text-sm font-extrabold text-slate-900">
             <span>Total Bayar:</span>
@@ -577,14 +601,16 @@
           <input type="hidden" id="formProdId">
 
           <div>
-            <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Nama Minuman</label>
-            <input type="text" id="formProdNama" required placeholder="Contoh: Kopi Gula Aren" class="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+            <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Nama Menu (Minuman / Kebab)</label>
+            <input type="text" id="formProdNama" required placeholder="Contoh: Kebab Daging Spesial" class="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Kategori</label>
               <select id="formProdKategori" class="w-full px-2 py-1.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+                <option value="Makanan">Kebab & Makanan</option>
+                <option value="Matcha">Varian Matcha</option>
                 <option value="Teh">Varian Teh</option>
                 <option value="Kopi">Kopi</option>
                 <option value="Segar">Segar & Buah</option>
@@ -652,8 +678,8 @@
             <input type="text" id="cashierNameInput" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500">
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-0.5 text-[10px]">PIN Admin (Bawaan: 1122)</label>
-            <input type="password" id="customPinInput" maxlength="6" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500">
+            <label class="block font-bold text-slate-700 mb-0.5 text-[10px]">PIN Admin (Ganti Sandi)</label>
+            <input type="password" id="customPinInput" maxlength="6" placeholder="••••" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500">
           </div>
         </div>
 
@@ -673,29 +699,46 @@
 
   <script>
     // -------------------------------------------------------------
-    // MASTER 20 MENU MINUMAN LENGKAP
+    // MASTER 26 MENU LENGKAP (+ 2 KEBAB & 4 VARIAN MATCHA)
     // -------------------------------------------------------------
     const initialFallbackCatalog = [
+      // 2 Kebab Baru
+      { id: "MNU025", nama: "Kebab Ayam", kategori: "Makanan", hargaModal: 10000, hargaJual: 10000, stok: 50 },
+      { id: "MNU026", nama: "Kebab Daging", kategori: "Makanan", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+
+      // 4 Varian Matcha
+      { id: "MNU021", nama: "Matcha Latte (Ori)", kategori: "Matcha", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+      { id: "MNU022", nama: "Matcha Oreo", kategori: "Matcha", hargaModal: 18000, hargaJual: 18000, stok: 50 },
+      { id: "MNU023", nama: "Matcha Strawberry", kategori: "Matcha", hargaModal: 18000, hargaJual: 18000, stok: 50 },
+      { id: "MNU024", nama: "Matcha Caramel", kategori: "Matcha", hargaModal: 18000, hargaJual: 18000, stok: 50 },
+
+      // Menu Klasik Teh
       { id: "MNU001", nama: "Teh Hijau", kategori: "Teh", hargaModal: 5000, hargaJual: 5000, stok: 50 },
       { id: "MNU002", nama: "Teh Biasa", kategori: "Teh", hargaModal: 5000, hargaJual: 5000, stok: 50 },
       { id: "MNU003", nama: "Lemon Tea", kategori: "Teh", hargaModal: 5000, hargaJual: 5000, stok: 50 },
-      { id: "MNU004", nama: "Coklat Premium", kategori: "Coklat/Susu", hargaModal: 15000, hargaJual: 15000, stok: 50 },
-      { id: "MNU005", nama: "Cookies and Cream", kategori: "Coklat/Susu", hargaModal: 15000, hargaJual: 15000, stok: 50 },
       { id: "MNU006", nama: "Green Tea (Kecil)", kategori: "Teh", hargaModal: 10000, hargaJual: 10000, stok: 50 },
       { id: "MNU007", nama: "Green Tea (Besar)", kategori: "Teh", hargaModal: 15000, hargaJual: 15000, stok: 50 },
       { id: "MNU008", nama: "Thai Tea (Kecil)", kategori: "Teh", hargaModal: 10000, hargaJual: 10000, stok: 50 },
       { id: "MNU009", nama: "Thai Tea (Besar)", kategori: "Teh", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+
+      // Varian Kopi
       { id: "MNU010", nama: "Moka Intenso", kategori: "Kopi", hargaModal: 15000, hargaJual: 15000, stok: 50 },
       { id: "MNU011", nama: "Kopi Gula Aren", kategori: "Kopi", hargaModal: 15000, hargaJual: 15000, stok: 50 },
       { id: "MNU012", nama: "Blackbi", kategori: "Kopi", hargaModal: 10000, hargaJual: 10000, stok: 50 },
       { id: "MNU013", nama: "Butterscotch", kategori: "Kopi", hargaModal: 15000, hargaJual: 15000, stok: 50 },
       { id: "MNU014", nama: "Americano", kategori: "Kopi", hargaModal: 10000, hargaJual: 10000, stok: 50 },
+
+      // Varian Buah Segar
       { id: "MNU015", nama: "Sunkist Original", kategori: "Segar", hargaModal: 15000, hargaJual: 15000, stok: 50 },
       { id: "MNU016", nama: "Sunkist Madu", kategori: "Segar", hargaModal: 17000, hargaJual: 17000, stok: 50 },
       { id: "MNU017", nama: "Sunkist Yakult", kategori: "Segar", hargaModal: 17000, hargaJual: 17000, stok: 50 },
       { id: "MNU018", nama: "Lemon Fresh", kategori: "Segar", hargaModal: 10000, hargaJual: 10000, stok: 50 },
       { id: "MNU019", nama: "Jeruk Peras (Kecil)", kategori: "Segar", hargaModal: 10000, hargaJual: 10000, stok: 50 },
-      { id: "MNU020", nama: "Jeruk Peras (Besar)", kategori: "Segar", hargaModal: 15000, hargaJual: 15000, stok: 50 }
+      { id: "MNU020", nama: "Jeruk Peras (Besar)", kategori: "Segar", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+
+      // Varian Coklat & Susu
+      { id: "MNU004", nama: "Coklat Premium", kategori: "Coklat/Susu", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+      { id: "MNU005", nama: "Cookies and Cream", kategori: "Coklat/Susu", hargaModal: 15000, hargaJual: 15000, stok: 50 }
     ];
 
     // State Variables
@@ -727,6 +770,26 @@
 
     function formatRupiah(num) {
       return "Rp " + Number(num || 0).toLocaleString("id-ID");
+    }
+
+    // Helper: Icon & Warna Kategori untuk Tampilan Gercep
+    function getCategoryBadge(kategori) {
+      switch(kategori) {
+        case 'Makanan':
+          return { icon: 'fa-burger', bg: 'bg-amber-100 text-amber-900 border-amber-300', emoji: '🌯' };
+        case 'Matcha':
+          return { icon: 'fa-leaf', bg: 'bg-emerald-100 text-emerald-800 border-emerald-300', emoji: '🍵' };
+        case 'Kopi':
+          return { icon: 'fa-mug-hot', bg: 'bg-amber-100 text-amber-900 border-amber-300', emoji: '☕' };
+        case 'Teh':
+          return { icon: 'fa-seedling', bg: 'bg-teal-100 text-teal-800 border-teal-300', emoji: '🍃' };
+        case 'Segar':
+          return { icon: 'fa-lemon', bg: 'bg-orange-100 text-orange-800 border-orange-300', emoji: '🍊' };
+        case 'Coklat/Susu':
+          return { icon: 'fa-cookie', bg: 'bg-rose-100 text-rose-800 border-rose-300', emoji: '🍫' };
+        default:
+          return { icon: 'fa-utensils', bg: 'bg-slate-100 text-slate-700 border-slate-300', emoji: '🍽️' };
+      }
     }
 
     // Helper: Set tombol loading spinner
@@ -794,6 +857,14 @@
 
         if (json && json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
           products = json.data;
+          
+          // Pastikan Kebab & Matcha baru ikut terintegrasi jika di spreadsheet belum ada
+          initialFallbackCatalog.forEach(fallbackItem => {
+            if (!products.some(p => p.id === fallbackItem.id || p.nama.toLowerCase() === fallbackItem.nama.toLowerCase())) {
+              products.push(fallbackItem);
+            }
+          });
+
           localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
         }
 
@@ -828,7 +899,7 @@
 
         if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
         if (syncText) syncText.innerText = "Sheets Terhubung • Live";
-        if (showFeedback) showToast("Sinkron Berhasil", `${products.length} menu & data transaksi termuat`, "success");
+        if (showFeedback) showToast("Sinkron Berhasil", `${products.length} menu & transaksi termuat`, "success");
 
       } catch (err) {
         console.warn("Menggunakan data lokal:", err);
@@ -836,7 +907,13 @@
         if (cached) {
           try { products = JSON.parse(cached); } catch(e){}
         }
-        if (!products || products.length === 0) products = [...initialFallbackCatalog];
+        
+        // Selalu gabungkan varian kebab & matcha jika belum ada
+        initialFallbackCatalog.forEach(fallbackItem => {
+          if (!products.some(p => p.id === fallbackItem.id || p.nama.toLowerCase() === fallbackItem.nama.toLowerCase())) {
+            products.push(fallbackItem);
+          }
+        });
 
         const cachedTrx = localStorage.getItem("POS_CACHED_TRANSACTIONS");
         if (cachedTrx) {
@@ -848,7 +925,7 @@
         renderAdminAnalytics();
 
         if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
-        if (syncText) syncText.innerText = "Siap Digunakan";
+        if (syncText) syncText.innerText = "Siap Digunakan (Offline)";
 
         if (showFeedback) {
           showToast("Koneksi Sheets", "Data offline aktif di HP", "info");
@@ -872,9 +949,13 @@
       }
     }
 
+    // RENDER PRODUK GERCEP KHUSUS LAYAR HP DENGAN TANDA KERANJANG AKTIF
     window.renderProductGrid = function() {
       const grid = document.getElementById('productGrid');
       const search = (document.getElementById('kasirSearchInput')?.value || '').toLowerCase();
+      const countSemuaEl = document.getElementById('catCountSemua');
+      if (countSemuaEl) countSemuaEl.innerText = `(${products.length})`;
+
       if (!grid) return;
       grid.innerHTML = '';
 
@@ -887,8 +968,8 @@
       if (filtered.length === 0) {
         grid.innerHTML = `
           <div class="col-span-2 py-10 text-center text-slate-400">
-            <i class="fa-solid fa-mug-saucer text-3xl mb-1.5 opacity-30"></i>
-            <p class="text-xs font-semibold">Minuman tidak ditemukan</p>
+            <i class="fa-solid fa-utensils text-3xl mb-1.5 opacity-30"></i>
+            <p class="text-xs font-semibold">Menu tidak ditemukan</p>
           </div>
         `;
         return;
@@ -896,29 +977,46 @@
 
       filtered.forEach(p => {
         const isOutOfStock = p.stok <= 0;
+        const cartItem = cart.find(item => item.id === p.id);
+        const inCartQty = cartItem ? cartItem.qty : 0;
+        const badgeInfo = getCategoryBadge(p.kategori);
+
         const card = document.createElement('div');
-        card.className = `bg-white rounded-2xl border border-slate-200/90 p-2.5 flex flex-col justify-between shadow-2xs transition active:scale-98 ${isOutOfStock ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`;
+        card.className = `bg-white rounded-2xl border transition-all duration-150 p-2.5 flex flex-col justify-between shadow-2xs active:scale-[0.97] relative overflow-hidden select-none ${
+          inCartQty > 0 ? 'border-emerald-500 ring-2 ring-emerald-400/20 bg-emerald-50/20' : 'border-slate-200/90 hover:border-slate-300'
+        } ${isOutOfStock ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`;
         
         // Silent Click: menambahkan ke keranjang tanpa notifikasi mengganggu
         card.onclick = () => { if (!isOutOfStock) window.addToCart(p.id, 1, false); };
 
         card.innerHTML = `
           <div>
+            <!-- Header Kartu: Badge Kategori & Indikator Jumlah Keranjang -->
             <div class="flex items-center justify-between mb-1.5">
-              <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 truncate max-w-[80px]">
-                ${p.kategori}
+              <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-md border ${badgeInfo.bg} truncate max-w-[95px]">
+                ${badgeInfo.emoji} ${p.kategori}
               </span>
-              <span class="text-[10px] font-bold ${p.stok < 10 ? 'text-rose-600' : 'text-slate-400'}">
-                Stok: ${p.stok}
-              </span>
+              ${inCartQty > 0 ? `
+                <span class="text-[10px] font-black bg-emerald-600 text-white px-1.5 py-0.2 rounded-full shadow-2xs animate-pulse">
+                  ${inCartQty}x
+                </span>
+              ` : `
+                <span class="text-[10px] font-bold ${p.stok < 10 ? 'text-rose-600 font-extrabold' : 'text-slate-400'}">
+                  ${p.stok} porsi
+                </span>
+              `}
             </div>
+
+            <!-- Nama Menu -->
             <h3 class="font-extrabold text-xs text-slate-800 line-clamp-2 leading-tight">
               ${p.nama}
             </h3>
           </div>
-          <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
+
+          <!-- Bagian Bawah: Harga & Tombol Cepat -->
+          <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
             <span class="font-black text-slate-900 text-xs">${formatRupiah(p.hargaJual)}</span>
-            <button class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs font-bold shadow-2xs">
+            <button class="w-7 h-7 rounded-xl ${inCartQty > 0 ? 'bg-emerald-600 text-white shadow-xs' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'} flex items-center justify-center text-xs font-black transition">
               <i class="fa-solid fa-plus"></i>
             </button>
           </div>
@@ -929,11 +1027,14 @@
 
     window.setCategory = function(cat) {
       activeCategory = cat;
+      const indicator = document.getElementById('categoryActiveIndicator');
+      if (indicator) indicator.innerText = cat === 'Semua' ? 'Semua Menu' : (cat === 'Makanan' ? 'Menu Kebab' : `Varian ${cat}`);
+
       document.querySelectorAll('.cat-pill').forEach(btn => {
-        if (btn.innerText.includes(cat)) {
-          btn.className = "cat-pill active px-3 py-1.5 text-[11px] font-bold rounded-xl bg-emerald-600 text-white whitespace-nowrap shadow-2xs transition";
+        if (btn.innerText.includes(cat) || (cat === 'Makanan' && btn.innerText.includes('Kebab'))) {
+          btn.className = "cat-pill active px-3 py-1.5 text-[11px] font-bold rounded-xl bg-emerald-600 text-white shadow-2xs transition flex items-center gap-1";
         } else {
-          btn.className = "cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-600 whitespace-nowrap transition";
+          btn.className = "cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1";
         }
       });
       renderProductGrid();
@@ -963,6 +1064,7 @@
       }
 
       updateCartBadgeAndDrawer();
+      renderProductGrid();
       if (showFeedback) {
         showToast('Masuk Keranjang', `${qtyToAdd}x ${prod.nama}`, 'success');
       }
@@ -978,12 +1080,13 @@
       if (newQty <= 0) {
         cart.splice(idx, 1);
       } else if (newQty > prod.stok) {
-        showToast('Stok Tidak Cukup', `Tersisa ${prod.stok} cup`, 'error');
+        showToast('Stok Tidak Cukup', `Tersisa ${prod.stok} porsi`, 'error');
         return;
       } else {
         cart[idx].qty = newQty;
       }
       updateCartBadgeAndDrawer();
+      renderProductGrid();
     };
 
     window.setCartQtyManual = function(id, value) {
@@ -996,7 +1099,7 @@
 
       if (isNaN(parsedQty) || parsedQty <= 0) {
         cart.splice(idx, 1);
-        showToast('Menu Dihapus', `${prod ? prod.nama : 'Minuman'} dikeluarkan dari keranjang`, 'info');
+        showToast('Menu Dihapus', `${prod ? prod.nama : 'Menu'} dikeluarkan dari keranjang`, 'info');
       } else if (parsedQty > availableStock) {
         showToast('Stok Terbatas', `Maksimal stok ${prod ? prod.nama : ''} hanya ${availableStock}`, 'error');
         cart[idx].qty = availableStock;
@@ -1004,12 +1107,14 @@
         cart[idx].qty = parsedQty;
       }
       updateCartBadgeAndDrawer();
+      renderProductGrid();
     };
 
     window.clearCart = function() {
       if (cart.length === 0) return;
       cart = [];
       updateCartBadgeAndDrawer();
+      renderProductGrid();
       showToast('Keranjang Bersih', 'Semua item dihapus', 'info');
     };
 
@@ -1034,7 +1139,7 @@
       const drawerTotal = document.getElementById('cartDrawerTotalPrice');
       const checkBtn = document.getElementById('checkoutBtn');
 
-      if (drawerCount) drawerCount.innerText = `${totalItems} Cup`;
+      if (drawerCount) drawerCount.innerText = `${totalItems} Porsi`;
       if (drawerTotal) drawerTotal.innerText = formatRupiah(totalPrice);
       if (checkBtn) checkBtn.disabled = totalItems === 0;
 
@@ -1154,7 +1259,6 @@
         return;
       }
 
-      // Buffering state on checkout button
       setBtnLoading('finishPaymentBtn', true, 'Menyimpan ke Sheets...');
 
       const transPayload = {
@@ -1285,22 +1389,39 @@
       }, 3500);
     };
 
-    // Dictionary mapping kata kunci ucapan ke ID menu minuman
+    // Dictionary kata kunci ucapan kasir ke ID menu (LENGKAP 26 MENU TERMASUK KEBAB & MATCHA)
     const voiceAliasMap = [
+      // Kebab
+      { id: "MNU025", keys: ["kebab ayam", "kebab chicken"] },
+      { id: "MNU026", keys: ["kebab daging", "kebab sapi", "kebab beef", "kebab"] },
+
+      // 4 Varian Matcha Baru
+      { id: "MNU022", keys: ["macha oreo", "matcha oreo"] },
+      { id: "MNU023", keys: ["macha strawberry", "matcha strawberry", "macha stroberi", "matcha stroberi", "macha stoberi", "matcha stoberi"] },
+      { id: "MNU024", keys: ["macha caramel", "matcha caramel", "macha karamel", "matcha karamel"] },
+      { id: "MNU021", keys: ["macha latte", "matcha latte", "macha ori", "matcha ori", "macha original", "matcha original", "macha", "matcha"] },
+
+      // Kopi
       { id: "MNU011", keys: ["kopi gula aren", "kopi aren", "gula aren", "aren"] },
-      { id: "MNU001", keys: ["green tea biasa", "teh hijau"] },
-      { id: "MNU002", keys: ["teh biasa", "teh manis", "es teh", "teh"] },
-      { id: "MNU003", keys: ["lemon tea", "teh lemon"] },
-      { id: "MNU004", keys: ["coklat premium", "cokelat", "coklat"] },
-      { id: "MNU005", keys: ["cookies and cream", "cookies", "cream", "oreo"] },
-      { id: "MNU006", keys: ["green tea kecil", "greentea kecil"] },
-      { id: "MNU007", keys: ["green tea besar", "greentea besar", "green tea", "greentea"] },
-      { id: "MNU008", keys: ["thai tea kecil", "thaitea kecil"] },
-      { id: "MNU009", keys: ["thai tea besar", "thaitea besar", "thai tea", "thaitea"] },
       { id: "MNU010", keys: ["moka intenso", "mau kak", "mocca", "moka"] },
       { id: "MNU012", keys: ["black bee", "blackbi", "black"] },
       { id: "MNU013", keys: ["butterscotch", "butterspot", "butter"] },
       { id: "MNU014", keys: ["americano", "kopi hitam"] },
+
+      // Teh
+      { id: "MNU001", keys: ["green tea biasa", "teh hijau"] },
+      { id: "MNU002", keys: ["teh biasa", "teh manis", "es teh", "teh"] },
+      { id: "MNU003", keys: ["lemon tea", "teh lemon"] },
+      { id: "MNU006", keys: ["green tea kecil", "greentea kecil"] },
+      { id: "MNU007", keys: ["green tea besar", "greentea besar", "green tea", "greentea"] },
+      { id: "MNU008", keys: ["thai tea kecil", "thaitea kecil"] },
+      { id: "MNU009", keys: ["thai tea besar", "thaitea besar", "thai tea", "thaitea"] },
+
+      // Coklat & Manis
+      { id: "MNU004", keys: ["coklat premium", "cokelat", "coklat"] },
+      { id: "MNU005", keys: ["cookies and cream", "cookies", "cream", "oreo"] },
+
+      // Segar & Buah
       { id: "MNU015", keys: ["sunkist original", "sunkis original", "sunkist", "sunkis"] },
       { id: "MNU016", keys: ["sunkist madu", "sunkis madu"] },
       { id: "MNU017", keys: ["sunkist yakult", "sunkis yakult", "sanksi yakult"] },
@@ -1332,7 +1453,7 @@
       });
       flattenedAliases.sort((a, b) => b.key.length - a.key.length);
 
-      // Cari kata kunci dan jumlahnya (misal: "aren 3" atau "3 aren")
+      // Cari kata kunci dan jumlahnya (misal: "kebab daging 2" atau "aren 3")
       flattenedAliases.forEach(alias => {
         const escapedKey = alias.key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const numPattern = "(\\d+|satu|dua|tiga|empat|lima|enam|tujuh|delapan|sembilan|sepuluh)?";
@@ -1341,7 +1462,7 @@
         const match = text.match(regex);
         if (match) {
           let detectedQty = 1;
-          const qVal = match[2] || match[1]; // Prioritaskan angka sesudah kata (cth: aren 3), lalu sebelum kata (cth: 3 aren)
+          const qVal = match[2] || match[1];
           if (qVal) {
             if (!isNaN(qVal) && parseInt(qVal) > 0) detectedQty = parseInt(qVal);
             else if (indoWordToNum[qVal]) detectedQty = indoWordToNum[qVal];
@@ -1351,14 +1472,14 @@
             ordersDetected[alias.id] = detectedQty;
           }
 
-          // Sensor bagian yang dicocokkan agar tidak match kata kunci turunan yang lebih pendek
+          // Sensor bagian yang dicocokkan agar tidak tertimpa kata kunci yang lebih pendek
           text = text.replace(match[0], ' --- ');
         }
       });
 
       const itemIds = Object.keys(ordersDetected);
       if (itemIds.length === 0) {
-        showToast('Menu Tidak Cocok', `Coba katakan: "aren 3" atau "coklat 2"`, 'error');
+        showToast('Menu Tidak Cocok', `Coba katakan: "kebab daging 2" atau "aren 3"`, 'error');
         return;
       }
 
@@ -1478,7 +1599,7 @@
       } else {
         const card = document.getElementById('pinModalCard');
         card.classList.add('shake-error');
-        showToast('PIN Salah', 'PIN standar adalah 1122', 'error');
+        showToast('PIN Salah', 'Kode PIN yang Anda masukkan tidak sesuai', 'error');
 
         setTimeout(() => {
           card.classList.remove('shake-error');
@@ -1548,7 +1669,7 @@
       renderAdminAnalytics();
     };
 
-    // Mesin Pengenal Tanggal Universal (Mendukung DD/MM/YYYY, ISO, dan Format Google Sheets)
+    // Mesin Pengenal Tanggal Universal
     function parseUniversalDate(dateStr, rawDate) {
       if (rawDate) {
         const d = new Date(rawDate);
@@ -1562,7 +1683,7 @@
 
       const str = String(dateStr).trim();
 
-      // Format DD/MM/YYYY atau DD-MM-YYYY dengan opsional jam (cth: "23/09/2026, 14.30.00")
+      // Format DD/MM/YYYY atau DD-MM-YYYY
       const dmyMatch = str.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
       if (dmyMatch) {
         const day = parseInt(dmyMatch[1], 10);
@@ -1579,20 +1700,11 @@
         if (!isNaN(resultDate.getTime())) return resultDate;
       }
 
-      // Format singkatan nama bulan Indonesia (cth: "23 Sep 2026", "23 September 2026")
       const indoMonths = {
-        'jan': 0, 'januari': 0,
-        'feb': 1, 'februari': 1,
-        'mar': 2, 'maret': 2,
-        'apr': 3, 'april': 3,
-        'mei': 4,
-        'jun': 5, 'juni': 5,
-        'jul': 6, 'juli': 6,
-        'agu': 7, 'agustus': 7, 'agt': 7,
-        'sep': 8, 'september': 8,
-        'okt': 9, 'oktober': 9,
-        'nop': 10, 'nov': 10, 'november': 10,
-        'des': 11, 'desember': 11
+        'jan': 0, 'januari': 0, 'feb': 1, 'februari': 1, 'mar': 2, 'maret': 2,
+        'apr': 3, 'april': 3, 'mei': 4, 'jun': 5, 'juni': 5, 'jul': 6, 'juli': 6,
+        'agu': 7, 'agustus': 7, 'agt': 7, 'sep': 8, 'september': 8, 'okt': 9,
+        'oktober': 9, 'nop': 10, 'nov': 10, 'november': 10, 'des': 11, 'desember': 11
       };
 
       const textMatch = str.toLowerCase().match(/(\d{1,2})\s+([a-z]+)\s+(\d{4})/);
@@ -1641,7 +1753,6 @@
     };
 
     function renderAdminAnalytics() {
-      // 1. Filter Transaksi Berdasarkan Periode Menggunakan Mesin Cerdas
       let filteredTrx = [...transactions];
 
       if (analyticsPeriod === 'today') {
@@ -1650,12 +1761,11 @@
         filteredTrx = filteredTrx.filter(t => isTransactionThisMonth(t.tanggal, t.rawDate));
       }
 
-      // 2. Kalkulasi Omset, Laba Bersih, dan Porsi Terjual
       let totalSales = 0;
       let totalProfit = 0;
       let totalCups = 0;
       const itemSalesCount = {};
-      const categorySalesCount = { 'Teh': 0, 'Kopi': 0, 'Segar': 0, 'Coklat/Susu': 0, 'Lainnya': 0 };
+      const categorySalesCount = { 'Makanan': 0, 'Matcha': 0, 'Teh': 0, 'Kopi': 0, 'Segar': 0, 'Coklat/Susu': 0, 'Lainnya': 0 };
 
       filteredTrx.forEach(trx => {
         totalSales += Number(trx.total) || 0;
@@ -1664,22 +1774,18 @@
           const qty = Number(it.qty) || 0;
           totalCups += qty;
 
-          // Cari produk untuk kalkulasi laba dan kategori
           const prod = products.find(p => p.id === it.id || p.nama.toLowerCase() === (it.nama || '').toLowerCase());
           const modal = prod ? (Number(prod.hargaModal) || 0) : 0;
           const jual = prod ? (Number(prod.hargaJual) || Number(it.harga) || 0) : (Number(it.harga) || 0);
           
-          // Jika harga modal diatur sama dengan harga jual, beri estimasi profit margin 40% agar grafik tetap informatif
           const itemProfit = (jual > modal && modal > 0) ? (jual - modal) * qty : Math.round(jual * 0.4) * qty;
           totalProfit += itemProfit;
 
-          // Hitung menu terlaris
-          const name = it.nama || (prod ? prod.nama : "Minuman");
+          const name = it.nama || (prod ? prod.nama : "Menu");
           if (!itemSalesCount[name]) itemSalesCount[name] = { name, qty: 0, revenue: 0 };
           itemSalesCount[name].qty += qty;
           itemSalesCount[name].revenue += (Number(it.harga) || jual) * qty;
 
-          // Hitung kategori
           const cat = prod ? prod.kategori : "Lainnya";
           if (categorySalesCount[cat] !== undefined) categorySalesCount[cat] += qty;
           else categorySalesCount['Lainnya'] += qty;
@@ -1691,7 +1797,7 @@
       document.getElementById('dashTotalProfit').innerText = formatRupiah(totalProfit);
       const profitMarginPct = totalSales > 0 ? ((totalProfit / totalSales) * 100).toFixed(1) : 0;
       document.getElementById('dashProfitMargin').innerText = `Margin Laba: ${profitMarginPct}%`;
-      document.getElementById('dashTotalCups').innerText = `${totalCups} Cup`;
+      document.getElementById('dashTotalCups').innerText = `${totalCups} Porsi`;
       document.getElementById('dashTotalTrx').innerText = `${filteredTrx.length} Nota`;
 
       const avgOrder = filteredTrx.length > 0 ? Math.round(totalSales / filteredTrx.length) : 0;
@@ -1709,23 +1815,15 @@
                                analyticsPeriod === 'month' ? "Bulan Ini" : "Semua Waktu";
       }
 
-      // 3. Render Diagram 1: Penjualan vs Laba
+      // Render Diagram
       renderSalesProfitChart(filteredTrx);
-
-      // 4. Render Diagram 2: Komposisi Kategori
       renderCategoryChart(categorySalesCount);
-
-      // 5. Render Top 5 Best Sellers
       renderTopProducts(itemSalesCount);
-
-      // 6. Render Peringatan Stok Kritis
       renderLowStockAlerts();
-
-      // 7. Render Riwayat Transaksi Kasir
       renderRecentTransactions(filteredTrx);
     }
 
-    function renderSalesProfitChart(trxList, currentSales, currentProfit) {
+    function renderSalesProfitChart(trxList) {
       const ctx = document.getElementById('salesProfitChart');
       if (!ctx) return;
 
@@ -1742,7 +1840,6 @@
         salesData = [0];
         profitData = [0];
       } else {
-        // Ambil 6 transaksi terakhir dari data yang telah terfilter
         const displayTrx = trxList.slice(0, 6).reverse();
         labels = displayTrx.map((t, idx) => (t.id ? t.id.slice(-4) : `#${idx + 1}`));
         salesData = displayTrx.map(t => Number(t.total) || 0);
@@ -1819,8 +1916,10 @@
         categorySalesChartInstance.destroy();
       }
 
-      const labels = ['Varian Teh', 'Kopi', 'Segar/Buah', 'Coklat/Manis'];
+      const labels = ['Kebab', 'Matcha', 'Teh', 'Kopi', 'Segar/Buah', 'Coklat/Manis'];
       const rawCounts = [
+        categoryCounts['Makanan'] || 0,
+        categoryCounts['Matcha'] || 0,
         categoryCounts['Teh'] || 0,
         categoryCounts['Kopi'] || 0,
         categoryCounts['Segar'] || 0,
@@ -1828,7 +1927,7 @@
       ];
 
       const sum = rawCounts.reduce((a, b) => a + b, 0);
-      const data = sum > 0 ? rawCounts : [1, 1, 1, 1]; // Visual placeholder bila belum ada penjualan
+      const data = sum > 0 ? rawCounts : [1, 1, 1, 1, 1, 1];
 
       categorySalesChartInstance = new Chart(ctx, {
         type: 'doughnut',
@@ -1836,7 +1935,7 @@
           labels: labels,
           datasets: [{
             data: data,
-            backgroundColor: ['#10b981', '#78350f', '#f97316', '#ec4899'],
+            backgroundColor: ['#d97706', '#16a34a', '#10b981', '#78350f', '#f97316', '#ec4899'],
             borderWidth: 2,
             borderColor: '#ffffff'
           }]
@@ -1884,7 +1983,7 @@
             </div>
           </div>
           <span class="font-black px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 text-[10px] whitespace-nowrap">
-            ${item.qty} Cup
+            ${item.qty} Porsi
           </span>
         `;
         list.appendChild(row);
@@ -1945,7 +2044,7 @@
 
       trxList.slice(0, 5).forEach(t => {
         const items = t.items || [];
-        const itemSummary = items.map(i => `${i.qty}x ${i.nama}`).join(', ') || "Minuman";
+        const itemSummary = items.map(i => `${i.qty}x ${i.nama}`).join(', ') || "Menu";
 
         const card = document.createElement('div');
         card.className = "pt-2 pb-1 text-xs space-y-1";
@@ -1977,14 +2076,15 @@
       filtered.forEach(p => {
         const profit = p.hargaJual - p.hargaModal;
         const margin = p.hargaModal > 0 ? ((profit / p.hargaModal) * 100).toFixed(0) : 0;
+        const badge = getCategoryBadge(p.kategori);
 
         const row = document.createElement('div');
         row.className = "p-2.5 bg-white border border-slate-200 rounded-2xl flex items-center justify-between shadow-2xs";
         row.innerHTML = `
           <div class="truncate flex-1 pr-2">
             <div class="flex items-center gap-1.5 mb-0.5">
-              <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">${p.kategori}</span>
-              <span class="text-[10px] font-bold ${p.stok < 10 ? 'text-rose-600' : 'text-slate-500'}">Stok: ${p.stok}</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.2 rounded border ${badge.bg}">${badge.emoji} ${p.kategori}</span>
+              <span class="text-[10px] font-bold ${p.stok < 10 ? 'text-rose-600 font-extrabold' : 'text-slate-500'}">Stok: ${p.stok}</span>
             </div>
             <h4 class="font-extrabold text-xs text-slate-900 truncate">${p.nama}</h4>
             <div class="flex items-center gap-2 text-[10px] mt-0.5">
@@ -2008,7 +2108,7 @@
     window.openProductModal = function(isEdit = false) {
       document.getElementById('productForm').reset();
       document.getElementById('formProdId').value = '';
-      document.getElementById('productModalTitle').innerText = isEdit ? "Edit Menu Minuman" : "Tambah Menu Baru";
+      document.getElementById('productModalTitle').innerText = isEdit ? "Edit Menu" : "Tambah Menu Baru";
       window.calcModalProfit();
       document.getElementById('productModal').classList.remove('hidden');
     };
@@ -2085,9 +2185,9 @@
       showToast('Dihapus', 'Menu dihapus dari daftar', 'info');
     };
 
-    window.uploadBatch20Menu = async function() {
+    window.uploadBatchAllMenu = async function() {
       setBtnLoading('uploadBatchBtn', true, 'Mengupload...');
-      showToast('Mengupload...', 'Mengirim 20 menu minuman ke Google Sheets', 'info');
+      showToast('Mengupload...', `Mengirim ${initialFallbackCatalog.length} menu (termasuk Kebab & Matcha) ke Google Sheets`, 'info');
       products = [...initialFallbackCatalog];
       localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
 
@@ -2095,30 +2195,30 @@
         await postToGoogleSheets({ action: "saveBatchProducts", products: products });
         renderProductGrid();
         renderAdminProducts();
-        showToast('Selesai!', '20 menu berhasil diunggah ke Google Sheets', 'success');
+        showToast('Selesai!', `${products.length} menu berhasil diunggah ke Google Sheets`, 'success');
       } catch (err) {
         console.warn("Gagal upload batch:", err);
       } finally {
-        setBtnLoading('uploadBatchBtn', false, '', '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Upload 20 Menu</span>');
+        setBtnLoading('uploadBatchBtn', false, '', '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Upload Semua Menu</span>');
       }
     };
 
     const promoPresets = {
-      pagi: {
-        title: "Pagi Semangat Dingin",
-        text: "☕ *PAGI SEMANGAT BERSAMA KAMI!* ☕\n\nAwali hari ceria dengan segarnya *Kopi Susu Aren* dingin atau *Teh Hijau*.\nDiskon 10% untuk pesanan sebelum jam 10.00 WIB! 🛵💨\nChat langsung ke WA kasir ya!"
+      kebab: {
+        title: "Kebab Gurih Siap Santap",
+        text: "🌯 *BARU! MENU KEBAB SPESIAL* 🌯\n\nLapar tapi mau yang praktis dan gurih nagih?\n✨ *Kebab Ayam* - Cuma 10K\n✨ *Kebab Daging* - Cuma 15K\n\nDagingnya melimpah, sausnya mantap! Pesan bareng es teh / matcha langsung via WA kasir ya! 🛵💨"
+      },
+      macha: {
+        title: "Varian Spesial Matcha",
+        text: "🍵 *SERI MATCHA SPESIAL KAMI* 🍵\n\nKini hadir kesegaran otentik:\n✨ *Matcha Latte (Ori)* - 15K\n✨ *Matcha Oreo Crunch* - 18K\n✨ *Matcha Strawberry Sweet* - 18K\n✨ *Matcha Caramel Creamy* - 18K\n\nYuk cobain sensasi baru sekarang juga! Pesan via WA kasir ya! 🛵💨"
       },
       siang: {
         title: "Flash Sale Makan Siang",
-        text: "🔥 *SIANG TERIK BUTUH KESEGARAN?* 🔥\n\nNikmati *Sunkist Yakult* atau *Lemon Fresh* cuma Rp 10K-an!\nSegarnya bikin melek dan semangat kerja lagi.\nStok terbatas hanya siang ini! 👇"
+        text: "🔥 *SIANG TERIK BUTUH KESEGARAN?* 🔥\n\nNikmati *Kebab Daging* + *Lemon Fresh*!\nKombinasi gurih dan segarnya bikin melek dan semangat kerja lagi.\nStok terbatas siang ini! Langsung chat WA kasir ya 👇"
       },
       jumat: {
         title: "Jumat Berkah Berbagi",
-        text: "🕌 *JUMAT BERKAH & BAHAGIA* 🕌\n\nSetiap pembelian 2 Minuman varian apa saja hari ini, langsung dapat *GRATIS 1 Teh Manis Dingin*.\nYuk mampir dan nikmati kesegarannya bersama teman! ✨"
-      },
-      double: {
-        title: "Promo Dobel Asyik",
-        text: "🎉 *PROMO BELI 2 LEBIH HEMAT!* 🎉\n\nAmbil 2 Cup *Thai Tea Besar* atau *Moka Intenso*, hemat Rp 5.000!\nCocok banget buat nemenin nongkrong sore.\nOrder cepat via WhatsApp sekarang! 📲"
+        text: "🕌 *JUMAT BERKAH & BAHAGIA* 🕌\n\nSetiap pembelian Kebab atau Minuman varian apa saja hari ini, langsung dapat *GRATIS 1 Teh Manis Dingin*.\nYuk mampir dan nikmati kesegarannya bersama teman! ✨"
       }
     };
 
@@ -2230,18 +2330,25 @@
 
     // Lifecycle Onload
     window.addEventListener('DOMContentLoaded', () => {
-      // 1. Muat produk dari cache lokal
       const cached = localStorage.getItem("POS_CACHED_PRODUCTS");
       if (cached) {
         try {
           const parsed = JSON.parse(cached);
-          if (Array.isArray(parsed) && parsed.length >= 20) {
+          if (Array.isArray(parsed)) {
             products = parsed;
           }
         } catch(e){}
       }
 
-      // 2. Muat riwayat transaksi dari cache lokal
+      // Selalu tambahkan menu Kebab & Matcha baru jika belum ada di memori kasir
+      initialFallbackCatalog.forEach(item => {
+        if (!products.some(p => p.id === item.id || p.nama.toLowerCase() === item.nama.toLowerCase())) {
+          products.push(item);
+        }
+      });
+      localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
+
+      // Muat riwayat transaksi dari cache lokal
       const cachedTrx = localStorage.getItem("POS_CACHED_TRANSACTIONS");
       if (cachedTrx) {
         try {
@@ -2251,22 +2358,34 @@
         const todayDateFormatted = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
         transactions = [
           {
+            id: "TRX88292",
+            tanggal: `${todayDateFormatted}, 11:20`,
+            rawDate: new Date().toISOString(),
+            kasir: "Kasir 1",
+            total: 30000,
+            metode: "QRIS",
+            items: [
+              { id: "MNU026", nama: "Kebab Daging", qty: 1, harga: 15000 },
+              { id: "MNU021", nama: "Matcha Latte (Ori)", qty: 1, harga: 15000 }
+            ]
+          },
+          {
             id: "TRX88291",
             tanggal: `${todayDateFormatted}, 10:15`,
             rawDate: new Date().toISOString(),
             kasir: "Kasir 1",
-            total: 35000,
+            total: 36000,
             metode: "QRIS",
-            items: [{ id: "MNU011", nama: "Kopi Gula Aren", qty: 2, harga: 15000 }, { id: "MNU002", nama: "Teh Biasa", qty: 1, harga: 5000 }]
+            items: [{ id: "MNU022", nama: "Matcha Oreo", qty: 2, harga: 18000 }]
           },
           {
             id: "TRX88290",
             tanggal: `${todayDateFormatted}, 09:30`,
             rawDate: new Date().toISOString(),
             kasir: "Kasir 1",
-            total: 32000,
+            total: 30000,
             metode: "Tunai",
-            items: [{ id: "MNU009", nama: "Thai Tea (Besar)", qty: 1, harga: 15000 }, { id: "MNU017", nama: "Sunkist Yakult", qty: 1, harga: 17000 }]
+            items: [{ id: "MNU011", nama: "Kopi Gula Aren", qty: 2, harga: 15000 }]
           }
         ];
         localStorage.setItem("POS_CACHED_TRANSACTIONS", JSON.stringify(transactions));

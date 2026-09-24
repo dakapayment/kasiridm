@@ -177,6 +177,7 @@
         </div>
       </section>
 
+      <!-- PRODUCT GRID -->
       <section id="productGrid" class="grid grid-cols-2 gap-2">
         <!-- Rendered dynamically -->
       </section>
@@ -233,7 +234,7 @@
         </div>
       </section>
 
-      <!-- FORM CATAT BELANJA / PENGELUARAN -->
+      <!-- FORM CATAT BELANJA / PENGELUARAN DENGAN FORMAT TITIK RIBUAN -->
       <section class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-2xs space-y-2.5">
         <h3 class="font-extrabold text-xs text-slate-900 flex items-center gap-1.5">
           <i class="fa-solid fa-cart-arrow-down text-amber-600"></i> Catat Belanja Keluar dari Uang Kasir
@@ -242,13 +243,16 @@
         <form id="expenseForm" onsubmit="window.submitExpenseForm(event)" class="space-y-2.5">
           <div>
             <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Nominal Belanja (Rp)</label>
-            <input type="number" id="formExpNominal" required min="100" placeholder="Contoh: 20000" class="w-full px-3 py-2 text-sm font-black text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500">
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
+              <input type="text" inputmode="numeric" id="formExpNominal" required oninput="window.handleFormattedInput(this)" placeholder="20.000" class="w-full pl-9 pr-3 py-2 text-sm font-black text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500">
+            </div>
             <!-- Preset nominal cepat -->
-            <div class="flex gap-1 mt-1 flex-wrap">
-              <button type="button" onclick="document.getElementById('formExpNominal').value=5000" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">5k</button>
-              <button type="button" onclick="document.getElementById('formExpNominal').value=10000" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">10k</button>
-              <button type="button" onclick="document.getElementById('formExpNominal').value=20000" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">20k</button>
-              <button type="button" onclick="document.getElementById('formExpNominal').value=50000" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">50k</button>
+            <div class="flex gap-1 mt-1.5 flex-wrap">
+              <button type="button" onclick="window.setPresetFormatted('formExpNominal', 5000)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">5k</button>
+              <button type="button" onclick="window.setPresetFormatted('formExpNominal', 10000)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">10k</button>
+              <button type="button" onclick="window.setPresetFormatted('formExpNominal', 20000)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">20k</button>
+              <button type="button" onclick="window.setPresetFormatted('formExpNominal', 50000)" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">50k</button>
             </div>
           </div>
 
@@ -557,13 +561,16 @@
 
           <div>
             <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Saldo Kas Modal Awal (Rp)</label>
-            <input type="number" id="startShiftInitialCashInput" min="0" placeholder="Contoh: 100000" class="w-full px-3 py-2 text-base font-black text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">Rp</span>
+              <input type="text" inputmode="numeric" id="startShiftInitialCashInput" oninput="window.handleFormattedInput(this)" placeholder="100.000" class="w-full pl-9 pr-3 py-2 text-base font-black text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+            </div>
             <!-- Preset Saldo Awal -->
             <div class="flex gap-1.5 mt-1.5 flex-wrap">
-              <button type="button" onclick="document.getElementById('startShiftInitialCashInput').value=0" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">Rp 0</button>
-              <button type="button" onclick="document.getElementById('startShiftInitialCashInput').value=50000" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">50k</button>
-              <button type="button" onclick="document.getElementById('startShiftInitialCashInput').value=100000" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">100k</button>
-              <button type="button" onclick="document.getElementById('startShiftInitialCashInput').value=200000" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">200k</button>
+              <button type="button" onclick="window.setPresetFormatted('startShiftInitialCashInput', 0)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">Rp 0</button>
+              <button type="button" onclick="window.setPresetFormatted('startShiftInitialCashInput', 50000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">50k</button>
+              <button type="button" onclick="window.setPresetFormatted('startShiftInitialCashInput', 100000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">100k</button>
+              <button type="button" onclick="window.setPresetFormatted('startShiftInitialCashInput', 200000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">200k</button>
             </div>
           </div>
         </div>
@@ -635,10 +642,13 @@
           <p class="text-[9px] text-slate-400 italic text-right -mt-1">(Sisa Modal + Uang Penjualan Tunai)</p>
         </div>
 
-        <!-- INPUT HITUNG FISIK UANG DI KASIR -->
+        <!-- INPUT HITUNG FISIK UANG DI KASIR DENGAN FORMAT TITIK -->
         <div class="space-y-1.5">
           <label class="block text-[10px] font-bold text-slate-600">Hitung Uang Fisik Nyata di Kasir (Rp)</label>
-          <input type="number" id="actualCashDrawerInput" oninput="window.calcShiftVariance()" placeholder="Masukkan jumlah uang fisik tunai" class="w-full px-3 py-2 text-base font-black border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">Rp</span>
+            <input type="text" inputmode="numeric" id="actualCashDrawerInput" oninput="window.handleFormattedInput(this); window.calcShiftVariance();" placeholder="0" class="w-full pl-9 pr-3 py-2 text-base font-black border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+          </div>
           <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 text-xs font-bold text-slate-700">
             <span>Status Selisih Kas:</span>
             <span id="shiftVarianceText" class="font-black text-emerald-600">Pas (Rp 0)</span>
@@ -736,7 +746,7 @@
       </div>
     </div>
 
-    <!-- PAYMENT MODAL (WITH DISCOUNT) -->
+    <!-- PAYMENT MODAL (WITH DISCOUNT & FORMATTED THOUSANDS) -->
     <div id="paymentModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 max-w-md mx-auto">
       <div class="bg-white rounded-3xl p-5 w-full shadow-2xl space-y-3 max-h-[92vh] overflow-y-auto mobile-scroll">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
@@ -764,7 +774,7 @@
           </div>
         </div>
 
-        <!-- FITUR DISKON -->
+        <!-- FITUR DISKON DENGAN TITIK RIBUAN -->
         <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-2xl space-y-1.5">
           <div class="flex items-center justify-between">
             <label class="text-[11px] font-extrabold text-slate-700 flex items-center gap-1">
@@ -775,7 +785,7 @@
 
           <div class="relative">
             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
-            <input type="number" id="discountInput" oninput="window.handleManualDiscount()" min="0" placeholder="0" class="w-full pl-9 pr-3 py-1.5 text-xs font-extrabold border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+            <input type="text" inputmode="numeric" id="discountInput" oninput="window.handleFormattedInput(this); window.handleManualDiscount();" placeholder="0" class="w-full pl-9 pr-3 py-1.5 text-xs font-extrabold border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
           </div>
 
           <div class="flex gap-1 flex-wrap pt-0.5">
@@ -805,7 +815,10 @@
 
         <div id="cashCalculationBox" class="space-y-2">
           <label class="block text-[11px] font-bold text-slate-600">Uang Diterima (Rp)</label>
-          <input type="number" id="cashReceivedInput" oninput="window.calcChange()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-base font-extrabold focus:ring-2 focus:ring-emerald-500">
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">Rp</span>
+            <input type="text" inputmode="numeric" id="cashReceivedInput" oninput="window.handleFormattedInput(this); window.calcChange();" class="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-base font-extrabold focus:ring-2 focus:ring-emerald-500">
+          </div>
           <div class="flex gap-1 flex-wrap" id="quickCashButtons"></div>
           <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 text-xs font-bold text-slate-700">
             <span>Kembalian:</span>
@@ -859,11 +872,17 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Harga Modal (Rp)</label>
-              <input type="number" id="formProdModal" required min="0" oninput="window.calcModalProfit()" class="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+              <div class="relative">
+                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">Rp</span>
+                <input type="text" inputmode="numeric" id="formProdModal" required oninput="window.handleFormattedInput(this); window.calcModalProfit();" class="w-full pl-7 pr-2.5 py-1.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+              </div>
             </div>
             <div>
               <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Harga Jual (Rp)</label>
-              <input type="number" id="formProdJual" required min="0" oninput="window.calcModalProfit()" class="w-full px-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+              <div class="relative">
+                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">Rp</span>
+                <input type="text" inputmode="numeric" id="formProdJual" required oninput="window.handleFormattedInput(this); window.calcModalProfit();" class="w-full pl-7 pr-2.5 py-1.5 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+              </div>
             </div>
           </div>
 
@@ -992,6 +1011,36 @@
       return "Rp " + Number(num || 0).toLocaleString("id-ID");
     }
 
+    // Mengubah string berkoma/bertitik menjadi integer murni
+    function parseNumericString(val) {
+      if (!val) return 0;
+      const clean = String(val).replace(/\D/g, '');
+      return Number(clean) || 0;
+    }
+
+    // Format input menjadi titik ribuan otomatis (cth: 1000 -> 1.000)
+    window.handleFormattedInput = function(el) {
+      if (!el) return;
+      const rawNum = parseNumericString(el.value);
+      if (rawNum === 0 && el.value.trim() === '') {
+        el.value = '';
+        return;
+      }
+      el.value = rawNum.toLocaleString('id-ID');
+    };
+
+    // Set nilai form dengan format titik ribuan
+    window.setPresetFormatted = function(elementId, numberVal) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const n = Number(numberVal) || 0;
+      el.value = n === 0 ? '' : n.toLocaleString('id-ID');
+      if (elementId === 'startShiftInitialCashInput' && n === 0) el.value = '0';
+      if (elementId === 'discountInput') window.handleManualDiscount();
+      if (elementId === 'cashReceivedInput') window.calcChange();
+      if (elementId === 'actualCashDrawerInput') window.calcShiftVariance();
+    };
+
     function getCategoryBadge(kategori) {
       switch(kategori) {
         case 'Makanan':
@@ -1086,15 +1135,11 @@
       }
     }
 
-    // ==========================================
-    // SISTEM SHIFT & KAS MODAL LACI KASIR
-    // Aturan baru: Saldo Laci HANYA Saldo Awal yang dimasukkan kasir dikurangi belanja
-    // ==========================================
+    // Saldo Laci Kasir: Saldo Awal Shift dikurangi Belanja Toko
     function calculateCurrentDrawerCash() {
       if (!currentShift || currentShift.status !== 'OPEN') return 0;
       const initial = Number(currentShift.saldoAwal) || 0;
 
-      // Ambil pengeluaran belanja selama shift ini
       let totalExpense = 0;
       expenses.forEach(e => {
         const matchShift = (e.shiftId && e.shiftId === currentShift.id) ||
@@ -1104,7 +1149,6 @@
         }
       });
 
-      // Saldo Laci Kasir murni: Saldo Awal Shift dikurangi Belanja Toko
       return Math.max(0, initial - totalExpense);
     }
 
@@ -1150,7 +1194,7 @@
 
     window.openStartShiftModal = function() {
       document.getElementById('startShiftCashierInput').value = cashierName;
-      document.getElementById('startShiftInitialCashInput').value = 100000;
+      window.setPresetFormatted('startShiftInitialCashInput', 100000);
       document.getElementById('startShiftModal').classList.remove('hidden');
     };
 
@@ -1160,7 +1204,7 @@
 
     window.confirmStartShift = async function() {
       const cashier = document.getElementById('startShiftCashierInput').value.trim() || cashierName;
-      const initialCash = Number(document.getElementById('startShiftInitialCashInput').value) || 0;
+      const initialCash = parseNumericString(document.getElementById('startShiftInitialCashInput').value);
       setBtnLoading('startShiftConfirmBtn', true, 'Membuka Shift...');
 
       const now = new Date();
@@ -1203,7 +1247,6 @@
         return;
       }
 
-      // Hitung ringkasan kasir shift ini
       let totalTunai = 0;
       let totalNonTunai = 0;
       transactions.forEach(t => {
@@ -1237,8 +1280,7 @@
       document.getElementById('recapShiftNonCashSales').innerText = formatRupiah(totalNonTunai);
       document.getElementById('recapShiftExpectedCash').innerText = formatRupiah(totalUangFisikSeharusnya);
 
-      const actualInput = document.getElementById('actualCashDrawerInput');
-      actualInput.value = totalUangFisikSeharusnya;
+      window.setPresetFormatted('actualCashDrawerInput', totalUangFisikSeharusnya);
       window.calcShiftVariance();
 
       document.getElementById('closeShiftModal').classList.remove('hidden');
@@ -1262,7 +1304,7 @@
       });
 
       const expectedTotal = Math.max(0, initial - totalBelanja + totalTunai);
-      const actual = Number(document.getElementById('actualCashDrawerInput').value) || 0;
+      const actual = parseNumericString(document.getElementById('actualCashDrawerInput').value);
       const diff = actual - expectedTotal;
       const el = document.getElementById('shiftVarianceText');
 
@@ -1301,7 +1343,7 @@
       const initial = Number(currentShift.saldoAwal) || 0;
       const sisaModal = Math.max(0, initial - totalBelanja);
       const expectedTotal = sisaModal + totalTunai;
-      const actual = Number(document.getElementById('actualCashDrawerInput').value) || expectedTotal;
+      const actual = parseNumericString(document.getElementById('actualCashDrawerInput').value);
       const diff = actual - expectedTotal;
       const diffStr = diff === 0 ? "PAS (Rp 0)" : (diff > 0 ? `Lebih +${formatRupiah(diff)}` : `Kurang -${formatRupiah(Math.abs(diff))}`);
 
@@ -1362,7 +1404,7 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
       const initial = Number(currentShift.saldoAwal) || 0;
       const sisaModal = Math.max(0, initial - totalBelanja);
       const expectedTotal = sisaModal + totalTunai;
-      const actual = Number(document.getElementById('actualCashDrawerInput').value) || expectedTotal;
+      const actual = parseNumericString(document.getElementById('actualCashDrawerInput').value);
       const diff = actual - expectedTotal;
 
       currentShift.waktuTutup = endTime;
@@ -1390,9 +1432,6 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
       showToast("Shift Selesai", "Laporan tutup shift tersimpan di Sheets & riwayat!", "success");
     };
 
-    // ==========================================
-    // SINKRONISASI GOOGLE SHEETS
-    // ==========================================
     window.syncFromGoogleSheets = async function(showFeedback = false) {
       const spinIcon = document.getElementById('syncSpinIcon');
       if (spinIcon) spinIcon.classList.add('fa-spin');
@@ -1704,7 +1743,6 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
       document.getElementById('cartDrawer').classList.add('hidden');
     };
 
-    // FITUR DISKON PADA PEMBAYARAN
     window.openPaymentModal = function() {
       if (cart.length === 0) return;
       window.closeCartDrawer();
@@ -1723,8 +1761,7 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
 
     window.applyDiscount = function(nominal) {
       currentDiscountNominal = Math.max(0, Number(nominal) || 0);
-      const discountInput = document.getElementById('discountInput');
-      if (discountInput) discountInput.value = currentDiscountNominal > 0 ? currentDiscountNominal : '';
+      window.setPresetFormatted('discountInput', currentDiscountNominal);
       window.recalcPaymentTotal();
     };
 
@@ -1735,7 +1772,7 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
     };
 
     window.handleManualDiscount = function() {
-      const val = Number(document.getElementById('discountInput').value) || 0;
+      const val = parseNumericString(document.getElementById('discountInput').value);
       currentDiscountNominal = Math.max(0, val);
       window.recalcPaymentTotal();
     };
@@ -1745,8 +1782,7 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
       
       if (currentDiscountNominal > subtotal) {
         currentDiscountNominal = subtotal;
-        const discountInput = document.getElementById('discountInput');
-        if (discountInput) discountInput.value = currentDiscountNominal;
+        window.setPresetFormatted('discountInput', currentDiscountNominal);
       }
 
       const grandTotal = Math.max(0, subtotal - currentDiscountNominal);
@@ -1764,8 +1800,7 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
 
       document.getElementById('payGrandTotal').innerText = formatRupiah(grandTotal);
 
-      const cashInput = document.getElementById('cashReceivedInput');
-      cashInput.value = grandTotal;
+      window.setPresetFormatted('cashReceivedInput', grandTotal);
       window.calcChange();
 
       const quickDiv = document.getElementById('quickCashButtons');
@@ -1778,7 +1813,7 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
         b.className = "px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[10px] font-bold";
         b.innerText = formatRupiah(val);
         b.onclick = () => {
-          cashInput.value = val;
+          window.setPresetFormatted('cashReceivedInput', val);
           window.calcChange();
         };
         quickDiv.appendChild(b);
@@ -1803,7 +1838,7 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
     window.calcChange = function() {
       const subtotal = cart.reduce((acc, c) => acc + (c.harga * c.qty), 0);
       const grandTotal = Math.max(0, subtotal - currentDiscountNominal);
-      const received = Number(document.getElementById('cashReceivedInput').value) || 0;
+      const received = parseNumericString(document.getElementById('cashReceivedInput').value);
       const change = received - grandTotal;
       const el = document.getElementById('changeReturnText');
 
@@ -1819,7 +1854,7 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
     window.executeCheckout = async function() {
       const subtotal = cart.reduce((acc, c) => acc + (c.harga * c.qty), 0);
       const grandTotal = Math.max(0, subtotal - currentDiscountNominal);
-      const received = Number(document.getElementById('cashReceivedInput').value) || 0;
+      const received = parseNumericString(document.getElementById('cashReceivedInput').value);
 
       if (selectedPayment === 'Tunai' && received < grandTotal) {
         showToast('Uang Kurang', 'Nominal diterima belum cukup', 'error');
@@ -1841,14 +1876,12 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
       };
 
       try {
-        // Potong stok lokal
         cart.forEach(c => {
           const p = products.find(prod => prod.id === c.id);
           if (p) p.stok = Math.max(0, p.stok - c.qty);
         });
         localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
 
-        // Catat transaksi baru
         const now = new Date();
         const newLocalTrx = {
           id: "TRX" + Date.now().toString().slice(-6),
@@ -1887,12 +1920,9 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
       }
     };
 
-    // ==========================================
-    // LOGIKA FITUR PENGELUARAN (MEMOTONG SALDO KASIR)
-    // ==========================================
     window.submitExpenseForm = async function(e) {
       e.preventDefault();
-      const nominal = Number(document.getElementById('formExpNominal').value) || 0;
+      const nominal = parseNumericString(document.getElementById('formExpNominal').value);
       const keterangan = document.getElementById('formExpKeterangan').value.trim();
       const kategori = document.getElementById('formExpKategori').value;
       const kasir = document.getElementById('formExpKasir').value.trim() || cashierName;
@@ -1999,9 +2029,6 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
       });
     }
 
-    // ==========================================
-    // VOICE ORDER CERDAS MULTI-MENU
-    // ==========================================
     window.startVoiceOrder = function() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
@@ -2174,9 +2201,6 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
       showToast('Pesanan Ditambahkan', summaryNames.join(', '), 'success');
     }
 
-    // ==========================================
-    // TAB SWITCHER & KEAMANAN PIN
-    // ==========================================
     window.activateTab = function(tab) {
       currentTab = tab;
       const navKasir = document.getElementById('navKasirBtn');
@@ -2445,9 +2469,6 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
       }, 400);
     };
 
-    // ==========================================
-    // PERHITUNGAN ANALYTICS & DIAGRAM
-    // ==========================================
     function renderAdminAnalytics() {
       let filteredTrx = [...transactions];
       let filteredExp = [...expenses];
@@ -2477,7 +2498,6 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
           const modal = prod ? (Number(prod.hargaModal) || 0) : 0;
           const jual = prod ? (Number(prod.hargaJual) || Number(it.harga) || 0) : (Number(it.harga) || 0);
           
-          // Laba produk murni (Harga Jual - Harga Modal)
           const itemProfit = (jual > modal && modal > 0) ? (jual - modal) * qty : Math.round(jual * 0.4) * qty;
           totalProfit += itemProfit;
 
@@ -2492,10 +2512,7 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
         });
       });
 
-      // Total Belanja Toko (Pengeluaran Operasional)
       const totalExpenseSum = filteredExp.reduce((acc, e) => acc + (Number(e.nominal) || 0), 0);
-      
-      // OMSET BERSIH (Uang Omset setelah dipotong belanja toko)
       const netSales = Math.max(0, totalSales - totalExpenseSum);
 
       const elSales = document.getElementById('dashTotalSales');
@@ -2830,14 +2847,14 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
       document.getElementById('formProdNama').value = p.nama;
       document.getElementById('formProdKategori').value = p.kategori;
       document.getElementById('formProdStok').value = p.stok;
-      document.getElementById('formProdModal').value = p.hargaModal;
-      document.getElementById('formProdJual').value = p.hargaJual;
+      window.setPresetFormatted('formProdModal', p.hargaModal);
+      window.setPresetFormatted('formProdJual', p.hargaJual);
       window.calcModalProfit();
     };
 
     window.calcModalProfit = function() {
-      const modal = Number(document.getElementById('formProdModal').value) || 0;
-      const jual = Number(document.getElementById('formProdJual').value) || 0;
+      const modal = parseNumericString(document.getElementById('formProdModal').value);
+      const jual = parseNumericString(document.getElementById('formProdJual').value);
       const profit = jual - modal;
       const pct = modal > 0 ? ((profit / modal) * 100).toFixed(0) : 0;
 
@@ -2851,8 +2868,8 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
       const nama = document.getElementById('formProdNama').value.trim();
       const kategori = document.getElementById('formProdKategori').value;
       const stok = Number(document.getElementById('formProdStok').value) || 0;
-      const hargaModal = Number(document.getElementById('formProdModal').value) || 0;
-      const hargaJual = Number(document.getElementById('formProdJual').value) || 0;
+      const hargaModal = parseNumericString(document.getElementById('formProdModal').value);
+      const hargaJual = parseNumericString(document.getElementById('formProdJual').value);
 
       setBtnLoading('saveProdSubmitBtn', true, 'Menyimpan...');
 
@@ -3051,7 +3068,6 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
     };
 
     window.addEventListener('DOMContentLoaded', async () => {
-      // Muat Shift aktif yang tersimpan
       const savedShift = localStorage.getItem("POS_CURRENT_SHIFT");
       if (savedShift) {
         try { currentShift = JSON.parse(savedShift); } catch(e){}

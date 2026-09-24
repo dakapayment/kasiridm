@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Kasir Pintar POS & Analisis Bisnis</title>
+  <title>Kasir Pintar POS - Shift & Kas Laci</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,16 +16,6 @@
         extend: {
           fontFamily: {
             sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              50: '#ecfdf5',
-              100: '#d1fae5',
-              500: '#10b981',
-              600: '#059669',
-              700: '#047857',
-              900: '#064e3b'
-            }
           }
         }
       }
@@ -57,30 +47,37 @@
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white pb-safe">
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white pb-safe">
 
   <div class="w-full max-w-md mx-auto min-h-screen bg-slate-50 flex flex-col shadow-2xl relative border-x border-slate-200">
     
     <!-- TOP MOBILE APP BAR -->
-    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 px-4 py-2.5 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-teal-400 flex items-center justify-center text-white shadow-xs">
-          <i class="fa-solid fa-mug-hot text-sm"></i>
+    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 px-3.5 py-2.5 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-xs">
+          <i class="fa-solid fa-mug-hot text-xs"></i>
         </div>
         <div>
           <div class="flex items-center gap-1.5">
-            <h1 class="text-sm font-extrabold text-slate-900 leading-tight">POS Pintar</h1>
-            <span id="headerRoleBadge" class="text-[9px] font-extrabold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full">KASIR</span>
+            <h1 class="text-xs font-black text-slate-900 leading-tight">POS Pintar</h1>
+            <span id="headerRoleBadge" class="text-[9px] font-extrabold bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded-full">KASIR</span>
           </div>
-          <div class="flex items-center gap-1">
-            <span id="cloudSyncDot" class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span id="cloudSyncStatus" class="text-[10px] text-slate-400 font-semibold truncate max-w-[150px]">Sheets Terhubung</span>
+          <!-- Indikator Status Kas Modal Laci & Shift -->
+          <div class="flex items-center gap-1 mt-0.5">
+            <span id="shiftStatusDot" class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="headerDrawerCashBadge" class="text-[10px] text-slate-600 font-extrabold truncate max-w-[140px]">Modal: Rp 0</span>
           </div>
         </div>
       </div>
 
       <div class="flex items-center gap-1.5">
-        <button id="headerSyncBtn" onclick="window.syncFromGoogleSheets(true)" title="Sinkron Ulang Data" class="touch-btn w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
+        <!-- TOMBOL SELESAI / TUTUP SHIFT KASIR -->
+        <button id="endShiftTopBtn" onclick="window.openCloseShiftModal()" title="Selesai Shift & Rekap Kasir" class="touch-btn h-8 px-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] flex items-center gap-1 shadow-xs transition">
+          <i class="fa-solid fa-flag-checkered text-xs"></i>
+          <span>Selesai</span>
+        </button>
+
+        <button id="headerSyncBtn" onclick="window.syncFromGoogleSheets(true)" title="Sinkron Ulang Data Sheets" class="touch-btn w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
           <i class="fa-solid fa-arrows-rotate text-xs" id="syncSpinIcon"></i>
         </button>
 
@@ -94,7 +91,22 @@
       </div>
     </header>
 
-    <main id="tabKasirView" class="flex-1 flex flex-col p-3.5 space-y-3 pb-28 overflow-y-auto mobile-scroll">
+    <!-- BANNER SHIFT BELUM DIBUKA -->
+    <div id="shiftInactiveBanner" class="bg-gradient-to-r from-amber-600 to-orange-600 p-2.5 px-3 text-white text-xs flex items-center justify-between shadow-xs hidden">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation text-amber-200 animate-bounce"></i>
+        <div>
+          <p class="font-extrabold text-[11px] leading-tight">Shift Belum Dibuka!</p>
+          <p class="text-[10px] text-amber-100 leading-tight">Buka shift kasir & input saldo modal awal.</p>
+        </div>
+      </div>
+      <button onclick="window.openStartShiftModal()" class="touch-btn px-2.5 py-1 bg-white text-amber-900 font-black rounded-lg text-[10px] shadow-xs">
+        Buka Shift
+      </button>
+    </div>
+
+    <!-- TAB 1: KASIR -->
+    <main id="tabKasirView" class="flex-1 flex flex-col p-3 space-y-2.5 pb-28 overflow-y-auto mobile-scroll">
       
       <!-- VOICE ORDER CARD -->
       <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 rounded-2xl p-3 text-white shadow-md relative overflow-hidden">
@@ -103,11 +115,11 @@
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
             <span class="text-[10px] font-extrabold tracking-wider uppercase text-emerald-300">Voice Order Pintar</span>
           </div>
-          <span class="text-[9px] bg-white/10 text-slate-300 px-2 py-0.5 rounded-full font-medium">Bisa Multi-Menu</span>
+          <span class="text-[9px] bg-white/10 text-slate-300 px-2 py-0.5 rounded-full font-medium">Multi-Menu Gercep</span>
         </div>
 
         <p class="text-xs text-slate-300 mt-1">
-          Diktekan pesanan, contoh: <span class="text-amber-300 font-semibold italic">"macha oreo 2 kebab daging 1 aren 3"</span>
+          Diktekan pesanan, contoh: <span class="text-amber-300 font-semibold italic">"aren 3 kebab daging 2 teh biasa 1"</span>
         </p>
 
         <div id="voiceTranscriptBox" class="mt-2 bg-black/40 border border-white/10 rounded-xl p-2 text-xs text-emerald-100 flex items-center gap-2 hidden">
@@ -115,13 +127,13 @@
           <p id="transcriptText" class="truncate flex-1 font-medium italic text-[11px]">Mendengarkan ucapan kasir...</p>
         </div>
 
-        <div class="grid grid-cols-2 gap-2 mt-2.5">
-          <button id="voiceStartBtn" onclick="window.startVoiceOrder()" class="touch-btn py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition">
+        <div class="grid grid-cols-2 gap-2 mt-2">
+          <button id="voiceStartBtn" onclick="window.startVoiceOrder()" class="touch-btn py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition">
             <i class="fa-solid fa-microphone text-xs" id="voiceMicIcon"></i>
             <span id="voiceStartBtnLabel">Mulai Bicara</span>
           </button>
 
-          <button id="voiceAnalyzeBtn" onclick="window.analyzeVoiceOrder()" disabled class="touch-btn py-2.5 px-3 rounded-xl bg-slate-700 text-slate-400 font-bold text-xs flex items-center justify-center gap-1.5 transition opacity-50 cursor-not-allowed">
+          <button id="voiceAnalyzeBtn" onclick="window.analyzeVoiceOrder()" disabled class="touch-btn py-2 px-3 rounded-xl bg-slate-700 text-slate-400 font-bold text-xs flex items-center justify-center gap-1.5 transition opacity-50 cursor-not-allowed">
             <i class="fa-solid fa-wand-magic-sparkles text-amber-300 text-xs"></i>
             <span>Selesai (Analisa)</span>
           </button>
@@ -130,69 +142,159 @@
 
       <section class="space-y-2">
         <div class="relative">
-          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-          <input type="text" id="kasirSearchInput" oninput="window.renderProductGrid()" placeholder="Cari menu minuman atau kebab..." class="w-full pl-9 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text" id="kasirSearchInput" oninput="window.renderProductGrid()" placeholder="Cari minuman atau kebab..." class="w-full pl-8 pr-7 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs">
           <button onclick="document.getElementById('kasirSearchInput').value=''; window.renderProductGrid();" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 text-xs">
             <i class="fa-solid fa-circle-xmark"></i>
           </button>
         </div>
 
         <div>
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pilih Kategori Cepat:</span>
-            <span id="categoryActiveIndicator" class="text-[10px] font-extrabold text-emerald-700">Semua Menu</span>
-          </div>
           <div class="flex flex-wrap gap-1.5" id="categoryPillsContainer">
-            <button onclick="window.setCategory('Semua')" class="cat-pill active px-3 py-1.5 text-[11px] font-bold rounded-xl bg-emerald-600 text-white shadow-2xs transition flex items-center gap-1">
+            <button onclick="window.setCategory('Semua')" class="cat-pill active px-2.5 py-1 text-[11px] font-bold rounded-xl bg-emerald-600 text-white shadow-2xs transition flex items-center gap-1">
               <span>🌟 Semua</span>
               <span class="text-[9px] opacity-80" id="catCountSemua">(26)</span>
             </button>
-            <button onclick="window.setCategory('Makanan')" class="cat-pill px-3 py-1.5 text-[11px] font-bold rounded-xl bg-white border border-amber-300 text-amber-900 transition flex items-center gap-1">
+            <button onclick="window.setCategory('Makanan')" class="cat-pill px-2.5 py-1 text-[11px] font-bold rounded-xl bg-white border border-amber-300 text-amber-900 transition flex items-center gap-1">
               <span>🌯 Kebab</span>
-              <span class="text-[9px] bg-amber-100 text-amber-800 px-1 rounded-full font-extrabold">Menu Baru</span>
             </button>
-            <button onclick="window.setCategory('Matcha')" class="cat-pill px-3 py-1.5 text-[11px] font-bold rounded-xl bg-white border border-emerald-300 text-emerald-800 transition flex items-center gap-1">
+            <button onclick="window.setCategory('Matcha')" class="cat-pill px-2.5 py-1 text-[11px] font-bold rounded-xl bg-white border border-emerald-300 text-emerald-800 transition flex items-center gap-1">
               <span>🍵 Matcha</span>
             </button>
-            <button onclick="window.setCategory('Kopi')" class="cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1">
+            <button onclick="window.setCategory('Kopi')" class="cat-pill px-2.5 py-1 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1">
               <span>☕ Kopi</span>
             </button>
-            <button onclick="window.setCategory('Teh')" class="cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1">
+            <button onclick="window.setCategory('Teh')" class="cat-pill px-2.5 py-1 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1">
               <span>🍃 Teh</span>
             </button>
-            <button onclick="window.setCategory('Segar')" class="cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1">
-              <span>🍊 Segar Buah</span>
+            <button onclick="window.setCategory('Segar')" class="cat-pill px-2.5 py-1 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1">
+              <span>🍊 Buah Segar</span>
             </button>
-            <button onclick="window.setCategory('Coklat/Susu')" class="cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1">
-              <span>🍫 Coklat & Susu</span>
+            <button onclick="window.setCategory('Coklat/Susu')" class="cat-pill px-2.5 py-1 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1">
+              <span>🍫 Coklat</span>
             </button>
           </div>
         </div>
       </section>
 
-      <section id="productGrid" class="grid grid-cols-2 gap-2.5">
+      <section id="productGrid" class="grid grid-cols-2 gap-2">
         <!-- Rendered dynamically -->
       </section>
 
+      <!-- FLOATING CART BAR -->
       <div id="floatingCartBar" onclick="window.openCartDrawer()" class="fixed bottom-16 left-0 right-0 max-w-md mx-auto px-3.5 z-30 transition-all transform translate-y-24 opacity-0">
-        <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-3 rounded-2xl shadow-xl flex items-center justify-between cursor-pointer border border-emerald-400/30">
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-2.5 rounded-2xl shadow-xl flex items-center justify-between cursor-pointer border border-emerald-400/30">
           <div class="flex items-center gap-2.5">
             <div class="relative w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white">
               <i class="fa-solid fa-basket-shopping text-sm"></i>
               <span id="cartCountBadge" class="absolute -top-1.5 -right-1.5 bg-amber-400 text-slate-900 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs">0</span>
             </div>
             <div>
-              <p class="text-[10px] uppercase font-bold text-emerald-100">Keranjang Pesanan</p>
+              <p class="text-[9px] uppercase font-bold text-emerald-100">Keranjang Pesanan</p>
               <p id="cartFloatingTotal" class="text-sm font-extrabold text-white">Rp 0</p>
             </div>
           </div>
-          <button class="bg-white text-emerald-700 font-extrabold text-xs px-3.5 py-1.5 rounded-xl shadow-xs flex items-center gap-1 active:scale-95 transition">
+          <button class="bg-white text-emerald-700 font-extrabold text-xs px-3 py-1.5 rounded-xl shadow-xs flex items-center gap-1 active:scale-95 transition">
             Lihat Struk <i class="fa-solid fa-chevron-right text-[10px]"></i>
           </button>
         </div>
       </div>
     </main>
 
+    <!-- TAB 2: PENGELUARAN / BELANJA OPERASIONAL TOKO -->
+    <main id="tabExpenseView" class="flex-1 flex flex-col p-3.5 space-y-3 pb-24 overflow-y-auto mobile-scroll hidden">
+      
+      <!-- KARTU SALDO MODAL KASIR (UANG KAS AWAL DI LACI) -->
+      <section class="bg-gradient-to-br from-amber-700 via-amber-800 to-slate-900 rounded-2xl p-3.5 text-white shadow-md relative overflow-hidden">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-200 flex items-center gap-1.5">
+            <i class="fa-solid fa-wallet text-amber-300"></i> Saldo Kas Modal Kasir
+          </span>
+          <span id="expShiftActiveTag" class="text-[9px] bg-white/20 px-2 py-0.5 rounded-full font-black text-amber-100">Shift Aktif</span>
+        </div>
+
+        <div class="mt-2">
+          <p class="text-[10px] text-amber-200 font-bold uppercase">Sisa Uang Modal di Laci</p>
+          <p id="expCurrentDrawerCash" class="text-2xl font-black text-amber-300 mt-0.5">Rp 0</p>
+          <p class="text-[10px] text-amber-100/90 mt-1 leading-snug">
+            💡 <span class="font-bold text-white">Saldo Awal Shift dikurangi Belanja</span>. Uang hasil penjualan dipisah dan tidak ditambahkan ke saldo modal ini.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 mt-3 pt-2.5 border-t border-white/15 text-xs">
+          <div class="bg-black/25 p-2 rounded-xl">
+            <span class="text-[9px] uppercase font-bold text-amber-200">Saldo Awal Masuk</span>
+            <p id="expShiftStartCash" class="text-xs font-black text-white mt-0.5">Rp 0</p>
+          </div>
+          <div class="bg-black/25 p-2 rounded-xl">
+            <span class="text-[9px] uppercase font-bold text-amber-200">Total Belanja Hari Ini</span>
+            <p id="expTodayTotal" class="text-xs font-black text-amber-300 mt-0.5">Rp 0</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FORM CATAT BELANJA / PENGELUARAN -->
+      <section class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-2xs space-y-2.5">
+        <h3 class="font-extrabold text-xs text-slate-900 flex items-center gap-1.5">
+          <i class="fa-solid fa-cart-arrow-down text-amber-600"></i> Catat Belanja Keluar dari Uang Kasir
+        </h3>
+
+        <form id="expenseForm" onsubmit="window.submitExpenseForm(event)" class="space-y-2.5">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Nominal Belanja (Rp)</label>
+            <input type="number" id="formExpNominal" required min="100" placeholder="Contoh: 20000" class="w-full px-3 py-2 text-sm font-black text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500">
+            <!-- Preset nominal cepat -->
+            <div class="flex gap-1 mt-1 flex-wrap">
+              <button type="button" onclick="document.getElementById('formExpNominal').value=5000" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">5k</button>
+              <button type="button" onclick="document.getElementById('formExpNominal').value=10000" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">10k</button>
+              <button type="button" onclick="document.getElementById('formExpNominal').value=20000" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">20k</button>
+              <button type="button" onclick="document.getElementById('formExpNominal').value=50000" class="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">50k</button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Keterangan / Keperluan</label>
+            <input type="text" id="formExpKeterangan" required placeholder="Misal: Es batu 2 kantong, Daging kebab, Cup..." class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Kategori Belanja</label>
+              <select id="formExpKategori" class="w-full px-2 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500">
+                <option value="Bahan Baku">Bahan Baku (Es, Daging, Susu)</option>
+                <option value="Kemasan">Kemasan & Cup Gelas</option>
+                <option value="Operasional">Gas / Galon / Listrik</option>
+                <option value="Lainnya">Lain-lain</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Dicatat Oleh</label>
+              <input type="text" id="formExpKasir" value="Kasir 1" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl bg-slate-50 text-slate-600 focus:ring-2 focus:ring-amber-500">
+            </div>
+          </div>
+
+          <button type="submit" id="saveExpenseSubmitBtn" class="touch-btn w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-cloud-arrow-up"></i> <span>Potong dari Kas Modal & Simpan</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- RIWAYAT PENGELUARAN BELANJA -->
+      <section class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-2xs space-y-2">
+        <div class="flex items-center justify-between">
+          <h3 class="font-extrabold text-xs text-slate-900 flex items-center gap-1.5">
+            <i class="fa-solid fa-receipt text-slate-600"></i> Riwayat Belanja Kasir
+          </h3>
+          <span id="expenseCountBadge" class="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">0 Catatan</span>
+        </div>
+
+        <div id="expenseListContainer" class="space-y-2 divide-y divide-slate-100 max-h-64 overflow-y-auto mobile-scroll">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+    </main>
+
+    <!-- TAB 3: ADMIN -->
     <main id="tabAdminView" class="flex-1 flex flex-col p-3.5 space-y-3.5 pb-24 overflow-y-auto mobile-scroll hidden">
       
       <div class="bg-slate-200/90 p-1 rounded-xl grid grid-cols-3 gap-1 text-[11px] font-bold">
@@ -220,48 +322,71 @@
           </button>
         </div>
 
+        <!-- 4 KARTU KEUANGAN UTAMA -->
         <div class="grid grid-cols-2 gap-2">
+          
+          <!-- OMSET KOTOR -->
           <div class="bg-gradient-to-br from-slate-900 to-slate-800 p-3 rounded-2xl text-white shadow-xs">
             <div class="flex items-center justify-between text-slate-300 text-[10px] font-bold">
-              <span>TOTAL OMSET</span>
+              <span>OMSET KOTOR</span>
               <i class="fa-solid fa-rupiah-sign text-emerald-400"></i>
             </div>
             <p id="dashTotalSales" class="text-base font-black text-emerald-400 mt-1">Rp 0</p>
-            <p class="text-[9px] text-slate-300 mt-0.5" id="dashSalesSubtext">Penjualan Kotor</p>
+            <p class="text-[9px] text-slate-300 mt-0.5">Total Penjualan Menu</p>
           </div>
 
+          <!-- OMSET BERSIH -->
+          <div class="bg-gradient-to-br from-teal-950 to-slate-900 p-3 rounded-2xl text-white shadow-xs border border-teal-500/20">
+            <div class="flex items-center justify-between text-teal-200 text-[10px] font-bold">
+              <span>OMSET BERSIH</span>
+              <i class="fa-solid fa-wallet text-cyan-300"></i>
+            </div>
+            <p id="dashNetSales" class="text-base font-black text-cyan-300 mt-1">Rp 0</p>
+            <p class="text-[9px] text-teal-200/90 mt-0.5">Omset - Belanja Toko</p>
+          </div>
+
+          <!-- LABA PRODUK (MURNI) -->
           <div class="bg-gradient-to-br from-emerald-950 to-teal-900 p-3 rounded-2xl text-white shadow-xs border border-emerald-500/20">
             <div class="flex items-center justify-between text-emerald-200 text-[10px] font-bold">
-              <span>KEUNTUNGAN BERSIH</span>
+              <span>LABA PRODUK (MURNI)</span>
               <i class="fa-solid fa-arrow-trend-up text-amber-300"></i>
             </div>
             <p id="dashTotalProfit" class="text-base font-black text-amber-300 mt-1">Rp 0</p>
-            <p id="dashProfitMargin" class="text-[9px] text-emerald-200/90 mt-0.5">Margin: 0%</p>
+            <p id="dashProfitMargin" class="text-[9px] text-emerald-200/90 mt-0.5">Margin: 0% (Jual - Modal)</p>
           </div>
 
+          <!-- TOTAL BELANJA TOKO -->
           <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs">
-            <div class="flex items-center justify-between text-slate-400 text-[10px] font-bold uppercase">
-              <span>Porsi Terjual</span>
-              <i class="fa-solid fa-bowl-food text-emerald-600"></i>
+            <div class="flex items-center justify-between text-slate-500 text-[10px] font-bold uppercase">
+              <span>Belanja Toko</span>
+              <i class="fa-solid fa-cart-shopping text-amber-600"></i>
             </div>
-            <p id="dashTotalCups" class="text-base font-black text-slate-900 mt-1">0 Porsi</p>
-            <p class="text-[9px] text-slate-400 mt-0.5">Menu Terlayani</p>
+            <p id="dashTotalExpensesDisplay" class="text-base font-black text-amber-700 mt-1">Rp 0</p>
+            <p class="text-[9px] text-slate-400 mt-0.5">Pengeluaran Operasional</p>
           </div>
 
-          <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs">
-            <div class="flex items-center justify-between text-slate-400 text-[10px] font-bold uppercase">
-              <span>Total Transaksi</span>
-              <i class="fa-solid fa-receipt text-slate-600"></i>
-            </div>
-            <p id="dashTotalTrx" class="text-base font-black text-slate-900 mt-1">0 Nota</p>
-            <p class="text-[9px] text-slate-400 mt-0.5" id="dashAvgOrder">Rerata: Rp 0</p>
-          </div>
         </div>
 
+        <!-- KARTU STATUS KAS MODAL DI LACI -->
+        <div class="bg-amber-50 border border-amber-200 p-3 rounded-2xl flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-900">Sisa Uang Modal di Laci</span>
+            </div>
+            <p id="dashLiveDrawerCash" class="text-base font-black text-amber-950 mt-0.5">Rp 0</p>
+            <p class="text-[9px] text-amber-700">Saldo Awal Masuk - Belanja Keluar</p>
+          </div>
+          <button onclick="window.openCloseShiftModal()" class="touch-btn px-2.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-[10px] font-bold shadow-2xs">
+            Rekap Shift
+          </button>
+        </div>
+
+        <!-- DIAGRAM PENJUALAN VS LABA -->
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
           <div class="flex items-center justify-between">
             <h3 class="font-extrabold text-xs text-slate-900 flex items-center gap-1.5">
-              <i class="fa-solid fa-chart-column text-emerald-600"></i> Diagram Penjualan vs Laba
+              <i class="fa-solid fa-chart-column text-emerald-600"></i> Diagram Omset vs Keuntungan
             </h3>
             <span class="text-[9px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full" id="chartPeriodBadge">Semua Waktu</span>
           </div>
@@ -270,14 +395,15 @@
           </div>
           <div class="flex items-center justify-center gap-4 text-[10px] font-bold pt-1 border-t border-slate-100">
             <div class="flex items-center gap-1.5 text-slate-700">
-              <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span> Penjualan (Omset)
+              <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span> Omset Penjualan
             </div>
             <div class="flex items-center gap-1.5 text-slate-700">
-              <span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span> Keuntungan (Laba)
+              <span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span> Keuntungan Produk
             </div>
           </div>
         </div>
 
+        <!-- DIAGRAM KATEGORI -->
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
           <div class="flex items-center justify-between">
             <h3 class="font-extrabold text-xs text-slate-900 flex items-center gap-1.5">
@@ -290,6 +416,7 @@
           </div>
         </div>
 
+        <!-- TOP 5 PRODUK -->
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs space-y-2.5">
           <div class="flex items-center justify-between">
             <h3 class="font-extrabold text-xs text-slate-900 flex items-center gap-1.5">
@@ -300,6 +427,7 @@
           <div id="dashTopProductsList" class="space-y-1.5"></div>
         </div>
 
+        <!-- PERINGATAN RESTOCK -->
         <div id="dashLowStockBox" class="bg-rose-50 border border-rose-200 p-3 rounded-2xl space-y-2 hidden">
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-extrabold text-rose-800 uppercase flex items-center gap-1.5">
@@ -310,6 +438,7 @@
           <div id="dashLowStockList" class="space-y-1.5"></div>
         </div>
 
+        <!-- RIWAYAT TRANSAKSI KASIR -->
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs space-y-2.5">
           <div class="flex items-center justify-between">
             <h3 class="font-extrabold text-xs text-slate-900 flex items-center gap-1.5">
@@ -319,8 +448,10 @@
           </div>
           <div id="dashRecentTrxList" class="space-y-2 divide-y divide-slate-100"></div>
         </div>
+
       </section>
 
+      <!-- SECTION 2: MENU & STOK -->
       <section id="adminSectionProducts" class="space-y-3 hidden">
         <div class="flex items-center justify-between gap-2">
           <button onclick="window.openProductModal(false)" class="touch-btn flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs">
@@ -339,6 +470,7 @@
         <div id="adminProductList" class="space-y-2"></div>
       </section>
 
+      <!-- SECTION 3: PROMO WA -->
       <section id="adminSectionPromo" class="space-y-3 hidden">
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs space-y-2.5">
           <div>
@@ -379,25 +511,153 @@
 
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200/90 z-40 px-6 py-2 flex items-center justify-around shadow-lg">
-      <button id="navKasirBtn" onclick="window.activateTab('kasir')" class="flex flex-col items-center gap-1 text-emerald-600 font-extrabold text-[11px] transition">
-        <div class="w-9 h-9 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
-          <i class="fa-solid fa-cash-register text-base"></i>
+    <!-- BOTTOM NAVIGATION (KASIR, PENGELUARAN, ADMIN) -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200/90 z-40 px-3 py-1.5 flex items-center justify-around shadow-lg">
+      <button id="navKasirBtn" onclick="window.activateTab('kasir')" class="flex-1 flex flex-col items-center gap-1 text-emerald-600 font-extrabold text-[11px] transition">
+        <div class="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+          <i class="fa-solid fa-cash-register text-sm"></i>
         </div>
         <span>Kasir</span>
       </button>
 
-      <button id="navAdminBtn" onclick="window.activateTab('admin')" class="flex flex-col items-center gap-1 text-slate-400 font-semibold text-[11px] transition">
-        <div class="w-9 h-9 rounded-2xl bg-transparent flex items-center justify-center text-slate-500 relative">
-          <i class="fa-solid fa-chart-pie text-base"></i>
-          <span id="navAdminLockDot" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400"></span>
+      <button id="navExpenseBtn" onclick="window.activateTab('expense')" class="flex-1 flex flex-col items-center gap-1 text-slate-400 font-semibold text-[11px] transition">
+        <div class="w-8 h-8 rounded-xl bg-transparent flex items-center justify-center text-slate-500">
+          <i class="fa-solid fa-cart-shopping text-sm"></i>
+        </div>
+        <span>Pengeluaran</span>
+      </button>
+
+      <button id="navAdminBtn" onclick="window.activateTab('admin')" class="flex-1 flex flex-col items-center gap-1 text-slate-400 font-semibold text-[11px] transition">
+        <div class="w-8 h-8 rounded-xl bg-transparent flex items-center justify-center text-slate-500 relative">
+          <i class="fa-solid fa-chart-pie text-sm"></i>
+          <span id="navAdminLockDot" class="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400"></span>
         </div>
         <span class="flex items-center gap-1">
-          Admin <i id="navAdminLockIcon" class="fa-solid fa-lock text-[9px] text-slate-400"></i>
+          Admin <i id="navAdminLockIcon" class="fa-solid fa-lock text-[8px] text-slate-400"></i>
         </span>
       </button>
     </nav>
 
+    <!-- MODAL 1: BUKA SHIFT BARU (INPUT SALDO AWAL MODAL LACI) -->
+    <div id="startShiftModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 max-w-md mx-auto">
+      <div class="bg-white rounded-3xl p-5 w-full shadow-2xl space-y-3.5">
+        <div class="text-center space-y-1">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-xl shadow-xs">
+            <i class="fa-solid fa-cash-register"></i>
+          </div>
+          <h3 class="text-base font-black text-slate-900">Buka Shift Kasir Baru</h3>
+          <p class="text-xs text-slate-400">Masukkan modal kas awal untuk belanja operasional & kembalian.</p>
+        </div>
+
+        <div class="space-y-2">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Nama Kasir Bertugas</label>
+            <input type="text" id="startShiftCashierInput" class="w-full px-3 py-2 text-xs font-bold border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Saldo Kas Modal Awal (Rp)</label>
+            <input type="number" id="startShiftInitialCashInput" min="0" placeholder="Contoh: 100000" class="w-full px-3 py-2 text-base font-black text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+            <!-- Preset Saldo Awal -->
+            <div class="flex gap-1.5 mt-1.5 flex-wrap">
+              <button type="button" onclick="document.getElementById('startShiftInitialCashInput').value=0" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">Rp 0</button>
+              <button type="button" onclick="document.getElementById('startShiftInitialCashInput').value=50000" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">50k</button>
+              <button type="button" onclick="document.getElementById('startShiftInitialCashInput').value=100000" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">100k</button>
+              <button type="button" onclick="document.getElementById('startShiftInitialCashInput').value=200000" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">200k</button>
+            </div>
+          </div>
+        </div>
+
+        <button id="startShiftConfirmBtn" onclick="window.confirmStartShift()" class="touch-btn w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-2">
+          <i class="fa-solid fa-play"></i> <span>Mulai Shift Sekarang</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL 2: SELESAI / TUTUP SHIFT KASIR (REKONSILIASI KAS LACI) -->
+    <div id="closeShiftModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 max-w-md mx-auto">
+      <div class="bg-white rounded-3xl p-5 w-full shadow-2xl space-y-3 max-h-[92vh] overflow-y-auto mobile-scroll">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+          <div class="flex items-center gap-1.5">
+            <i class="fa-solid fa-flag-checkered text-amber-500"></i>
+            <h3 class="font-extrabold text-sm text-slate-900">Rekap & Selesai Shift</h3>
+          </div>
+          <button onclick="window.closeCloseShiftModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
+            <i class="fa-solid fa-xmark text-xs"></i>
+          </button>
+        </div>
+
+        <!-- RINCIAN REKAPITULASI KASIR -->
+        <div class="bg-slate-50 border border-slate-200 p-3 rounded-2xl space-y-2 text-xs">
+          <div class="flex items-center justify-between text-slate-500">
+            <span>Kasir Bertugas:</span>
+            <span id="recapShiftCashier" class="font-extrabold text-slate-800">Kasir 1</span>
+          </div>
+          <div class="flex items-center justify-between text-slate-500">
+            <span>Waktu Mulai Shift:</span>
+            <span id="recapShiftStartTime" class="font-bold text-slate-700">-</span>
+          </div>
+          
+          <!-- BAGIAN 1: UANG MODAL KASIR -->
+          <div class="pt-1.5 border-t border-slate-200 space-y-1">
+            <p class="text-[10px] font-black uppercase text-amber-800 tracking-wider">Rekap Kas Modal Kasir:</p>
+            <div class="flex items-center justify-between text-slate-600">
+              <span>(+) Saldo Modal Awal Masuk:</span>
+              <span id="recapShiftInitialCash" class="font-extrabold text-slate-900">Rp 0</span>
+            </div>
+            <div class="flex items-center justify-between text-rose-600">
+              <span>(-) Belanja Operasional Toko:</span>
+              <span id="recapShiftExpenses" class="font-extrabold">-Rp 0</span>
+            </div>
+            <div class="flex items-center justify-between text-amber-900 font-bold bg-amber-100/60 p-1.5 rounded-lg mt-1">
+              <span>(=) Sisa Uang Modal Kasir:</span>
+              <span id="recapShiftRemainingModal" class="font-black text-amber-950">Rp 0</span>
+            </div>
+          </div>
+
+          <!-- BAGIAN 2: HASIL PENJUALAN -->
+          <div class="pt-1.5 border-t border-slate-200 space-y-1">
+            <p class="text-[10px] font-black uppercase text-emerald-800 tracking-wider">Hasil Penjualan Shift Ini:</p>
+            <div class="flex items-center justify-between text-emerald-700">
+              <span>(+) Penjualan Tunai:</span>
+              <span id="recapShiftCashSales" class="font-extrabold">+Rp 0</span>
+            </div>
+            <div class="flex items-center justify-between text-slate-500">
+              <span>Penjualan Non-Tunai (QRIS/Transfer):</span>
+              <span id="recapShiftNonCashSales" class="font-bold text-slate-700">Rp 0</span>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-slate-200 flex items-center justify-between text-slate-900 font-extrabold text-sm">
+            <span>Total Uang Tunai Fisik di Meja:</span>
+            <span id="recapShiftExpectedCash" class="text-emerald-700 text-base font-black">Rp 0</span>
+          </div>
+          <p class="text-[9px] text-slate-400 italic text-right -mt-1">(Sisa Modal + Uang Penjualan Tunai)</p>
+        </div>
+
+        <!-- INPUT HITUNG FISIK UANG DI KASIR -->
+        <div class="space-y-1.5">
+          <label class="block text-[10px] font-bold text-slate-600">Hitung Uang Fisik Nyata di Kasir (Rp)</label>
+          <input type="number" id="actualCashDrawerInput" oninput="window.calcShiftVariance()" placeholder="Masukkan jumlah uang fisik tunai" class="w-full px-3 py-2 text-base font-black border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+          <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 text-xs font-bold text-slate-700">
+            <span>Status Selisih Kas:</span>
+            <span id="shiftVarianceText" class="font-black text-emerald-600">Pas (Rp 0)</span>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-1">
+          <button onclick="window.copyShiftRecapWhatsApp()" class="touch-btn w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5">
+            <i class="fa-brands fa-whatsapp text-sm"></i> Salin Laporan ke WhatsApp Owner
+          </button>
+
+          <button id="confirmCloseShiftBtn" onclick="window.executeCloseShift()" class="touch-btn w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-2">
+            <i class="fa-solid fa-cloud-arrow-up"></i> <span>Tutup Shift & Simpan ke Sheets</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PIN MODAL -->
     <div id="pinModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex flex-col justify-end max-w-md mx-auto">
       <div id="pinModalCard" class="bg-white rounded-t-3xl p-6 shadow-2xl space-y-4">
         <div class="flex justify-between items-center">
@@ -441,6 +701,7 @@
       </div>
     </div>
 
+    <!-- CART DRAWER -->
     <div id="cartDrawer" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex flex-col justify-end max-w-md mx-auto">
       <div class="bg-white rounded-t-3xl p-5 shadow-2xl space-y-3 max-h-[85vh] flex flex-col">
         <div class="w-12 h-1 rounded-full bg-slate-200 mx-auto"></div>
@@ -465,19 +726,19 @@
             <span id="cartDrawerTotalItems" class="font-bold text-slate-800">0 Porsi</span>
           </div>
           <div class="flex items-center justify-between text-sm font-extrabold text-slate-900">
-            <span>Total Bayar:</span>
+            <span>Subtotal:</span>
             <span id="cartDrawerTotalPrice" class="text-emerald-600 text-base">Rp 0</span>
           </div>
           <button id="checkoutBtn" onclick="window.openPaymentModal()" class="touch-btn w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-md text-xs flex items-center justify-center gap-2">
-            <i class="fa-solid fa-credit-card"></i> Selesaikan Transaksi
+            <i class="fa-solid fa-credit-card"></i> Lanjut ke Pembayaran & Diskon
           </button>
         </div>
       </div>
     </div>
 
-    <!-- PAYMENT MODAL -->
+    <!-- PAYMENT MODAL (WITH DISCOUNT) -->
     <div id="paymentModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 max-w-md mx-auto">
-      <div class="bg-white rounded-3xl p-5 w-full shadow-2xl space-y-3.5">
+      <div class="bg-white rounded-3xl p-5 w-full shadow-2xl space-y-3 max-h-[92vh] overflow-y-auto mobile-scroll">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
           <h3 class="font-extrabold text-sm text-slate-900 flex items-center gap-1.5">
             <i class="fa-solid fa-receipt text-emerald-600"></i> Bayar Pesanan
@@ -487,11 +748,46 @@
           </button>
         </div>
 
-        <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-2xl text-center">
-          <p class="text-[10px] text-emerald-700 font-bold uppercase">Total Tagihan</p>
-          <p id="payGrandTotal" class="text-2xl font-black text-emerald-800">Rp 0</p>
+        <!-- TOTAL & DISKON BANNER -->
+        <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-2xl text-center space-y-1">
+          <div class="flex items-center justify-between text-xs text-slate-500 font-semibold px-2">
+            <span>Subtotal:</span>
+            <span id="paySubtotalDisplay" class="text-slate-700 font-bold">Rp 0</span>
+          </div>
+          <div id="discountSummaryRow" class="flex items-center justify-between text-xs text-rose-600 font-semibold px-2 hidden">
+            <span>Potongan Diskon:</span>
+            <span id="payDiscountDisplay" class="font-bold">-Rp 0</span>
+          </div>
+          <div class="pt-1 border-t border-emerald-200/60">
+            <p class="text-[10px] text-emerald-700 font-bold uppercase tracking-wider">Total yang Harus Dibayar</p>
+            <p id="payGrandTotal" class="text-2xl font-black text-emerald-800">Rp 0</p>
+          </div>
         </div>
 
+        <!-- FITUR DISKON -->
+        <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-2xl space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="text-[11px] font-extrabold text-slate-700 flex items-center gap-1">
+              <i class="fa-solid fa-tag text-amber-500"></i> Beri Diskon / Potongan Harga
+            </label>
+            <button type="button" onclick="window.applyDiscount(0)" class="text-[10px] font-bold text-rose-500 hover:text-rose-700">Hapus Diskon</button>
+          </div>
+
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
+            <input type="number" id="discountInput" oninput="window.handleManualDiscount()" min="0" placeholder="0" class="w-full pl-9 pr-3 py-1.5 text-xs font-extrabold border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+          </div>
+
+          <div class="flex gap-1 flex-wrap pt-0.5">
+            <button type="button" onclick="window.applyDiscount(2000)" class="px-2 py-1 bg-white border border-slate-200 hover:border-emerald-500 text-[10px] font-bold text-slate-700 rounded-lg shadow-2xs">Rp 2.000</button>
+            <button type="button" onclick="window.applyDiscount(5000)" class="px-2 py-1 bg-white border border-slate-200 hover:border-emerald-500 text-[10px] font-bold text-slate-700 rounded-lg shadow-2xs">Rp 5.000</button>
+            <button type="button" onclick="window.applyDiscount(10000)" class="px-2 py-1 bg-white border border-slate-200 hover:border-emerald-500 text-[10px] font-bold text-slate-700 rounded-lg shadow-2xs">Rp 10.000</button>
+            <button type="button" onclick="window.applyDiscountPercent(5)" class="px-2 py-1 bg-emerald-50 border border-emerald-300 text-[10px] font-extrabold text-emerald-800 rounded-lg">5%</button>
+            <button type="button" onclick="window.applyDiscountPercent(10)" class="px-2 py-1 bg-emerald-50 border border-emerald-300 text-[10px] font-extrabold text-emerald-800 rounded-lg">10%</button>
+          </div>
+        </div>
+
+        <!-- METODE PEMBAYARAN -->
         <div>
           <label class="block text-[11px] font-bold text-slate-600 mb-1">Metode Pembayaran</label>
           <div class="grid grid-cols-3 gap-1.5 text-xs font-bold">
@@ -523,6 +819,7 @@
       </div>
     </div>
 
+    <!-- PRODUCT MODAL -->
     <div id="productModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 max-w-md mx-auto">
       <div class="bg-white rounded-3xl p-5 w-full shadow-2xl space-y-3">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
@@ -606,7 +903,7 @@
             <input type="url" id="gasEndpointInput" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-xl text-[11px] font-mono focus:ring-2 focus:ring-emerald-500">
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-0.5 text-[10px]">Nama Kasir</label>
+            <label class="block font-bold text-slate-700 mb-0.5 text-[10px]">Nama Kasir Bawaan</label>
             <input type="text" id="cashierNameInput" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500">
           </div>
           <div>
@@ -647,7 +944,7 @@
       { id: "MNU010", nama: "Moka Intenso", kategori: "Kopi", hargaModal: 15000, hargaJual: 15000, stok: 50 },
       { id: "MNU011", nama: "Kopi Gula Aren", kategori: "Kopi", hargaModal: 15000, hargaJual: 15000, stok: 50 },
       { id: "MNU012", nama: "Blackbi", kategori: "Kopi", hargaModal: 10000, hargaJual: 10000, stok: 50 },
-      { id: "MNU013", lang: "Kopi", nama: "Butterscotch", kategori: "Kopi", hargaModal: 15000, hargaJual: 15000, stok: 50 },
+      { id: "MNU013", nama: "Butterscotch", kategori: "Kopi", hargaModal: 15000, hargaJual: 15000, stok: 50 },
       { id: "MNU014", nama: "Americano", kategori: "Kopi", hargaModal: 10000, hargaJual: 10000, stok: 50 },
       { id: "MNU015", nama: "Sunkist Original", kategori: "Segar", hargaModal: 15000, hargaJual: 15000, stok: 50 },
       { id: "MNU016", nama: "Sunkist Madu", kategori: "Segar", hargaModal: 17000, hargaJual: 17000, stok: 50 },
@@ -665,16 +962,23 @@
     let adminPin = localStorage.getItem("POS_ADMIN_PIN") || "1122";
     let isAdminUnlocked = false;
 
+    // STATE MANAJEMEN SHIFT & KAS LACI KASIR
+    let currentShift = null;
+    let shiftsHistory = [];
+
     let products = [...initialFallbackCatalog];
     let promos = [];
     let cart = [];
     let transactions = [];
+    let expenses = [];
+
     let currentTab = "kasir";
     let activeCategory = "Semua";
     let selectedPayment = "Tunai";
     let currentAdminSection = "analytics";
     let analyticsPeriod = "all";
 
+    let currentDiscountNominal = 0;
     let salesProfitChartInstance = null;
     let categorySalesChartInstance = null;
 
@@ -758,7 +1062,6 @@
     async function postToGoogleSheets(payload) {
       if (!gasApiUrl) return null;
       try {
-        // Gunakan Content-Type: text/plain agar tidak memicu CORS preflight OPTIONS di Google Apps Script
         const res = await fetch(gasApiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -767,7 +1070,7 @@
         const json = await res.json().catch(() => null);
         return json;
       } catch (e) {
-        console.warn("POST normal dialihkan/dibatasi, mencoba mode fallback:", e);
+        console.warn("POST dialihkan ke mode no-cors:", e);
         try {
           await fetch(gasApiUrl, {
             method: 'POST',
@@ -783,26 +1086,327 @@
       }
     }
 
-    window.syncFromGoogleSheets = async function(showFeedback = false) {
-      const syncDot = document.getElementById('cloudSyncDot');
-      const syncText = document.getElementById('cloudSyncStatus');
-      const spinIcon = document.getElementById('syncSpinIcon');
+    // ==========================================
+    // SISTEM SHIFT & KAS MODAL LACI KASIR
+    // Aturan baru: Saldo Laci HANYA Saldo Awal yang dimasukkan kasir dikurangi belanja
+    // ==========================================
+    function calculateCurrentDrawerCash() {
+      if (!currentShift || currentShift.status !== 'OPEN') return 0;
+      const initial = Number(currentShift.saldoAwal) || 0;
 
-      if (spinIcon) spinIcon.classList.add('fa-spin');
-      if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping";
-      if (syncText) syncText.innerText = "Sinkron Sheets...";
+      // Ambil pengeluaran belanja selama shift ini
+      let totalExpense = 0;
+      expenses.forEach(e => {
+        const matchShift = (e.shiftId && e.shiftId === currentShift.id) ||
+          (!e.shiftId && isTransactionToday(e.tanggal, e.rawDate));
+        if (matchShift) {
+          totalExpense += Number(e.nominal) || 0;
+        }
+      });
+
+      // Saldo Laci Kasir murni: Saldo Awal Shift dikurangi Belanja Toko
+      return Math.max(0, initial - totalExpense);
+    }
+
+    function updateShiftUI() {
+      const banner = document.getElementById('shiftInactiveBanner');
+      const dot = document.getElementById('shiftStatusDot');
+      const drawerBadge = document.getElementById('headerDrawerCashBadge');
+      const endBtn = document.getElementById('endShiftTopBtn');
+      const expTag = document.getElementById('expShiftActiveTag');
+      const expStartCash = document.getElementById('expShiftStartCash');
+      const expDrawerCash = document.getElementById('expCurrentDrawerCash');
+      const dashDrawerCash = document.getElementById('dashLiveDrawerCash');
+
+      if (!currentShift || currentShift.status !== 'OPEN') {
+        if (banner) banner.classList.remove('hidden');
+        if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-rose-500";
+        if (drawerBadge) drawerBadge.innerText = "Shift Tutup";
+        if (endBtn) endBtn.classList.add('hidden');
+        if (expTag) {
+          expTag.innerText = "Shift Tutup";
+          expTag.className = "text-[9px] bg-rose-500/30 px-2 py-0.5 rounded-full font-black text-rose-100";
+        }
+        if (expStartCash) expStartCash.innerText = "Rp 0";
+        if (expDrawerCash) expDrawerCash.innerText = "Rp 0";
+        if (dashDrawerCash) dashDrawerCash.innerText = "Rp 0 (Shift Tutup)";
+      } else {
+        if (banner) banner.classList.add('hidden');
+        if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
+        const currentCash = calculateCurrentDrawerCash();
+        const strCash = formatRupiah(currentCash);
+
+        if (drawerBadge) drawerBadge.innerText = `Modal: ${strCash}`;
+        if (endBtn) endBtn.classList.remove('hidden');
+        if (expTag) {
+          expTag.innerText = `Shift: ${currentShift.kasir}`;
+          expTag.className = "text-[9px] bg-emerald-500/30 px-2 py-0.5 rounded-full font-black text-emerald-100";
+        }
+        if (expStartCash) expStartCash.innerText = formatRupiah(currentShift.saldoAwal);
+        if (expDrawerCash) expDrawerCash.innerText = strCash;
+        if (dashDrawerCash) dashDrawerCash.innerText = strCash;
+      }
+    }
+
+    window.openStartShiftModal = function() {
+      document.getElementById('startShiftCashierInput').value = cashierName;
+      document.getElementById('startShiftInitialCashInput').value = 100000;
+      document.getElementById('startShiftModal').classList.remove('hidden');
+    };
+
+    window.closeStartShiftModal = function() {
+      document.getElementById('startShiftModal').classList.add('hidden');
+    };
+
+    window.confirmStartShift = async function() {
+      const cashier = document.getElementById('startShiftCashierInput').value.trim() || cashierName;
+      const initialCash = Number(document.getElementById('startShiftInitialCashInput').value) || 0;
+      setBtnLoading('startShiftConfirmBtn', true, 'Membuka Shift...');
+
+      const now = new Date();
+      const shiftId = "SFT" + Date.now().toString().slice(-6);
+
+      currentShift = {
+        id: shiftId,
+        kasir: cashier,
+        waktuBuka: now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ", " + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        waktuTutup: "-",
+        saldoAwal: initialCash,
+        totalTunai: 0,
+        totalNonTunai: 0,
+        totalBelanja: 0,
+        kasAkhirSistem: initialCash,
+        uangFisikKasir: initialCash,
+        selisih: 0,
+        status: "OPEN",
+        rawDate: now.toISOString()
+      };
+
+      cashierName = cashier;
+      localStorage.setItem("POS_CASHIER_NAME", cashierName);
+      localStorage.setItem("POS_CURRENT_SHIFT", JSON.stringify(currentShift));
 
       try {
-        // 1. Tarik Produk dari Google Sheets
+        await postToGoogleSheets({ action: "saveShift", shift: currentShift });
+      } catch(e){}
+
+      setBtnLoading('startShiftConfirmBtn', false, '', '<i class="fa-solid fa-play"></i> <span>Mulai Shift Sekarang</span>');
+      window.closeStartShiftModal();
+      updateShiftUI();
+      renderAdminAnalytics();
+      showToast("Shift Dibuka", `Kas modal awal ${formatRupiah(initialCash)} tercatat`, "success");
+    };
+
+    window.openCloseShiftModal = function() {
+      if (!currentShift || currentShift.status !== 'OPEN') {
+        window.openStartShiftModal();
+        return;
+      }
+
+      // Hitung ringkasan kasir shift ini
+      let totalTunai = 0;
+      let totalNonTunai = 0;
+      transactions.forEach(t => {
+        const matchShift = (t.shiftId && t.shiftId === currentShift.id) || 
+          (!t.shiftId && isTransactionToday(t.tanggal, t.rawDate));
+        if (matchShift) {
+          if (t.metode === 'Tunai') totalTunai += Number(t.total) || 0;
+          else totalNonTunai += Number(t.total) || 0;
+        }
+      });
+
+      let totalBelanja = 0;
+      expenses.forEach(e => {
+        const matchShift = (e.shiftId && e.shiftId === currentShift.id) ||
+          (!e.shiftId && isTransactionToday(e.tanggal, e.rawDate));
+        if (matchShift) {
+          totalBelanja += Number(e.nominal) || 0;
+        }
+      });
+
+      const initial = Number(currentShift.saldoAwal) || 0;
+      const sisaModal = Math.max(0, initial - totalBelanja);
+      const totalUangFisikSeharusnya = sisaModal + totalTunai;
+
+      document.getElementById('recapShiftCashier').innerText = currentShift.kasir;
+      document.getElementById('recapShiftStartTime').innerText = currentShift.waktuBuka;
+      document.getElementById('recapShiftInitialCash').innerText = formatRupiah(initial);
+      document.getElementById('recapShiftExpenses').innerText = `-${formatRupiah(totalBelanja)}`;
+      document.getElementById('recapShiftRemainingModal').innerText = formatRupiah(sisaModal);
+      document.getElementById('recapShiftCashSales').innerText = `+${formatRupiah(totalTunai)}`;
+      document.getElementById('recapShiftNonCashSales').innerText = formatRupiah(totalNonTunai);
+      document.getElementById('recapShiftExpectedCash').innerText = formatRupiah(totalUangFisikSeharusnya);
+
+      const actualInput = document.getElementById('actualCashDrawerInput');
+      actualInput.value = totalUangFisikSeharusnya;
+      window.calcShiftVariance();
+
+      document.getElementById('closeShiftModal').classList.remove('hidden');
+    };
+
+    window.closeCloseShiftModal = function() {
+      document.getElementById('closeShiftModal').classList.add('hidden');
+    };
+
+    window.calcShiftVariance = function() {
+      if (!currentShift) return;
+      const initial = Number(currentShift.saldoAwal) || 0;
+      let totalTunai = 0, totalBelanja = 0;
+      transactions.forEach(t => {
+        const matchShift = (t.shiftId && t.shiftId === currentShift.id) || (!t.shiftId && isTransactionToday(t.tanggal, t.rawDate));
+        if (matchShift && t.metode === 'Tunai') totalTunai += Number(t.total) || 0;
+      });
+      expenses.forEach(e => {
+        const matchShift = (e.shiftId && e.shiftId === currentShift.id) || (!e.shiftId && isTransactionToday(e.tanggal, e.rawDate));
+        if (matchShift) totalBelanja += Number(e.nominal) || 0;
+      });
+
+      const expectedTotal = Math.max(0, initial - totalBelanja + totalTunai);
+      const actual = Number(document.getElementById('actualCashDrawerInput').value) || 0;
+      const diff = actual - expectedTotal;
+      const el = document.getElementById('shiftVarianceText');
+
+      if (diff === 0) {
+        el.innerText = `Pas (${formatRupiah(0)})`;
+        el.className = "font-black text-emerald-600";
+      } else if (diff > 0) {
+        el.innerText = `Lebih +${formatRupiah(diff)}`;
+        el.className = "font-black text-cyan-600";
+      } else {
+        el.innerText = `Kurang -${formatRupiah(Math.abs(diff))}`;
+        el.className = "font-black text-rose-600";
+      }
+    };
+
+    window.copyShiftRecapWhatsApp = function() {
+      if (!currentShift) return;
+      const now = new Date();
+      const endTime = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+      let totalTunai = 0, totalNonTunai = 0;
+      transactions.forEach(t => {
+        const matchShift = (t.shiftId && t.shiftId === currentShift.id) || (!t.shiftId && isTransactionToday(t.tanggal, t.rawDate));
+        if (matchShift) {
+          if (t.metode === 'Tunai') totalTunai += Number(t.total) || 0;
+          else totalNonTunai += Number(t.total) || 0;
+        }
+      });
+
+      let totalBelanja = 0;
+      expenses.forEach(e => {
+        const matchShift = (e.shiftId && e.shiftId === currentShift.id) || (!e.shiftId && isTransactionToday(e.tanggal, e.rawDate));
+        if (matchShift) totalBelanja += Number(e.nominal) || 0;
+      });
+
+      const initial = Number(currentShift.saldoAwal) || 0;
+      const sisaModal = Math.max(0, initial - totalBelanja);
+      const expectedTotal = sisaModal + totalTunai;
+      const actual = Number(document.getElementById('actualCashDrawerInput').value) || expectedTotal;
+      const diff = actual - expectedTotal;
+      const diffStr = diff === 0 ? "PAS (Rp 0)" : (diff > 0 ? `Lebih +${formatRupiah(diff)}` : `Kurang -${formatRupiah(Math.abs(diff))}`);
+
+      const waText = 
+`🏁 *LAPORAN REKAP TUTUP SHIFT KASIR* 🏁
+📅 Tanggal: ${now.toLocaleDateString('id-ID')}
+👤 Kasir: ${currentShift.kasir}
+⏱️ Jam: ${currentShift.waktuBuka} s/d ${endTime}
+
+💰 *Kas Modal Kasir (Saldo Awal):*
+• Saldo Awal Masuk: ${formatRupiah(initial)}
+• Belanja Operasional: -${formatRupiah(totalBelanja)}
+• Sisa Saldo Modal Kasir: *${formatRupiah(sisaModal)}*
+----------------------------------
+💵 *Hasil Penjualan Shift:*
+• Penjualan Tunai: +${formatRupiah(totalTunai)}
+• Penjualan Non-Tunai: ${formatRupiah(totalNonTunai)}
+• Total Omset: ${formatRupiah(totalTunai + totalNonTunai)}
+----------------------------------
+*Total Uang Fisik di Meja Seharusnya:* ${formatRupiah(expectedTotal)}
+*Uang Fisik Dihitung Kasir:* ${formatRupiah(actual)}
+*Status Selisih:* ${diffStr}
+
+_Laporan otomatis dari Kasir Pintar POS Mobile_`;
+
+      const temp = document.createElement('textarea');
+      temp.value = waText;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+
+      showToast("Teks Disalin", "Rekap shift siap di-paste ke WhatsApp Owner!", "success");
+    };
+
+    window.executeCloseShift = async function() {
+      if (!currentShift) return;
+      setBtnLoading('confirmCloseShiftBtn', true, 'Menutup Shift...');
+
+      const now = new Date();
+      const endTime = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ", " + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+      let totalTunai = 0, totalNonTunai = 0;
+      transactions.forEach(t => {
+        const matchShift = (t.shiftId && t.shiftId === currentShift.id) || (!t.shiftId && isTransactionToday(t.tanggal, t.rawDate));
+        if (matchShift) {
+          if (t.metode === 'Tunai') totalTunai += Number(t.total) || 0;
+          else totalNonTunai += Number(t.total) || 0;
+        }
+      });
+
+      let totalBelanja = 0;
+      expenses.forEach(e => {
+        const matchShift = (e.shiftId && e.shiftId === currentShift.id) || (!e.shiftId && isTransactionToday(e.tanggal, e.rawDate));
+        if (matchShift) totalBelanja += Number(e.nominal) || 0;
+      });
+
+      const initial = Number(currentShift.saldoAwal) || 0;
+      const sisaModal = Math.max(0, initial - totalBelanja);
+      const expectedTotal = sisaModal + totalTunai;
+      const actual = Number(document.getElementById('actualCashDrawerInput').value) || expectedTotal;
+      const diff = actual - expectedTotal;
+
+      currentShift.waktuTutup = endTime;
+      currentShift.totalTunai = totalTunai;
+      currentShift.totalNonTunai = totalNonTunai;
+      currentShift.totalBelanja = totalBelanja;
+      currentShift.kasAkhirSistem = expectedTotal;
+      currentShift.uangFisikKasir = actual;
+      currentShift.selisih = diff;
+      currentShift.status = "CLOSED";
+
+      shiftsHistory.unshift({...currentShift});
+      localStorage.setItem("POS_SHIFTS_HISTORY", JSON.stringify(shiftsHistory));
+      localStorage.removeItem("POS_CURRENT_SHIFT");
+
+      try {
+        await postToGoogleSheets({ action: "saveShift", shift: currentShift });
+      } catch(e){}
+
+      currentShift = null;
+      setBtnLoading('confirmCloseShiftBtn', false, '', '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Tutup Shift & Simpan ke Sheets</span>');
+      window.closeCloseShiftModal();
+      updateShiftUI();
+      renderAdminAnalytics();
+      showToast("Shift Selesai", "Laporan tutup shift tersimpan di Sheets & riwayat!", "success");
+    };
+
+    // ==========================================
+    // SINKRONISASI GOOGLE SHEETS
+    // ==========================================
+    window.syncFromGoogleSheets = async function(showFeedback = false) {
+      const spinIcon = document.getElementById('syncSpinIcon');
+      if (spinIcon) spinIcon.classList.add('fa-spin');
+
+      try {
+        // 1. Tarik Produk
         const res = await fetch(`${gasApiUrl}?action=getProducts`);
         const json = await res.json();
-
         if (json && json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
           products = json.data;
           localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
         }
 
-        // 2. Tarik Transaksi dari Google Sheets
+        // 2. Tarik Transaksi
         try {
           const resTrx = await fetch(`${gasApiUrl}?action=getTransactions`);
           const jsonTrx = await resTrx.json();
@@ -817,46 +1421,65 @@
                 rawDate: t.rawDate || (parsedDate ? parsedDate.toISOString() : null),
                 kasir: t.kasir,
                 total: Number(t.total) || 0,
+                subtotal: Number(t.subtotal) || Number(t.total) || 0,
+                diskon: Number(t.diskon) || 0,
                 metode: t.metode || "Tunai",
+                shiftId: t.shiftId || "",
                 items: parsedItems
               };
             });
             localStorage.setItem("POS_CACHED_TRANSACTIONS", JSON.stringify(transactions));
           }
-        } catch(e) {
-          console.warn("Gagal tarik transaksi Sheets:", e);
-        }
+        } catch(e){}
+
+        // 3. Tarik Pengeluaran Belanja
+        try {
+          const resExp = await fetch(`${gasApiUrl}?action=getExpenses`);
+          const jsonExp = await resExp.json();
+          if (jsonExp && jsonExp.status === 'success' && Array.isArray(jsonExp.data)) {
+            expenses = jsonExp.data.map(exp => {
+              const pDate = parseUniversalDate(exp.tanggal, exp.rawDate);
+              return {
+                id: exp.id,
+                tanggal: exp.tanggal,
+                rawDate: exp.rawDate || (pDate ? pDate.toISOString() : null),
+                nominal: Number(exp.nominal) || 0,
+                keterangan: exp.keterangan || "",
+                kategori: exp.kategori || "Bahan Baku",
+                kasir: exp.kasir || "Kasir",
+                shiftId: exp.shiftId || ""
+              };
+            });
+            localStorage.setItem("POS_CACHED_EXPENSES", JSON.stringify(expenses));
+          }
+        } catch(e){}
 
         renderProductGrid();
         renderAdminProducts();
         renderAdminAnalytics();
+        renderExpenses();
+        updateShiftUI();
 
-        if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
-        if (syncText) syncText.innerText = "Sheets Terhubung • Live";
-        if (showFeedback) showToast("Sinkron Berhasil", `${products.length} menu & transaksi termuat`, "success");
+        if (showFeedback) showToast("Sinkron Berhasil", "Data produk, transaksi, & kas modal sinkron", "success");
 
       } catch (err) {
-        console.warn("Menggunakan data lokal HP:", err);
+        console.warn("Mode data lokal HP aktif:", err);
         const cached = localStorage.getItem("POS_CACHED_PRODUCTS");
-        if (cached) {
-          try { products = JSON.parse(cached); } catch(e){}
-        }
+        if (cached) { try { products = JSON.parse(cached); } catch(e){} }
 
         const cachedTrx = localStorage.getItem("POS_CACHED_TRANSACTIONS");
-        if (cachedTrx) {
-          try { transactions = JSON.parse(cachedTrx); } catch(e){}
-        }
+        if (cachedTrx) { try { transactions = JSON.parse(cachedTrx); } catch(e){} }
+
+        const cachedExp = localStorage.getItem("POS_CACHED_EXPENSES");
+        if (cachedExp) { try { expenses = JSON.parse(cachedExp); } catch(e){} }
 
         renderProductGrid();
         renderAdminProducts();
         renderAdminAnalytics();
+        renderExpenses();
+        updateShiftUI();
 
-        if (syncDot) syncDot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
-        if (syncText) syncText.innerText = "Siap Digunakan (Offline)";
-
-        if (showFeedback) {
-          showToast("Koneksi Sheets", "Data lokal aktif di HP", "info");
-        }
+        if (showFeedback) showToast("Data Offline", "Data lokal HP digunakan", "info");
       } finally {
         if (spinIcon) spinIcon.classList.remove('fa-spin');
       }
@@ -935,14 +1558,11 @@
 
     window.setCategory = function(cat) {
       activeCategory = cat;
-      const indicator = document.getElementById('categoryActiveIndicator');
-      if (indicator) indicator.innerText = cat === 'Semua' ? 'Semua Menu' : (cat === 'Makanan' ? 'Menu Kebab' : `Varian ${cat}`);
-
       document.querySelectorAll('.cat-pill').forEach(btn => {
         if (btn.innerText.includes(cat) || (cat === 'Makanan' && btn.innerText.includes('Kebab'))) {
-          btn.className = "cat-pill active px-3 py-1.5 text-[11px] font-bold rounded-xl bg-emerald-600 text-white shadow-2xs transition flex items-center gap-1";
+          btn.className = "cat-pill active px-2.5 py-1 text-[11px] font-bold rounded-xl bg-emerald-600 text-white shadow-2xs transition flex items-center gap-1";
         } else {
-          btn.className = "cat-pill px-3 py-1.5 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1";
+          btn.className = "cat-pill px-2.5 py-1 text-[11px] font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 transition flex items-center gap-1";
         }
       });
       renderProductGrid();
@@ -963,19 +1583,12 @@
       if (existing) {
         existing.qty += qtyToAdd;
       } else {
-        cart.push({
-          id: prod.id,
-          nama: prod.nama,
-          harga: prod.hargaJual,
-          qty: qtyToAdd
-        });
+        cart.push({ id: prod.id, nama: prod.nama, harga: prod.hargaJual, qty: qtyToAdd });
       }
 
       updateCartBadgeAndDrawer();
       renderProductGrid();
-      if (showFeedback) {
-        showToast('Masuk Keranjang', `${qtyToAdd}x ${prod.nama}`, 'success');
-      }
+      if (showFeedback) showToast('Masuk Keranjang', `${qtyToAdd}x ${prod.nama}`, 'success');
     };
 
     window.updateCartQty = function(id, delta) {
@@ -1007,7 +1620,6 @@
 
       if (isNaN(parsedQty) || parsedQty <= 0) {
         cart.splice(idx, 1);
-        showToast('Menu Dihapus', `${prod ? prod.nama : 'Menu'} dikeluarkan dari keranjang`, 'info');
       } else if (parsedQty > availableStock) {
         showToast('Stok Terbatas', `Maksimal stok ${prod ? prod.nama : ''} hanya ${availableStock}`, 'error');
         cart[idx].qty = availableStock;
@@ -1021,6 +1633,7 @@
     window.clearCart = function() {
       if (cart.length === 0) return;
       cart = [];
+      currentDiscountNominal = 0;
       updateCartBadgeAndDrawer();
       renderProductGrid();
       showToast('Keranjang Bersih', 'Semua item dihapus', 'info');
@@ -1028,10 +1641,10 @@
 
     function updateCartBadgeAndDrawer() {
       const totalItems = cart.reduce((acc, c) => acc + c.qty, 0);
-      const totalPrice = cart.reduce((acc, c) => acc + (c.harga * c.qty), 0);
+      const subtotalPrice = cart.reduce((acc, c) => acc + (c.harga * c.qty), 0);
 
       document.getElementById('cartCountBadge').innerText = totalItems;
-      document.getElementById('cartFloatingTotal').innerText = formatRupiah(totalPrice);
+      document.getElementById('cartFloatingTotal').innerText = formatRupiah(subtotalPrice);
 
       const floatBar = document.getElementById('floatingCartBar');
       if (totalItems > 0 && currentTab === 'kasir') {
@@ -1046,7 +1659,7 @@
       const checkBtn = document.getElementById('checkoutBtn');
 
       if (drawerCount) drawerCount.innerText = `${totalItems} Porsi`;
-      if (drawerTotal) drawerTotal.innerText = formatRupiah(totalPrice);
+      if (drawerTotal) drawerTotal.innerText = formatRupiah(subtotalPrice);
       if (checkBtn) checkBtn.disabled = totalItems === 0;
 
       if (!list) return;
@@ -1075,7 +1688,7 @@
           </div>
           <div class="flex items-center gap-1.5">
             <button onclick="window.updateCartQty('${item.id}', -1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-black flex items-center justify-center active:scale-90 transition">-</button>
-            <input type="number" min="1" max="${maxStock}" value="${item.qty}" onchange="window.setCartQtyManual('${item.id}', this.value)" class="w-10 h-7 text-center font-black text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition" title="Sentuh untuk ketik porsi manual">
+            <input type="number" min="1" max="${maxStock}" value="${item.qty}" onchange="window.setCartQtyManual('${item.id}', this.value)" class="w-10 h-7 text-center font-black text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none transition">
             <button onclick="window.updateCartQty('${item.id}', 1)" class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-black flex items-center justify-center active:scale-90 transition">+</button>
           </div>
           <span class="font-black text-slate-900 min-w-[65px] text-right ml-2">${formatRupiah(item.harga * item.qty)}</span>
@@ -1091,21 +1704,74 @@
       document.getElementById('cartDrawer').classList.add('hidden');
     };
 
+    // FITUR DISKON PADA PEMBAYARAN
     window.openPaymentModal = function() {
       if (cart.length === 0) return;
       window.closeCartDrawer();
 
-      const total = cart.reduce((acc, c) => acc + (c.harga * c.qty), 0);
-      document.getElementById('payGrandTotal').innerText = formatRupiah(total);
+      currentDiscountNominal = 0;
+      const discountInput = document.getElementById('discountInput');
+      if (discountInput) discountInput.value = '';
+
+      window.recalcPaymentTotal();
+      document.getElementById('paymentModal').classList.remove('hidden');
+    };
+
+    window.closePaymentModal = function() {
+      document.getElementById('paymentModal').classList.add('hidden');
+    };
+
+    window.applyDiscount = function(nominal) {
+      currentDiscountNominal = Math.max(0, Number(nominal) || 0);
+      const discountInput = document.getElementById('discountInput');
+      if (discountInput) discountInput.value = currentDiscountNominal > 0 ? currentDiscountNominal : '';
+      window.recalcPaymentTotal();
+    };
+
+    window.applyDiscountPercent = function(pct) {
+      const subtotal = cart.reduce((acc, c) => acc + (c.harga * c.qty), 0);
+      const disc = Math.round((subtotal * pct) / 100);
+      window.applyDiscount(disc);
+    };
+
+    window.handleManualDiscount = function() {
+      const val = Number(document.getElementById('discountInput').value) || 0;
+      currentDiscountNominal = Math.max(0, val);
+      window.recalcPaymentTotal();
+    };
+
+    window.recalcPaymentTotal = function() {
+      const subtotal = cart.reduce((acc, c) => acc + (c.harga * c.qty), 0);
+      
+      if (currentDiscountNominal > subtotal) {
+        currentDiscountNominal = subtotal;
+        const discountInput = document.getElementById('discountInput');
+        if (discountInput) discountInput.value = currentDiscountNominal;
+      }
+
+      const grandTotal = Math.max(0, subtotal - currentDiscountNominal);
+
+      document.getElementById('paySubtotalDisplay').innerText = formatRupiah(subtotal);
+      const discRow = document.getElementById('discountSummaryRow');
+      const discText = document.getElementById('payDiscountDisplay');
+
+      if (currentDiscountNominal > 0) {
+        discRow.classList.remove('hidden');
+        discText.innerText = `-${formatRupiah(currentDiscountNominal)}`;
+      } else {
+        discRow.classList.add('hidden');
+      }
+
+      document.getElementById('payGrandTotal').innerText = formatRupiah(grandTotal);
 
       const cashInput = document.getElementById('cashReceivedInput');
-      cashInput.value = total;
+      cashInput.value = grandTotal;
       window.calcChange();
 
       const quickDiv = document.getElementById('quickCashButtons');
       quickDiv.innerHTML = '';
-      const listSuggest = [total, Math.ceil(total / 10000) * 10000, 50000, 100000];
-      const sortedUniq = [...new Set(listSuggest)].filter(v => v >= total).sort((a,b) => a - b).slice(0, 4);
+      const listSuggest = [grandTotal, Math.ceil(grandTotal / 10000) * 10000, 50000, 100000];
+      const sortedUniq = [...new Set(listSuggest)].filter(v => v >= grandTotal).sort((a,b) => a - b).slice(0, 4);
 
       sortedUniq.forEach(val => {
         const b = document.createElement('button');
@@ -1117,12 +1783,6 @@
         };
         quickDiv.appendChild(b);
       });
-
-      document.getElementById('paymentModal').classList.remove('hidden');
-    };
-
-    window.closePaymentModal = function() {
-      document.getElementById('paymentModal').classList.add('hidden');
     };
 
     window.selectPaymentMethod = function(method) {
@@ -1141,9 +1801,10 @@
     };
 
     window.calcChange = function() {
-      const total = cart.reduce((acc, c) => acc + (c.harga * c.qty), 0);
+      const subtotal = cart.reduce((acc, c) => acc + (c.harga * c.qty), 0);
+      const grandTotal = Math.max(0, subtotal - currentDiscountNominal);
       const received = Number(document.getElementById('cashReceivedInput').value) || 0;
-      const change = received - total;
+      const change = received - grandTotal;
       const el = document.getElementById('changeReturnText');
 
       if (change < 0) {
@@ -1156,21 +1817,26 @@
     };
 
     window.executeCheckout = async function() {
-      const total = cart.reduce((acc, c) => acc + (c.harga * c.qty), 0);
+      const subtotal = cart.reduce((acc, c) => acc + (c.harga * c.qty), 0);
+      const grandTotal = Math.max(0, subtotal - currentDiscountNominal);
       const received = Number(document.getElementById('cashReceivedInput').value) || 0;
 
-      if (selectedPayment === 'Tunai' && received < total) {
+      if (selectedPayment === 'Tunai' && received < grandTotal) {
         showToast('Uang Kurang', 'Nominal diterima belum cukup', 'error');
         return;
       }
 
       setBtnLoading('finishPaymentBtn', true, 'Menyimpan ke Sheets...');
 
+      const currentShiftId = currentShift ? currentShift.id : "";
       const transPayload = {
         action: "saveTransaction",
         kasir: cashierName,
-        total: total,
+        subtotal: subtotal,
+        diskon: currentDiscountNominal,
+        total: grandTotal,
         metode: selectedPayment,
+        shiftId: currentShiftId,
         items: cart.map(i => ({ id: i.id, nama: i.nama, qty: i.qty, harga: i.harga }))
       };
 
@@ -1189,23 +1855,28 @@
           tanggal: now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ", " + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
           rawDate: now.toISOString(),
           kasir: cashierName,
-          total: total,
+          subtotal: subtotal,
+          diskon: currentDiscountNominal,
+          total: grandTotal,
           metode: selectedPayment,
+          shiftId: currentShiftId,
           items: cart.map(i => ({ id: i.id, nama: i.nama, qty: i.qty, harga: i.harga }))
         };
         transactions.unshift(newLocalTrx);
         localStorage.setItem("POS_CACHED_TRANSACTIONS", JSON.stringify(transactions));
 
-        // Simpan langsung ke database Google Sheets
         await postToGoogleSheets(transPayload);
 
         window.closePaymentModal();
-        showToast('Transaksi Berhasil!', `Total ${formatRupiah(total)} tercatat di Google Sheets`, 'success');
+        showToast('Transaksi Berhasil!', `Total ${formatRupiah(grandTotal)} ${currentDiscountNominal > 0 ? `(Diskon ${formatRupiah(currentDiscountNominal)})` : ''} tercatat`, 'success');
+        
         cart = [];
+        currentDiscountNominal = 0;
         updateCartBadgeAndDrawer();
         renderProductGrid();
         renderAdminProducts();
         renderAdminAnalytics();
+        updateShiftUI();
 
         setTimeout(() => window.syncFromGoogleSheets(false), 1200);
 
@@ -1216,6 +1887,121 @@
       }
     };
 
+    // ==========================================
+    // LOGIKA FITUR PENGELUARAN (MEMOTONG SALDO KASIR)
+    // ==========================================
+    window.submitExpenseForm = async function(e) {
+      e.preventDefault();
+      const nominal = Number(document.getElementById('formExpNominal').value) || 0;
+      const keterangan = document.getElementById('formExpKeterangan').value.trim();
+      const kategori = document.getElementById('formExpKategori').value;
+      const kasir = document.getElementById('formExpKasir').value.trim() || cashierName;
+
+      if (nominal <= 0 || !keterangan) {
+        showToast('Form Belum Lengkap', 'Nominal dan keterangan belanja wajib diisi', 'error');
+        return;
+      }
+
+      setBtnLoading('saveExpenseSubmitBtn', true, 'Memotong Kas Modal...');
+
+      const now = new Date();
+      const newExp = {
+        id: "EXP" + Date.now().toString().slice(-6),
+        tanggal: now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ", " + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        rawDate: now.toISOString(),
+        nominal: nominal,
+        keterangan: keterangan,
+        kategori: kategori,
+        kasir: kasir,
+        shiftId: currentShift ? currentShift.id : ""
+      };
+
+      try {
+        expenses.unshift(newExp);
+        localStorage.setItem("POS_CACHED_EXPENSES", JSON.stringify(expenses));
+        renderExpenses();
+        renderAdminAnalytics();
+        updateShiftUI();
+
+        await postToGoogleSheets({ action: "saveExpense", expense: newExp });
+
+        document.getElementById('expenseForm').reset();
+        document.getElementById('formExpKasir').value = cashierName;
+        showToast('Belanja Dicatat', `${formatRupiah(nominal)} dipotong dari uang modal kasir!`, 'success');
+
+        setTimeout(() => window.syncFromGoogleSheets(false), 1200);
+
+      } catch (err) {
+        console.warn("Gagal kirim pengeluaran:", err);
+      } finally {
+        setBtnLoading('saveExpenseSubmitBtn', false, '', '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Potong dari Kas Modal & Simpan</span>');
+      }
+    };
+
+    window.deleteExpense = async function(id) {
+      expenses = expenses.filter(e => e.id !== id);
+      localStorage.setItem("POS_CACHED_EXPENSES", JSON.stringify(expenses));
+      renderExpenses();
+      renderAdminAnalytics();
+      updateShiftUI();
+
+      showToast('Dihapus', `Catatan belanja dihapus & saldo kas disesuaikan`, 'info');
+      try {
+        await postToGoogleSheets({ action: "deleteExpense", id: id });
+      } catch(e){}
+    };
+
+    function renderExpenses() {
+      const listContainer = document.getElementById('expenseListContainer');
+      const todayTotalEl = document.getElementById('expTodayTotal');
+      const badgeCountEl = document.getElementById('expenseCountBadge');
+
+      let todaySum = 0;
+      expenses.forEach(e => {
+        if (isTransactionToday(e.tanggal, e.rawDate)) todaySum += Number(e.nominal) || 0;
+      });
+
+      if (todayTotalEl) todayTotalEl.innerText = formatRupiah(todaySum);
+      if (badgeCountEl) badgeCountEl.innerText = `${expenses.length} Catatan`;
+
+      if (!listContainer) return;
+      listContainer.innerHTML = '';
+
+      if (expenses.length === 0) {
+        listContainer.innerHTML = `
+          <div class="py-6 text-center text-slate-400">
+            <i class="fa-solid fa-basket-shopping text-2xl mb-1 opacity-30"></i>
+            <p class="text-xs">Belum ada pengeluaran belanja</p>
+          </div>
+        `;
+        return;
+      }
+
+      expenses.slice(0, 15).forEach(e => {
+        const item = document.createElement('div');
+        item.className = "pt-2 pb-1.5 flex items-center justify-between text-xs";
+        item.innerHTML = `
+          <div class="truncate flex-1 pr-2">
+            <div class="flex items-center gap-1.5">
+              <span class="font-extrabold text-slate-800 text-[11px] truncate">${e.keterangan}</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-50 text-amber-800 border border-amber-200">${e.kategori}</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-0.5">${e.tanggal || 'Hari Ini'} • ${e.kasir}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-black text-amber-700 text-xs">${formatRupiah(e.nominal)}</span>
+            <button onclick="window.deleteExpense('${e.id}')" title="Hapus catatan" class="w-6 h-6 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center text-[10px]">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        `;
+        listContainer.appendChild(item);
+      });
+    }
+
+    // ==========================================
+    // VOICE ORDER CERDAS MULTI-MENU
+    // ==========================================
     window.startVoiceOrder = function() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
@@ -1233,11 +2019,11 @@
 
       box.classList.remove('hidden');
       txt.innerText = "Silakan bicara sekarang...";
-      startBtn.className = "touch-btn py-2.5 px-3 rounded-xl bg-red-600 text-white font-bold text-xs flex items-center justify-center gap-2 recording-pulse shadow-md transition";
+      startBtn.className = "touch-btn py-2 px-3 rounded-xl bg-red-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 recording-pulse shadow-md transition";
       document.getElementById('voiceStartBtnLabel').innerText = "Mendengarkan...";
 
       analyzeBtn.disabled = false;
-      analyzeBtn.className = "touch-btn py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition";
+      analyzeBtn.className = "touch-btn py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition";
 
       isRecordingVoice = true;
       voiceRecognition = new SpeechRecognition();
@@ -1277,12 +2063,12 @@
         try { voiceRecognition.stop(); } catch(e){}
       }
 
-      document.getElementById('voiceStartBtn').className = "touch-btn py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition";
+      document.getElementById('voiceStartBtn').className = "touch-btn py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition";
       document.getElementById('voiceStartBtnLabel').innerText = "Mulai Bicara";
       
       const analyzeBtn = document.getElementById('voiceAnalyzeBtn');
       analyzeBtn.disabled = true;
-      analyzeBtn.className = "touch-btn py-2.5 px-3 rounded-xl bg-slate-700 text-slate-400 font-bold text-xs flex items-center justify-center gap-1.5 transition opacity-50 cursor-not-allowed";
+      analyzeBtn.className = "touch-btn py-2 px-3 rounded-xl bg-slate-700 text-slate-400 font-bold text-xs flex items-center justify-center gap-1.5 transition opacity-50 cursor-not-allowed";
 
       const finalSpeech = voiceBufferText.toLowerCase().trim();
       document.getElementById('transcriptText').innerText = `Dianalisa: "${finalSpeech}"`;
@@ -1371,7 +2157,7 @@
 
       const itemIds = Object.keys(ordersDetected);
       if (itemIds.length === 0) {
-        showToast('Menu Tidak Cocok', `Coba katakan: "kebab daging 2" atau "aren 3"`, 'error');
+        showToast('Menu Tidak Cocok', `Coba katakan: "aren 3" atau "kebab daging 2"`, 'error');
         return;
       }
 
@@ -1388,49 +2174,65 @@
       showToast('Pesanan Ditambahkan', summaryNames.join(', '), 'success');
     }
 
+    // ==========================================
+    // TAB SWITCHER & KEAMANAN PIN
+    // ==========================================
     window.activateTab = function(tab) {
       currentTab = tab;
       const navKasir = document.getElementById('navKasirBtn');
+      const navExpense = document.getElementById('navExpenseBtn');
       const navAdmin = document.getElementById('navAdminBtn');
+      
       const viewKasir = document.getElementById('tabKasirView');
+      const viewExpense = document.getElementById('tabExpenseView');
       const viewAdmin = document.getElementById('tabAdminView');
+
       const headerRoleBadge = document.getElementById('headerRoleBadge');
       const lockAdminBtn = document.getElementById('lockAdminBtn');
+
+      [navKasir, navExpense, navAdmin].forEach(btn => {
+        btn.className = "flex-1 flex flex-col items-center gap-1 text-slate-400 font-semibold text-[11px] transition";
+        btn.querySelector('div').className = "w-8 h-8 rounded-xl bg-transparent flex items-center justify-center text-slate-500 relative";
+      });
+
+      viewKasir.classList.add('hidden');
+      viewExpense.classList.add('hidden');
+      viewAdmin.classList.add('hidden');
+      lockAdminBtn.classList.add('hidden');
 
       if (tab === 'admin') {
         if (!isAdminUnlocked) {
           window.openPinModal();
           return;
         }
-        viewKasir.classList.add('hidden');
         viewAdmin.classList.remove('hidden');
-
-        navKasir.className = "flex flex-col items-center gap-1 text-slate-400 font-semibold text-[11px] transition";
-        navKasir.querySelector('div').className = "w-9 h-9 rounded-2xl bg-transparent flex items-center justify-center text-slate-500";
-
-        navAdmin.className = "flex flex-col items-center gap-1 text-emerald-600 font-extrabold text-[11px] transition";
-        navAdmin.querySelector('div').className = "w-9 h-9 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 relative";
+        navAdmin.className = "flex-1 flex flex-col items-center gap-1 text-emerald-600 font-extrabold text-[11px] transition";
+        navAdmin.querySelector('div').className = "w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 relative";
 
         headerRoleBadge.innerText = "ADMIN";
         headerRoleBadge.className = "text-[9px] font-extrabold bg-slate-900 text-white px-1.5 py-0.5 rounded-full";
         lockAdminBtn.classList.remove('hidden');
-
         window.switchAdminSection(currentAdminSection || 'analytics');
+
+      } else if (tab === 'expense') {
+        viewExpense.classList.remove('hidden');
+        navExpense.className = "flex-1 flex flex-col items-center gap-1 text-amber-600 font-extrabold text-[11px] transition";
+        navExpense.querySelector('div').className = "w-8 h-8 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 relative";
+
+        headerRoleBadge.innerText = "BELANJA";
+        headerRoleBadge.className = "text-[9px] font-extrabold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded-full";
+        renderExpenses();
+        updateShiftUI();
+
       } else {
-        viewAdmin.classList.add('hidden');
         viewKasir.classList.remove('hidden');
-
-        navAdmin.className = "flex flex-col items-center gap-1 text-slate-400 font-semibold text-[11px] transition";
-        navAdmin.querySelector('div').className = "w-9 h-9 rounded-2xl bg-transparent flex items-center justify-center text-slate-500 relative";
-
-        navKasir.className = "flex flex-col items-center gap-1 text-emerald-600 font-extrabold text-[11px] transition";
-        navKasir.querySelector('div').className = "w-9 h-9 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600";
+        navKasir.className = "flex-1 flex flex-col items-center gap-1 text-emerald-600 font-extrabold text-[11px] transition";
+        navKasir.querySelector('div').className = "w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600";
 
         headerRoleBadge.innerText = "KASIR";
         headerRoleBadge.className = "text-[9px] font-extrabold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full";
-        lockAdminBtn.classList.add('hidden');
-
         updateCartBadgeAndDrawer();
+        updateShiftUI();
       }
     };
 
@@ -1483,7 +2285,7 @@
     function verifyAdminPin() {
       if (enteredPin === adminPin) {
         isAdminUnlocked = true;
-        document.getElementById('navAdminLockIcon').className = "fa-solid fa-lock-open text-[9px] text-emerald-600";
+        document.getElementById('navAdminLockIcon').className = "fa-solid fa-lock-open text-[8px] text-emerald-600";
         document.getElementById('navAdminLockDot').classList.add('hidden');
         window.closePinModal();
         window.activateTab('admin');
@@ -1502,7 +2304,7 @@
 
     window.lockAdminSession = function() {
       isAdminUnlocked = false;
-      document.getElementById('navAdminLockIcon').className = "fa-solid fa-lock text-[9px] text-slate-400";
+      document.getElementById('navAdminLockIcon').className = "fa-solid fa-lock text-[8px] text-slate-400";
       document.getElementById('navAdminLockDot').classList.remove('hidden');
       activateTab('kasir');
       showToast('Terkunci', 'Sesi Admin diamankan', 'info');
@@ -1636,19 +2438,26 @@
       setBtnLoading('refreshAnalyticsBtn', true, 'Memuat...');
       await window.syncFromGoogleSheets(false);
       renderAdminAnalytics();
+      updateShiftUI();
       setTimeout(() => {
         setBtnLoading('refreshAnalyticsBtn', false, '', '<i class="fa-solid fa-arrows-rotate text-xs"></i> <span>Refresh</span>');
         showToast('Laporan Diperbarui', 'Data diagram & transaksi disinkronkan', 'success');
       }, 400);
     };
 
+    // ==========================================
+    // PERHITUNGAN ANALYTICS & DIAGRAM
+    // ==========================================
     function renderAdminAnalytics() {
       let filteredTrx = [...transactions];
+      let filteredExp = [...expenses];
 
       if (analyticsPeriod === 'today') {
         filteredTrx = filteredTrx.filter(t => isTransactionToday(t.tanggal, t.rawDate));
+        filteredExp = filteredExp.filter(e => isTransactionToday(e.tanggal, e.rawDate));
       } else if (analyticsPeriod === 'month') {
         filteredTrx = filteredTrx.filter(t => isTransactionThisMonth(t.tanggal, t.rawDate));
+        filteredExp = filteredExp.filter(e => isTransactionThisMonth(e.tanggal, e.rawDate));
       }
 
       let totalSales = 0;
@@ -1668,6 +2477,7 @@
           const modal = prod ? (Number(prod.hargaModal) || 0) : 0;
           const jual = prod ? (Number(prod.hargaJual) || Number(it.harga) || 0) : (Number(it.harga) || 0);
           
+          // Laba produk murni (Harga Jual - Harga Modal)
           const itemProfit = (jual > modal && modal > 0) ? (jual - modal) * qty : Math.round(jual * 0.4) * qty;
           totalProfit += itemProfit;
 
@@ -1682,21 +2492,25 @@
         });
       });
 
-      document.getElementById('dashTotalSales').innerText = formatRupiah(totalSales);
-      document.getElementById('dashTotalProfit').innerText = formatRupiah(totalProfit);
-      const profitMarginPct = totalSales > 0 ? ((totalProfit / totalSales) * 100).toFixed(1) : 0;
-      document.getElementById('dashProfitMargin').innerText = `Margin Laba: ${profitMarginPct}%`;
-      document.getElementById('dashTotalCups').innerText = `${totalCups} Porsi`;
-      document.getElementById('dashTotalTrx').innerText = `${filteredTrx.length} Nota`;
-
-      const avgOrder = filteredTrx.length > 0 ? Math.round(totalSales / filteredTrx.length) : 0;
-      document.getElementById('dashAvgOrder').innerText = `Rerata: ${formatRupiah(avgOrder)}`;
+      // Total Belanja Toko (Pengeluaran Operasional)
+      const totalExpenseSum = filteredExp.reduce((acc, e) => acc + (Number(e.nominal) || 0), 0);
       
-      const subtextEl = document.getElementById('dashSalesSubtext');
-      if (subtextEl) {
-        subtextEl.innerText = analyticsPeriod === 'today' ? "Penjualan Hari Ini" :
-                              analyticsPeriod === 'month' ? "Penjualan Bulan Ini" : "Total Penjualan Kotor";
-      }
+      // OMSET BERSIH (Uang Omset setelah dipotong belanja toko)
+      const netSales = Math.max(0, totalSales - totalExpenseSum);
+
+      const elSales = document.getElementById('dashTotalSales');
+      const elNetSales = document.getElementById('dashNetSales');
+      const elProfit = document.getElementById('dashTotalProfit');
+      const elExpense = document.getElementById('dashTotalExpensesDisplay');
+      const elMargin = document.getElementById('dashProfitMargin');
+
+      if (elSales) elSales.innerText = formatRupiah(totalSales);
+      if (elNetSales) elNetSales.innerText = formatRupiah(netSales);
+      if (elProfit) elProfit.innerText = formatRupiah(totalProfit);
+      if (elExpense) elExpense.innerText = formatRupiah(totalExpenseSum);
+
+      const profitMarginPct = totalSales > 0 ? ((totalProfit / totalSales) * 100).toFixed(1) : 0;
+      if (elMargin) elMargin.innerText = `Margin: ${profitMarginPct}% (Jual - Modal)`;
 
       const chartBadge = document.getElementById('chartPeriodBadge');
       if (chartBadge) {
@@ -1709,6 +2523,7 @@
       renderTopProducts(itemSalesCount);
       renderLowStockAlerts();
       renderRecentTransactions(filteredTrx);
+      updateShiftUI();
     }
 
     function renderSalesProfitChart(trxList) {
@@ -1749,14 +2564,14 @@
           labels: labels,
           datasets: [
             {
-              label: 'Penjualan',
+              label: 'Omset Penjualan',
               data: salesData,
               backgroundColor: '#10b981',
               borderRadius: 6,
               barPercentage: 0.6
             },
             {
-              label: 'Keuntungan',
+              label: 'Keuntungan Produk',
               data: profitData,
               backgroundColor: '#f59e0b',
               borderRadius: 6,
@@ -1933,6 +2748,7 @@
       trxList.slice(0, 5).forEach(t => {
         const items = t.items || [];
         const itemSummary = items.map(i => `${i.qty}x ${i.nama}`).join(', ') || "Menu";
+        const hasDisc = (Number(t.diskon) || 0) > 0;
 
         const card = document.createElement('div');
         card.className = "pt-2 pb-1 text-xs space-y-1";
@@ -1941,6 +2757,7 @@
             <div class="flex items-center gap-1.5">
               <span class="font-extrabold text-slate-800 text-[11px]">${t.id || 'TRX'}</span>
               <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">${t.metode || 'Tunai'}</span>
+              ${hasDisc ? `<span class="text-[8px] font-black px-1 py-0.2 rounded bg-rose-100 text-rose-700">Disc ${formatRupiah(t.diskon)}</span>` : ''}
             </div>
             <span class="font-black text-emerald-600 text-xs">${formatRupiah(t.total)}</span>
           </div>
@@ -2051,19 +2868,15 @@
           products.push({ id: newId, nama, kategori, stok, hargaModal, hargaJual });
         }
 
-        // Simpan lokal seketika
         localStorage.setItem("POS_CACHED_PRODUCTS", JSON.stringify(products));
-
-        // Kirim langsung ke Google Sheets
         await postToGoogleSheets({ action: "saveProduct", product: pData });
 
         window.closeProductModal();
         renderProductGrid();
         renderAdminProducts();
         renderAdminAnalytics();
-        showToast('Tersimpan', `Menu "${nama}" berhasil disimpan ke Google Sheets`, 'success');
+        showToast('Tersimpan', `Menu "${nama}" berhasil disimpan ke Sheets`, 'success');
 
-        // Tarik ulang untuk memastikan sinkronisasi sempurna
         setTimeout(() => window.syncFromGoogleSheets(false), 1200);
 
       } catch (err) {
@@ -2238,29 +3051,36 @@
     };
 
     window.addEventListener('DOMContentLoaded', async () => {
-      // Muat cache lokal awal agar langsung muncul
+      // Muat Shift aktif yang tersimpan
+      const savedShift = localStorage.getItem("POS_CURRENT_SHIFT");
+      if (savedShift) {
+        try { currentShift = JSON.parse(savedShift); } catch(e){}
+      }
+
       const cached = localStorage.getItem("POS_CACHED_PRODUCTS");
       if (cached) {
         try {
           const parsed = JSON.parse(cached);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            products = parsed;
-          }
+          if (Array.isArray(parsed) && parsed.length > 0) products = parsed;
         } catch(e){}
       }
 
       const cachedTrx = localStorage.getItem("POS_CACHED_TRANSACTIONS");
       if (cachedTrx) {
-        try {
-          transactions = JSON.parse(cachedTrx);
-        } catch(e){}
+        try { transactions = JSON.parse(cachedTrx); } catch(e){}
+      }
+
+      const cachedExp = localStorage.getItem("POS_CACHED_EXPENSES");
+      if (cachedExp) {
+        try { expenses = JSON.parse(cachedExp); } catch(e){}
       }
 
       renderProductGrid();
       renderAdminProducts();
       renderAdminAnalytics();
+      renderExpenses();
+      updateShiftUI();
 
-      // Sinkronisasi otomatis ke Google Sheets saat aplikasi dibuka
       await window.syncFromGoogleSheets(false);
     });
   </script>

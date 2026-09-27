@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Kasir Pintar POS - Shift, Kas Utama & Riwayat Order</title>
+  <title>Kasir Pintar POS - Kas Utama Owner & Shift Kasir</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -104,7 +104,7 @@
           </div>
           <div class="flex items-center gap-1 mt-0.5">
             <span id="shiftStatusDot" class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span id="headerDrawerCashBadge" class="text-[10px] text-slate-600 font-extrabold truncate max-w-[140px]">Modal: Rp 0</span>
+            <span id="headerDrawerCashBadge" class="text-[10px] text-slate-600 font-extrabold truncate max-w-[140px]">Modal Laci: Rp 0</span>
           </div>
         </div>
       </div>
@@ -112,14 +112,14 @@
       <div class="flex items-center gap-1.5">
         <button id="endShiftTopBtn" onclick="window.openCloseShiftModal()" title="Selesai Shift & Rekap Kasir" class="touch-btn h-8 px-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] flex items-center gap-1 shadow-xs transition">
           <i class="fa-solid fa-flag-checkered text-xs"></i>
-          <span>Selesai</span>
+          <span>Shift</span>
         </button>
 
         <button id="headerSyncBtn" onclick="window.syncFromGoogleSheets(true)" title="Sinkron Ulang Data Sheets" class="touch-btn w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
           <i class="fa-solid fa-arrows-rotate text-xs" id="syncSpinIcon"></i>
         </button>
 
-        <button id="lockAdminBtn" onclick="window.lockAdminSession()" title="Kunci Kembali Admin" class="touch-btn w-8 h-8 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center hidden transition">
+        <button id="lockAdminBtn" onclick="window.lockAdminSession()" title="Kunci Panel Admin" class="touch-btn w-8 h-8 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center hidden transition">
           <i class="fa-solid fa-lock text-xs"></i>
         </button>
 
@@ -129,12 +129,13 @@
       </div>
     </header>
 
+    <!-- BANNER SHIFT BELUM DIBUKA -->
     <div id="shiftInactiveBanner" class="bg-gradient-to-r from-amber-600 to-orange-600 p-2.5 px-3 text-white text-xs flex items-center justify-between shadow-xs hidden">
       <div class="flex items-center gap-2">
         <i class="fa-solid fa-triangle-exclamation text-amber-200 animate-bounce"></i>
         <div>
-          <p class="font-extrabold text-[11px] leading-tight">Shift Belum Dibuka!</p>
-          <p class="text-[10px] text-amber-100 leading-tight">Buka shift kasir & input saldo modal awal.</p>
+          <p class="font-extrabold text-[11px] leading-tight">Shift Kasir Belum Dibuka!</p>
+          <p class="text-[10px] text-amber-100 leading-tight">Buka shift & input modal awal kembalian laci.</p>
         </div>
       </div>
       <button onclick="window.openStartShiftModal()" class="touch-btn px-2.5 py-1 bg-white text-amber-900 font-black rounded-lg text-[10px] shadow-xs">
@@ -176,6 +177,7 @@
         </div>
       </section>
 
+      <!-- SEARCH & CATEGORY PILLS -->
       <section class="space-y-2">
         <div class="relative">
           <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
@@ -245,7 +247,7 @@
             </div>
             <div>
               <h2 class="font-extrabold text-xs text-slate-900 leading-tight">Riwayat Order Kasir</h2>
-              <p class="text-[10px] text-slate-400">Daftar transaksi pelanggan & struk</p>
+              <p class="text-[10px] text-slate-400">Daftar transaksi pelanggan & cetak struk</p>
             </div>
           </div>
           <span id="riwayatTotalOrdersBadge" class="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
@@ -273,7 +275,7 @@
 
     <main id="tabExpenseView" class="flex-1 flex flex-col p-3.5 space-y-3 pb-24 overflow-y-auto mobile-scroll hidden">
       
-      <!-- KARTU SALDO MODAL KASIR (LACI) -->
+      <!-- KARTU SALDO MODAL KASIR (LACI KASIR OPERASIONAL) -->
       <section class="bg-gradient-to-br from-amber-700 via-amber-800 to-slate-900 rounded-2xl p-3.5 text-white shadow-md relative overflow-hidden">
         <div class="flex items-center justify-between">
           <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-200 flex items-center gap-1.5">
@@ -283,10 +285,10 @@
         </div>
 
         <div class="mt-2">
-          <p class="text-[10px] text-amber-200 font-bold uppercase">Sisa Uang Modal di Laci</p>
+          <p class="text-[10px] text-amber-200 font-bold uppercase">Sisa Uang Modal di Laci Kasir</p>
           <p id="expCurrentDrawerCash" class="text-2xl font-black text-amber-300 mt-0.5">Rp 0</p>
           <p class="text-[10px] text-amber-100/90 mt-1 leading-snug">
-            💡 <span class="font-bold text-white">Saldo Awal Shift dikurangi Belanja</span>. Uang hasil penjualan dipisah dan tidak ditambahkan ke modal laci ini.
+            💡 <span class="font-bold text-white">Saldo Modal Awal Laci dikurangi Belanja</span>. Uang ini khusus untuk kembalian kasir & belanja mendadak, terpisah dari Kas Utama Brankas Owner.
           </p>
         </div>
 
@@ -302,7 +304,7 @@
         </div>
       </section>
 
-      <!-- FORM CATAT BELANJA / PENGELUARAN -->
+      <!-- FORM CATAT BELANJA OPERASIONAL -->
       <section class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-2xs space-y-2.5">
         <h3 class="font-extrabold text-xs text-slate-900 flex items-center gap-1.5">
           <i class="fa-solid fa-cart-arrow-down text-amber-600"></i> Catat Belanja Keluar dari Uang Kasir
@@ -350,7 +352,7 @@
         </form>
       </section>
 
-      <!-- RIWAYAT PENGELUARAN BELANJA -->
+      <!-- RIWAYAT BELANJA KASIR -->
       <section class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-2xs space-y-2">
         <div class="flex items-center justify-between">
           <h3 class="font-extrabold text-xs text-slate-900 flex items-center gap-1.5">
@@ -365,6 +367,7 @@
 
     <main id="tabAdminView" class="flex-1 flex flex-col p-3.5 space-y-3.5 pb-24 overflow-y-auto mobile-scroll hidden">
       
+      <!-- SUB NAVIGATION ADMIN -->
       <div class="bg-slate-200/90 p-1 rounded-xl grid grid-cols-4 gap-1 text-[10px] font-bold">
         <button id="adminSubAnalyticsBtn" onclick="window.switchAdminSection('analytics')" class="touch-btn py-1.5 rounded-lg bg-white text-slate-900 shadow-xs flex items-center justify-center gap-0.5 transition">
           <i class="fa-solid fa-chart-line text-emerald-600"></i> Ringkasan
@@ -380,85 +383,99 @@
         </button>
       </div>
 
-      <!-- SECTION 1: ANALYTICS & DIAGRAMS & OWNER MASTER VAULT -->
+      <!-- SECTION 1: RINGKASAN & KAS UTAMA OWNER (BRANKAS KESELURUHAN) -->
       <section id="adminSectionAnalytics" class="space-y-3">
 
         <!-- ========================================================================= -->
-        <!-- FITUR BARU: BRANKAS & KAS UTAMA KESELURUHAN (UANG YANG HARUS DIPEGANG OWNER) -->
+        <!-- FITUR UTAMA: BRANKAS & KAS UTAMA OWNER (UANG KESELURUHAN YG DIPEGANG) -->
         <!-- ========================================================================= -->
         <div class="bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 rounded-3xl p-4 text-white shadow-xl border border-emerald-500/30 relative overflow-hidden">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-1.5">
-              <div class="w-7 h-7 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                <i class="fa-solid fa-vault text-xs"></i>
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-slate-950 flex items-center justify-center font-black shadow-md">
+                <i class="fa-solid fa-vault text-sm"></i>
               </div>
               <div>
                 <h3 class="text-xs font-black text-white tracking-wide uppercase">Kas Utama & Brankas Owner</h3>
-                <p class="text-[9px] text-emerald-300 font-semibold">Uang Keseluruhan Toko yang Harus Dipegang</p>
+                <p class="text-[9px] text-emerald-300 font-semibold">Uang Keseluruhan Toko yang Seharusnya Dipegang</p>
               </div>
             </div>
-            <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-              Khusus Admin
-            </span>
+            <div class="flex items-center gap-1.5">
+              <span id="ownerCloudSyncBadge" class="text-[8px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center gap-1">
+                <i class="fa-solid fa-cloud text-[7px]"></i> Cloud Sync
+              </span>
+            </div>
           </div>
 
-          <div class="mt-3.5 bg-black/40 border border-white/10 rounded-2xl p-3">
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Uang Seharusnya Dipegang:</p>
-            <p id="ownerMasterCashDisplay" class="text-2xl font-black text-emerald-400 tracking-tight mt-0.5">Rp 0</p>
-            <p class="text-[10px] text-slate-300 mt-1">
-              Rumus: <span class="text-amber-300 font-bold">Modal Awal Ditentukan</span> + <span class="text-emerald-300 font-bold">Penjualan</span> - <span class="text-rose-300 font-bold">Belanja Toko</span> ± <span class="text-cyan-300 font-bold">Mutasi Kas</span>
-            </p>
+          <!-- KOTAK UTAMA TOTAL UANG SEHARUSNYA DIPEGANG OWNER -->
+          <div class="mt-3.5 bg-black/40 border border-white/10 rounded-2xl p-3.5 relative overflow-hidden">
+            <div class="flex items-center justify-between">
+              <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Total Uang Seharusnya Dipegang:</p>
+              <span id="ownerBaselineDateLabel" class="text-[8px] bg-white/10 px-1.5 py-0.5 rounded text-slate-300 font-mono">Ditetapkan: Rp 1.033.000</span>
+            </div>
+            
+            <p id="ownerMasterCashDisplay" class="text-3xl font-black text-emerald-400 tracking-tight mt-1">Rp 1.033.000</p>
+            
+            <div class="text-[10px] text-slate-300 mt-2 pt-2 border-t border-white/10 space-y-0.5">
+              <p>
+                💡 <strong>Rumus:</strong> <span class="text-amber-300 font-bold">Saldo Ditentukan</span> + <span class="text-emerald-300 font-bold">Penjualan Baru</span> - <span class="text-rose-300 font-bold">Belanja Toko</span> ± <span class="text-cyan-300 font-bold">Tarik/Setor Kas</span>
+              </p>
+              <p class="text-[9px] text-slate-400">
+                Data brankas ini tersimpan di Google Sheets dan tersinkronisasi otomatis ke semua HP.
+              </p>
+            </div>
           </div>
 
-          <!-- Rincian Tunai Fisik vs Non-Tunai / Rekening -->
+          <!-- RINCIAN FISIK TUNAI VS NON-TUNAI / REKENING -->
           <div class="grid grid-cols-2 gap-2 mt-2.5">
             <div class="bg-white/5 border border-white/10 p-2.5 rounded-xl">
               <span class="text-[9px] text-slate-400 font-bold uppercase flex items-center gap-1">
                 <i class="fa-solid fa-money-bill-wave text-emerald-400"></i> Uang Tunai Fisik
               </span>
-              <p id="ownerPhysicalCashDisplay" class="text-xs font-black text-white mt-1">Rp 0</p>
-              <p class="text-[8px] text-slate-400">Di tangan / brankas toko</p>
+              <p id="ownerPhysicalCashDisplay" class="text-sm font-black text-white mt-1">Rp 0</p>
+              <p class="text-[8px] text-slate-400 mt-0.5">Di tangan / brankas toko</p>
             </div>
             <div class="bg-white/5 border border-white/10 p-2.5 rounded-xl">
               <span class="text-[9px] text-slate-400 font-bold uppercase flex items-center gap-1">
-                <i class="fa-solid fa-qrcode text-cyan-400"></i> Saldo QRIS / Bank
+                <i class="fa-solid fa-qrcode text-cyan-400"></i> Saldo QRIS / Rekening
               </span>
-              <p id="ownerDigitalCashDisplay" class="text-xs font-black text-cyan-300 mt-1">Rp 0</p>
-              <p class="text-[8px] text-slate-400">Masuk rekening digital</p>
+              <p id="ownerDigitalCashDisplay" class="text-sm font-black text-cyan-300 mt-1">Rp 0</p>
+              <p class="text-[8px] text-slate-400 mt-0.5">Masuk ke rekening digital</p>
             </div>
           </div>
 
-          <!-- Rincian Modal Awal & Penyesuaian -->
+          <!-- STATUS PENENTUAN AWAL & PENYESUAIAN MUTASI -->
           <div class="grid grid-cols-2 gap-2 mt-2 text-[10px] text-slate-300 pt-2 border-t border-white/10">
             <div class="flex items-center justify-between">
-              <span>Modal Awal:</span>
-              <strong id="ownerInitialBalanceLabel" class="text-amber-300 font-black">Rp 0</strong>
+              <span>Saldo Awal Baseline:</span>
+              <strong id="ownerInitialBalanceLabel" class="text-amber-300 font-black">Rp 1.033.000</strong>
             </div>
             <div class="flex items-center justify-between">
-              <span>Penarikan/Prive:</span>
+              <span>Tarik/Setor (Prive):</span>
               <strong id="ownerNetMutationsLabel" class="text-cyan-300 font-black">Rp 0</strong>
             </div>
           </div>
 
-          <!-- Tombol Aksi Kas Owner -->
-          <div class="grid grid-cols-3 gap-1.5 mt-3 pt-2 border-t border-white/10">
-            <button onclick="window.openOwnerInitialCashModal()" class="touch-btn py-1.5 px-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-extrabold flex items-center justify-center gap-1">
-              <i class="fa-solid fa-sliders text-[9px]"></i> Atur Awal
+          <!-- TOMBOL AKSI KAS OWNER -->
+          <div class="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-white/10">
+            <button onclick="window.openOwnerInitialCashModal()" class="touch-btn py-2 px-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-extrabold flex items-center justify-center gap-1 shadow-xs">
+              <i class="fa-solid fa-sliders text-[9px]"></i> Atur Saldo Awal
             </button>
-            <button onclick="window.openOwnerMutationModal()" class="touch-btn py-1.5 px-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-[10px] font-black flex items-center justify-center gap-1">
+            <button onclick="window.openOwnerMutationModal()" class="touch-btn py-2 px-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-[10px] font-black flex items-center justify-center gap-1 shadow-xs">
               <i class="fa-solid fa-money-bill-transfer text-[9px]"></i> Tarik / Setor
             </button>
-            <button onclick="window.toggleOwnerMutationsList()" class="touch-btn py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-[10px] font-bold flex items-center justify-center gap-1">
+            <button onclick="window.toggleOwnerMutationsList()" class="touch-btn py-2 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-[10px] font-bold flex items-center justify-center gap-1">
               <i class="fa-solid fa-list-check text-[9px]"></i> Mutasi (<span id="ownerMutationsCount">0</span>)
             </button>
           </div>
 
-          <!-- Accordion Riwayat Mutasi Kas Owner (Tarik Tunai / Setor Tambahan) -->
+          <!-- ACCORDION RIWAYAT MUTASI KAS OWNER -->
           <div id="ownerMutationsContainer" class="mt-2.5 bg-black/50 border border-white/10 rounded-2xl p-2.5 space-y-1.5 hidden max-h-48 overflow-y-auto mobile-scroll">
-            <!-- Rendered dynamically -->
+            <!-- Diisi secara dinamis -->
           </div>
         </div>
 
+        <!-- FILTER PERIODE LAPORAN PENJUALAN & LABA -->
         <div class="flex items-center justify-between gap-1 pt-1">
           <div class="flex items-center gap-1 bg-slate-200/70 p-0.5 rounded-xl text-[10px] font-bold">
             <button id="filterPeriodAllBtn" onclick="window.setAnalyticsPeriod('all')" class="touch-btn px-2 py-1 rounded-lg bg-white text-slate-900 shadow-xs transition">Semua</button>
@@ -547,7 +564,7 @@
           </div>
         </div>
 
-        <!-- STATUS KAS MODAL DI LACI KASIR -->
+        <!-- STATUS UANG MODAL DI LACI KASIR -->
         <div class="bg-amber-50 border border-amber-200 p-3 rounded-2xl flex items-center justify-between">
           <div>
             <div class="flex items-center gap-1.5">
@@ -555,7 +572,7 @@
               <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-900">Uang Modal Kasir di Laci</span>
             </div>
             <p id="dashLiveDrawerCash" class="text-base font-black text-amber-950 mt-0.5">Rp 0</p>
-            <p class="text-[9px] text-amber-700">Terpisah dari Kas Utama Brankas Owner</p>
+            <p class="text-[9px] text-amber-700">Modal kerja kasir (terpisah dari kas utama owner)</p>
           </div>
           <button onclick="window.openCloseShiftModal()" class="touch-btn px-2.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-[10px] font-bold shadow-2xs">
             Rekap Shift
@@ -588,6 +605,7 @@
 
       </section>
 
+      <!-- SECTION 2: RIWAYAT HARIAN -->
       <section id="adminSectionHistory" class="space-y-3 hidden">
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
           <div class="flex items-center justify-between">
@@ -606,6 +624,7 @@
         <div id="adminDailyRecapContainer" class="space-y-2.5"></div>
       </section>
 
+      <!-- SECTION 3: MANAJEMEN MENU -->
       <section id="adminSectionProducts" class="space-y-3 hidden">
         <div class="flex items-center justify-between gap-2">
           <button onclick="window.openProductModal(false)" class="touch-btn flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs">
@@ -624,6 +643,7 @@
         <div id="adminProductList" class="space-y-2"></div>
       </section>
 
+      <!-- SECTION 4: PROMO STATUS WA -->
       <section id="adminSectionPromo" class="space-y-3 hidden">
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs space-y-2.5">
           <div>
@@ -697,6 +717,7 @@
       </button>
     </nav>
 
+    <!-- MODAL 1: ATUR SALDO AWAL KAS UTAMA OWNER -->
     <div id="ownerInitialCashModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 max-w-md mx-auto">
       <div class="bg-white rounded-3xl p-5 w-full shadow-2xl space-y-3.5">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
@@ -705,8 +726,8 @@
               <i class="fa-solid fa-sliders text-sm"></i>
             </div>
             <div>
-              <h3 class="text-sm font-extrabold text-slate-900">Atur Saldo Awal Kas Owner</h3>
-              <p class="text-[10px] text-slate-400">Uang awal yang Anda pegang di brankas toko</p>
+              <h3 class="text-sm font-extrabold text-slate-900">Atur Saldo Awal Brankas Owner</h3>
+              <p class="text-[10px] text-slate-400">Tentukan uang keseluruhan yang sedang Anda pegang</p>
             </div>
           </div>
           <button onclick="window.closeOwnerInitialCashModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
@@ -716,36 +737,36 @@
 
         <div class="space-y-2">
           <div>
-            <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Nominal Saldo Awal (Rp)</label>
+            <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Nominal Uang Keseluruhan (Rp)</label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">Rp</span>
-              <input type="text" inputmode="numeric" id="ownerInitialCashInput" oninput="window.handleFormattedInput(this)" placeholder="1.000.000" class="w-full pl-9 pr-3 py-2 text-base font-black text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+              <input type="text" inputmode="numeric" id="ownerInitialCashInput" oninput="window.handleFormattedInput(this)" placeholder="1.033.000" class="w-full pl-9 pr-3 py-2 text-base font-black text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
             </div>
             <div class="flex gap-1.5 mt-1.5 flex-wrap">
-              <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 0)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">Rp 0</button>
+              <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 1033000)" class="px-2.5 py-1 bg-emerald-100 hover:bg-emerald-200 text-[10px] font-black text-emerald-800 rounded-lg">1.033.000 (Saat Ini)</button>
               <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 500000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">500k</button>
               <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 1000000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">1 Juta</button>
-              <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 2000000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">2 Juta</button>
-              <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 5000000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">5 Juta</button>
+              <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 1500000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">1.5 Juta</button>
             </div>
           </div>
 
           <div>
-            <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Catatan Pengaturan</label>
-            <input type="text" id="ownerInitialNoteInput" placeholder="Contoh: Modal awal kas toko per September 2026" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+            <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Catatan Penetapan</label>
+            <input type="text" id="ownerInitialNoteInput" placeholder="Contoh: Uang di tangan termasuk penjualan semalam" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
           </div>
         </div>
 
         <div class="p-2.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-[10px] text-emerald-900 leading-snug">
-          💡 <strong>Catatan:</strong> Saldo ini tersimpan di Admin. Selanjutnya total penjualan bertambah otomatis dan belanja operasional memotong kas ini.
+          💡 <strong>Cara Kerja Otomatis:</strong> Setelah saldo awal ini disimpan, setiap penjualan kasir yang baru masuk otomatis <strong>menambah</strong> uang ini, dan belanja operasional akan langsung <strong>memotong</strong> kas ini.
         </div>
 
         <button onclick="window.saveOwnerInitialCash()" class="touch-btn w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5">
-          <i class="fa-solid fa-check"></i> Simpan Saldo Awal Brankas
+          <i class="fa-solid fa-check"></i> Simpan Saldo Kas Brankas
         </button>
       </div>
     </div>
 
+    <!-- MODAL 2: MUTASI KAS OWNER (TARIK PRIVE / TAMBAH MODAL) -->
     <div id="ownerCashMutationModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 max-w-md mx-auto">
       <div class="bg-white rounded-3xl p-5 w-full shadow-2xl space-y-3.5">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
@@ -790,7 +811,7 @@
 
           <div>
             <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Keperluan / Keterangan</label>
-            <input type="text" id="ownerMutationNoteInput" placeholder="Contoh: Ambil untung mingguan owner / Tambah kas" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+            <input type="text" id="ownerMutationNoteInput" placeholder="Contoh: Ambil profit mingguan owner / Tambah kas brankas" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
           </div>
         </div>
 
@@ -800,6 +821,7 @@
       </div>
     </div>
 
+    <!-- MODAL 3: BUKA SHIFT KASIR -->
     <div id="startShiftModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 max-w-md mx-auto">
       <div class="bg-white rounded-3xl p-5 w-full shadow-2xl space-y-3.5">
         <div class="text-center space-y-1">
@@ -837,12 +859,13 @@
       </div>
     </div>
 
+    <!-- MODAL 4: REKAP TUTUP SHIFT KASIR -->
     <div id="closeShiftModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 max-w-md mx-auto">
       <div class="bg-white rounded-3xl p-5 w-full shadow-2xl space-y-3 max-h-[92vh] overflow-y-auto mobile-scroll">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
           <div class="flex items-center gap-1.5">
             <i class="fa-solid fa-flag-checkered text-amber-500"></i>
-            <h3 class="font-extrabold text-sm text-slate-900">Rekap & Selesai Shift</h3>
+            <h3 class="font-extrabold text-sm text-slate-900">Rekap & Selesai Shift Kasir</h3>
           </div>
           <button onclick="window.closeCloseShiftModal()" class="w-6 h-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center">
             <i class="fa-solid fa-xmark text-xs"></i>
@@ -862,7 +885,7 @@
           <div class="pt-1.5 border-t border-slate-200 space-y-1">
             <p class="text-[10px] font-black uppercase text-amber-800 tracking-wider">Rekap Kas Modal Kasir (Laci):</p>
             <div class="flex items-center justify-between text-slate-600">
-              <span>(+) Saldo Modal Awal:</span>
+              <span>(+) Saldo Modal Awal Laci:</span>
               <span id="recapShiftInitialCash" class="font-extrabold text-slate-900">Rp 0</span>
             </div>
             <div class="flex items-center justify-between text-rose-600">
@@ -918,6 +941,7 @@
       </div>
     </div>
 
+    <!-- PIN ACCESS MODAL UNTUK ADMIN -->
     <div id="pinModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex flex-col justify-end max-w-md mx-auto">
       <div id="pinModalCard" class="bg-white rounded-t-3xl p-6 shadow-2xl space-y-4">
         <div class="flex justify-between items-center">
@@ -931,7 +955,7 @@
           <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-xl shadow-xs">
             <i class="fa-solid fa-shield-halved"></i>
           </div>
-          <h3 class="text-base font-black text-slate-900">Masukkan PIN Admin</h3>
+          <h3 class="text-base font-black text-slate-900">Masukkan PIN Admin / Owner</h3>
           <p class="text-xs text-slate-400">Brankas & laporan dilindungi sandi pengelola.</p>
         </div>
 
@@ -961,6 +985,7 @@
       </div>
     </div>
 
+    <!-- CART DRAWER -->
     <div id="cartDrawer" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex flex-col justify-end max-w-md mx-auto">
       <div class="bg-white rounded-t-3xl p-5 shadow-2xl space-y-3 max-h-[85vh] flex flex-col">
         <div class="w-12 h-1 rounded-full bg-slate-200 mx-auto"></div>
@@ -995,6 +1020,7 @@
       </div>
     </div>
 
+    <!-- PAYMENT MODAL -->
     <div id="paymentModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 max-w-md mx-auto">
       <div class="bg-white rounded-3xl p-5 w-full shadow-2xl space-y-3 max-h-[92vh] overflow-y-auto mobile-scroll">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
@@ -1085,6 +1111,7 @@
       </div>
     </div>
 
+    <!-- STRUK MODAL -->
     <div id="receiptModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 max-w-md mx-auto">
       <div class="bg-white rounded-3xl p-5 w-full shadow-2xl space-y-3.5 max-h-[90vh] overflow-y-auto mobile-scroll">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
@@ -1161,6 +1188,7 @@
       </div>
     </div>
 
+    <!-- PRODUCT MODAL -->
     <div id="productModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 max-w-md mx-auto">
       <div class="bg-white rounded-3xl p-5 w-full shadow-2xl space-y-3">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
@@ -1257,6 +1285,16 @@
             <label class="block font-bold text-slate-700 mb-0.5 text-[10px]">PIN Admin (Ganti Sandi)</label>
             <input type="password" id="customPinInput" maxlength="6" placeholder="••••" class="w-full px-2.5 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500">
           </div>
+          
+          <!-- TOMBOL SALIN KODE SCRIPT UNTUK GOOGLE SHEETS -->
+          <div class="pt-2 border-t border-slate-100">
+            <p class="text-[10px] text-slate-500 mb-1.5 leading-snug">
+              Pastikan Google Apps Script Anda sudah memiliki fungsi penyimpan <strong>Kas Utama Owner</strong> & <strong>Shift</strong>:
+            </p>
+            <button type="button" onclick="window.copyGoogleAppsScriptCode()" class="touch-btn w-full py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-[10px] font-bold flex items-center justify-center gap-1.5 shadow-2xs">
+              <i class="fa-solid fa-code text-emerald-400"></i> Salin Kode Script Google Sheets (Code.gs)
+            </button>
+          </div>
         </div>
 
         <div class="flex justify-end gap-1.5 pt-2">
@@ -1309,17 +1347,19 @@
     let adminPin = localStorage.getItem("POS_ADMIN_PIN") || "1122";
     let isAdminUnlocked = false;
 
-    // STATE SHIFT KASIR (LACI KASIR)
+    // STATE SHIFT KASIR (LACI KASIR OPERASIONAL)
     let currentShift = null;
     let shiftsHistory = [];
 
     // =========================================================================
-    // STATE KAS UTAMA / BRANKAS KESELURUHAN (UANG YANG HARUS DIPEGANG OWNER)
+    // STATE KAS UTAMA / BRANKAS OWNER KESELURUHAN (UANG YG HARUS DIPEGANG OWNER)
+    // Nilai awal default diset ke Rp 1.033.000 sesuai instruksi
     // =========================================================================
     let ownerVault = {
-      initialBalance: 0,
-      note: "Modal awal brankas toko",
-      lastUpdated: null,
+      initialBalance: 1033000,
+      note: "Uang kas keseluruhan toko (termasuk penjualan semalam)",
+      baselineTimestamp: Date.now(), // Patokan waktu awal penetapan saldo
+      lastUpdated: new Date().toISOString(),
       mutations: [] // array of { id, tanggal, tipe: 'tarik'|'setor', nominal, keterangan }
     };
     let currentMutationType = 'tarik';
@@ -1474,55 +1514,69 @@
     }
 
     // =========================================================================
-    // LOGIKA PERHITUNGAN BRANKAS / KAS UTAMA KESELURUHAN (OWNER CASH)
     // =========================================================================
     function calculateOwnerMasterCash() {
       const initial = Number(ownerVault.initialBalance) || 0;
+      const baselineTime = Number(ownerVault.baselineTimestamp) || 0;
 
-      // 1. Total semua pemasukan dari transaksi penjualan (Tunai & Non-Tunai)
-      let totalAllSales = 0;
+      // 1. Hitung total pemasukan penjualan yang terjadi (sejak saldo baseline ditentukan)
+      let totalNewSales = 0;
       let totalCashSales = 0;
       let totalDigitalSales = 0;
 
       transactions.forEach(t => {
-        const amt = Number(t.total) || 0;
-        totalAllSales += amt;
-        if (t.metode === 'Tunai') {
-          totalCashSales += amt;
-        } else {
-          totalDigitalSales += amt;
+        const tDate = parseUniversalDate(t.tanggal, t.rawDate);
+        const tTime = tDate ? tDate.getTime() : 0;
+        
+        // Bila baselineTime diset, hanya akumulasikan transaksi setelah atau sama dengan waktu penetapan saldo
+        const isAfterBaseline = !baselineTime || (tTime >= baselineTime - 60000); // toleransi 1 menit
+
+        if (isAfterBaseline) {
+          const amt = Number(t.total) || 0;
+          totalNewSales += amt;
+          if (t.metode === 'Tunai') {
+            totalCashSales += amt;
+          } else {
+            totalDigitalSales += amt;
+          }
         }
       });
 
-      // 2. Total semua pengeluaran / belanja operasional
-      let totalAllExpenses = 0;
+      // 2. Hitung pengeluaran belanja toko (sejak saldo baseline ditentukan)
+      let totalNewExpenses = 0;
       expenses.forEach(e => {
-        totalAllExpenses += Number(e.nominal) || 0;
+        const eDate = parseUniversalDate(e.tanggal, e.rawDate);
+        const eTime = eDate ? eDate.getTime() : 0;
+        const isAfterBaseline = !baselineTime || (eTime >= baselineTime - 60000);
+
+        if (isAfterBaseline) {
+          totalNewExpenses += Number(e.nominal) || 0;
+        }
       });
 
-      // 3. Total mutasi owner (Prive / Setor Tambahan)
+      // 3. Mutasi Kas Owner (Tarik uang pribadi / Setor kas tambahan)
       let netMutations = 0;
       (ownerVault.mutations || []).forEach(m => {
         const nom = Number(m.nominal) || 0;
         if (m.tipe === 'setor') {
           netMutations += nom;
         } else {
-          netMutations -= nom; // Tarik uang / prive mengurangi uang kas
+          netMutations -= nom; // Tarik uang pribadi mengurangi brankas toko
         }
       });
 
-      // Total Keseluruhan Uang yang Harus Dipegang Owner
-      const totalMasterCash = initial + totalAllSales - totalAllExpenses + netMutations;
+      // Total Uang Keseluruhan yang Seharusnya Dipegang Owner
+      const totalMasterCash = initial + totalNewSales - totalNewExpenses + netMutations;
 
-      // Uang Fisik Tunai di Tangan Owner (Modal Awal + Penjualan Tunai - Belanja + Mutasi Tunai)
-      const physicalCash = Math.max(0, initial + totalCashSales - totalAllExpenses + netMutations);
+      // Uang Fisik Tunai di Tangan (Fisik dihitung dari modal awal tunai + penjualan tunai - pengeluaran + mutasi)
+      const physicalCash = Math.max(0, initial + totalCashSales - totalNewExpenses + netMutations);
 
       return {
         initial,
-        totalAllSales,
+        totalNewSales,
         totalCashSales,
         totalDigitalSales,
-        totalAllExpenses,
+        totalNewExpenses,
         netMutations,
         totalMasterCash: Math.max(0, totalMasterCash),
         physicalCash,
@@ -1539,11 +1593,16 @@
       const elInitial = document.getElementById('ownerInitialBalanceLabel');
       const elMut = document.getElementById('ownerNetMutationsLabel');
       const elCount = document.getElementById('ownerMutationsCount');
+      const elBaselineLabel = document.getElementById('ownerBaselineDateLabel');
 
       if (elMaster) elMaster.innerText = formatRupiah(calc.totalMasterCash);
       if (elPhysical) elPhysical.innerText = formatRupiah(calc.physicalCash);
       if (elDigital) elDigital.innerText = formatRupiah(calc.digitalCash);
       if (elInitial) elInitial.innerText = formatRupiah(calc.initial);
+
+      if (elBaselineLabel) {
+        elBaselineLabel.innerText = `Baseline: ${formatRupiah(calc.initial)}`;
+      }
 
       if (elMut) {
         if (calc.netMutations >= 0) {
@@ -1563,7 +1622,7 @@
         if (muts.length === 0) {
           container.innerHTML = '<p class="text-[10px] text-slate-400 italic text-center py-2">Belum ada mutasi penarikan atau setoran kas.</p>';
         } else {
-          container.innerHTML = muts.slice(0, 10).map((m, idx) => `
+          container.innerHTML = muts.slice(0, 10).map((m) => `
             <div class="flex items-center justify-between text-[10px] bg-white/5 p-2 rounded-xl border border-white/5">
               <div class="truncate pr-2">
                 <div class="flex items-center gap-1.5">
@@ -1578,7 +1637,7 @@
                 <span class="font-black ${m.tipe === 'setor' ? 'text-emerald-300' : 'text-rose-300'}">
                   ${m.tipe === 'setor' ? '+' : '-'}${formatRupiah(m.nominal)}
                 </span>
-                <button onclick="window.deleteOwnerMutation('${m.id}')" class="text-rose-400 hover:text-rose-300">
+                <button onclick="window.deleteOwnerMutation('${m.id}')" title="Hapus mutasi" class="text-rose-400 hover:text-rose-300">
                   <i class="fa-solid fa-trash-can text-[9px]"></i>
                 </button>
               </div>
@@ -1589,7 +1648,7 @@
     }
 
     window.openOwnerInitialCashModal = function() {
-      window.setPresetFormatted('ownerInitialCashInput', ownerVault.initialBalance || 0);
+      window.setPresetFormatted('ownerInitialCashInput', ownerVault.initialBalance || 1033000);
       document.getElementById('ownerInitialNoteInput').value = ownerVault.note || "";
       document.getElementById('ownerInitialCashModal').classList.remove('hidden');
     };
@@ -1598,22 +1657,29 @@
       document.getElementById('ownerInitialCashModal').classList.add('hidden');
     };
 
-    window.saveOwnerInitialCash = function() {
+    window.saveOwnerInitialCash = async function() {
       const val = parseNumericString(document.getElementById('ownerInitialCashInput').value);
-      const note = document.getElementById('ownerInitialNoteInput').value.trim() || "Modal awal brankas toko";
+      const note = document.getElementById('ownerInitialNoteInput').value.trim() || "Saldo kas keseluruhan toko";
 
       ownerVault.initialBalance = val;
       ownerVault.note = note;
+      ownerVault.baselineTimestamp = Date.now(); // Perbarui baseline mulai dari saat ini
       ownerVault.lastUpdated = new Date().toISOString();
 
       localStorage.setItem("POS_OWNER_VAULT", JSON.stringify(ownerVault));
       window.closeOwnerInitialCashModal();
       renderOwnerVaultUI();
-      showToast("Saldo Awal Disimpan", `Modal brankas toko diatur ke ${formatRupiah(val)}`, "success");
+      showToast("Menyimpan ke Cloud...", `Mengirim kas awal ${formatRupiah(val)} ke Google Sheets`, "info");
 
       try {
-        postToGoogleSheets({ action: "saveOwnerVault", vault: ownerVault });
-      } catch(e){}
+        await postToGoogleSheets({ 
+          action: "saveOwnerVault", 
+          vault: ownerVault 
+        });
+        showToast("Tersimpan di Cloud", "Saldo kas utama toko berhasil diperbarui di Google Sheets!", "success");
+      } catch(e) {
+        showToast("Tersimpan Lokal", "Data disimpan di HP, akan dikirim ulang saat online", "info");
+      }
     };
 
     window.openOwnerMutationModal = function() {
@@ -1641,7 +1707,7 @@
       }
     };
 
-    window.saveOwnerMutation = function() {
+    window.saveOwnerMutation = async function() {
       const nominal = parseNumericString(document.getElementById('ownerMutationNominalInput').value);
       const note = document.getElementById('ownerMutationNoteInput').value.trim() || (currentMutationType === 'tarik' ? 'Tarik tunai prive owner' : 'Setor kas tambahan');
 
@@ -1661,26 +1727,37 @@
 
       if (!ownerVault.mutations) ownerVault.mutations = [];
       ownerVault.mutations.unshift(newMut);
+      ownerVault.lastUpdated = now.toISOString();
       localStorage.setItem("POS_OWNER_VAULT", JSON.stringify(ownerVault));
 
       window.closeOwnerMutationModal();
       renderOwnerVaultUI();
-      showToast("Mutasi Dicatat", `${currentMutationType === 'tarik' ? 'Penarikan' : 'Setoran'} ${formatRupiah(nominal)} berhasil dicatat`, "success");
+      showToast("Menyimpan Mutasi...", `Mengirim catatan mutasi ke Google Sheets`, "info");
 
       try {
-        postToGoogleSheets({ action: "saveOwnerVault", vault: ownerVault });
-      } catch(e){}
+        await postToGoogleSheets({ 
+          action: "saveOwnerVault", 
+          vault: ownerVault 
+        });
+        showToast("Mutasi Tersimpan", `${currentMutationType === 'tarik' ? 'Penarikan' : 'Setoran'} ${formatRupiah(nominal)} sinkron di Sheets!`, "success");
+      } catch(e) {
+        showToast("Tersimpan Lokal", "Tersimpan di HP saat ini", "info");
+      }
     };
 
-    window.deleteOwnerMutation = function(id) {
+    window.deleteOwnerMutation = async function(id) {
       if (!ownerVault.mutations) return;
       ownerVault.mutations = ownerVault.mutations.filter(m => m.id !== id);
+      ownerVault.lastUpdated = new Date().toISOString();
       localStorage.setItem("POS_OWNER_VAULT", JSON.stringify(ownerVault));
       renderOwnerVaultUI();
       showToast("Dihapus", "Catatan mutasi kas dihapus", "info");
 
       try {
-        postToGoogleSheets({ action: "saveOwnerVault", vault: ownerVault });
+        await postToGoogleSheets({ 
+          action: "saveOwnerVault", 
+          vault: ownerVault 
+        });
       } catch(e){}
     };
 
@@ -1735,7 +1812,7 @@
         const currentCash = calculateCurrentDrawerCash();
         const strCash = formatRupiah(currentCash);
 
-        if (drawerBadge) drawerBadge.innerText = `Modal: ${strCash}`;
+        if (drawerBadge) drawerBadge.innerText = `Modal Laci: ${strCash}`;
         if (endBtn) endBtn.classList.remove('hidden');
         if (expTag) {
           expTag.innerText = `Shift: ${currentShift.kasir}`;
@@ -2051,14 +2128,62 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
           }
         } catch(e){}
 
+        // 4. TARIK DATA KAS UTAMA / BRANKAS OWNER DARI GOOGLE SHEETS
+        try {
+          const resVault = await fetch(`${gasApiUrl}?action=getOwnerVault`);
+          const jsonVault = await resVault.json();
+          if (jsonVault && jsonVault.status === 'success' && jsonVault.data) {
+            const remoteVault = jsonVault.data;
+            if (remoteVault.initialBalance !== undefined && remoteVault.initialBalance !== null) {
+              ownerVault.initialBalance = Number(remoteVault.initialBalance) || 0;
+            }
+            if (remoteVault.baselineTimestamp) {
+              ownerVault.baselineTimestamp = Number(remoteVault.baselineTimestamp) || 0;
+            }
+            if (remoteVault.note) {
+              ownerVault.note = remoteVault.note;
+            }
+            if (remoteVault.lastUpdated) {
+              ownerVault.lastUpdated = remoteVault.lastUpdated;
+            }
+            if (Array.isArray(remoteVault.mutations)) {
+              ownerVault.mutations = remoteVault.mutations;
+            }
+            localStorage.setItem("POS_OWNER_VAULT", JSON.stringify(ownerVault));
+          }
+        } catch(eVault) {
+          console.warn("Info Kas Utama dari cloud:", eVault);
+        }
+
+        // 5. TARIK STATUS SHIFT AKTIF DARI GOOGLE SHEETS (AGAR SEMUA HP TAHU STATUS SHIFT)
+        try {
+          const resShift = await fetch(`${gasApiUrl}?action=getCurrentShift`);
+          const jsonShift = await resShift.json();
+          if (jsonShift && jsonShift.status === 'success') {
+            if (jsonShift.data && jsonShift.data.status === 'OPEN') {
+              currentShift = jsonShift.data;
+              localStorage.setItem("POS_CURRENT_SHIFT", JSON.stringify(currentShift));
+            } else if (!jsonShift.data || jsonShift.data.status === 'CLOSED') {
+              // Jika di cloud sudah ditutup, sinkronkan ke lokal
+              if (currentShift && currentShift.status === 'OPEN') {
+                currentShift = null;
+                localStorage.removeItem("POS_CURRENT_SHIFT");
+              }
+            }
+          }
+        } catch(eShift) {
+          console.warn("Info Shift dari cloud:", eShift);
+        }
+
         renderProductGrid();
         renderAdminProducts();
         renderAdminAnalytics();
         renderRiwayatOrders();
         renderExpenses();
+        renderOwnerVaultUI();
         updateShiftUI();
 
-        if (showFeedback) showToast("Sinkron Berhasil", "Data produk, transaksi, & kas modal sinkron", "success");
+        if (showFeedback) showToast("Sinkron Sempurna", "Semua data kas utama & penjualan terupdate sama di HP ini!", "success");
 
       } catch (err) {
         console.warn("Mode data lokal HP aktif:", err);
@@ -2071,14 +2196,18 @@ _Laporan otomatis dari Kasir Pintar POS Mobile_`;
         const cachedExp = localStorage.getItem("POS_CACHED_EXPENSES");
         if (cachedExp) { try { expenses = JSON.parse(cachedExp); } catch(e){} }
 
+        const cachedVault = localStorage.getItem("POS_OWNER_VAULT");
+        if (cachedVault) { try { ownerVault = JSON.parse(cachedVault); } catch(e){} }
+
         renderProductGrid();
         renderAdminProducts();
         renderAdminAnalytics();
         renderRiwayatOrders();
         renderExpenses();
+        renderOwnerVaultUI();
         updateShiftUI();
 
-        if (showFeedback) showToast("Data Offline", "Data lokal HP digunakan", "info");
+        if (showFeedback) showToast("Data Offline", "Menggunakan salinan data lokal di perangkat ini", "info");
       } finally {
         if (spinIcon) spinIcon.classList.remove('fa-spin');
       }
@@ -3079,7 +3208,7 @@ _Terima kasih telah berbelanja bersama kami!_ ✨`;
         document.getElementById('navAdminLockDot').classList.add('hidden');
         window.closePinModal();
         window.activateTab('admin');
-        showToast('Akses Diterima', 'Selamat datang di Panel Admin', 'success');
+        showToast('Akses Diterima', 'Selamat datang di Panel Admin & Brankas Owner', 'success');
       } else {
         const card = document.getElementById('pinModalCard');
         card.classList.add('shake-error');
@@ -3864,6 +3993,297 @@ _Terima kasih telah berbelanja bersama kami!_ ✨`;
       }, 500);
     };
 
+    window.copyGoogleAppsScriptCode = function() {
+      const scriptCode = `/**
+ * BACKEND KASIR PINTAR POS & KAS UTAMA OWNER (Google Apps Script)
+ * Letakkan kode ini di Extensions > Apps Script pada Google Sheet Anda
+ */
+function doGet(e) {
+  var action = e.parameter.action;
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  if (action === "getProducts") {
+    var sheet = ss.getSheetByName("Menu");
+    if (!sheet) return createJsonResponse({ status: "success", data: [] });
+    var data = sheet.getDataRange().getValues();
+    var products = [];
+    for (var i = 1; i < data.length; i++) {
+      if (!data[i][0]) continue;
+      products.push({
+        id: String(data[i][0]),
+        nama: String(data[i][1]),
+        kategori: String(data[i][2]),
+        hargaModal: Number(data[i][3]) || 0,
+        hargaJual: Number(data[i][4]) || 0,
+        stok: Number(data[i][5]) || 0
+      });
+    }
+    return createJsonResponse({ status: "success", data: products });
+  }
+
+  if (action === "getTransactions") {
+    var sheet = ss.getSheetByName("Transaksi");
+    if (!sheet) return createJsonResponse({ status: "success", data: [] });
+    var data = sheet.getDataRange().getValues();
+    var list = [];
+    for (var i = data.length - 1; i >= 1; i--) {
+      if (!data[i][0]) continue;
+      list.push({
+        id: String(data[i][0]),
+        tanggal: String(data[i][1]),
+        rawDate: String(data[i][2]),
+        kasir: String(data[i][3]),
+        pelanggan: String(data[i][4]),
+        subtotal: Number(data[i][5]) || 0,
+        diskon: Number(data[i][6]) || 0,
+        total: Number(data[i][7]) || 0,
+        metode: String(data[i][8]),
+        shiftId: String(data[i][9] || ""),
+        detail: String(data[i][10] || "[]")
+      });
+    }
+    return createJsonResponse({ status: "success", data: list });
+  }
+
+  if (action === "getExpenses") {
+    var sheet = ss.getSheetByName("Pengeluaran");
+    if (!sheet) return createJsonResponse({ status: "success", data: [] });
+    var data = sheet.getDataRange().getValues();
+    var list = [];
+    for (var i = data.length - 1; i >= 1; i--) {
+      if (!data[i][0]) continue;
+      list.push({
+        id: String(data[i][0]),
+        tanggal: String(data[i][1]),
+        rawDate: String(data[i][2]),
+        nominal: Number(data[i][3]) || 0,
+        keterangan: String(data[i][4]),
+        kategori: String(data[i][5]),
+        kasir: String(data[i][6]),
+        shiftId: String(data[i][7] || "")
+      });
+    }
+    return createJsonResponse({ status: "success", data: list });
+  }
+
+  if (action === "getOwnerVault") {
+    var sheet = ss.getSheetByName("KasUtamaOwner");
+    if (!sheet) {
+      sheet = ss.insertSheet("KasUtamaOwner");
+      sheet.appendRow(["Key", "Value", "Catatan"]);
+      sheet.appendRow(["initialBalance", 1033000, "Saldo baseline brankas"]);
+      sheet.appendRow(["baselineTimestamp", new Date().getTime(), "Waktu penetapan"]);
+      sheet.appendRow(["note", "Kas brankas keseluruhan", "Keterangan"]);
+      sheet.appendRow(["mutations", "[]", "Riwayat Tarik/Setor JSON"]);
+      sheet.appendRow(["lastUpdated", new Date().toISOString(), "Terakhir diubah"]);
+    }
+    var data = sheet.getDataRange().getValues();
+    var vaultObj = { initialBalance: 1033000, baselineTimestamp: 0, note: "", mutations: [], lastUpdated: "" };
+    for (var i = 1; i < data.length; i++) {
+      var k = String(data[i][0]).trim();
+      var v = data[i][1];
+      if (k === "initialBalance") vaultObj.initialBalance = Number(v) || 0;
+      else if (k === "baselineTimestamp") vaultObj.baselineTimestamp = Number(v) || 0;
+      else if (k === "note") vaultObj.note = String(v);
+      else if (k === "lastUpdated") vaultObj.lastUpdated = String(v);
+      else if (k === "mutations") {
+        try { vaultObj.mutations = JSON.parse(v); } catch(e){ vaultObj.mutations = []; }
+      }
+    }
+    return createJsonResponse({ status: "success", data: vaultObj });
+  }
+
+  if (action === "getCurrentShift") {
+    var sheet = ss.getSheetByName("Shift");
+    if (!sheet) return createJsonResponse({ status: "success", data: null });
+    var data = sheet.getDataRange().getValues();
+    for (var i = data.length - 1; i >= 1; i--) {
+      if (data[i][10] === "OPEN") {
+        return createJsonResponse({
+          status: "success",
+          data: {
+            id: String(data[i][0]),
+            kasir: String(data[i][1]),
+            waktuBuka: String(data[i][2]),
+            waktuTutup: String(data[i][3]),
+            saldoAwal: Number(data[i][4]) || 0,
+            totalTunai: Number(data[i][5]) || 0,
+            totalNonTunai: Number(data[i][6]) || 0,
+            totalBelanja: Number(data[i][7]) || 0,
+            kasAkhirSistem: Number(data[i][8]) || 0,
+            uangFisikKasir: Number(data[i][9]) || 0,
+            status: String(data[i][10]),
+            selisih: Number(data[i][11]) || 0
+          }
+        });
+      }
+    }
+    return createJsonResponse({ status: "success", data: null });
+  }
+
+  return createJsonResponse({ status: "error", message: "Aksi tidak dikenali" });
+}
+
+function doPost(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var payload = JSON.parse(e.postData.contents);
+  var action = payload.action;
+
+  if (action === "saveOwnerVault") {
+    var sheet = ss.getSheetByName("KasUtamaOwner");
+    if (!sheet) {
+      sheet = ss.insertSheet("KasUtamaOwner");
+      sheet.appendRow(["Key", "Value", "Catatan"]);
+    }
+    sheet.clearContents();
+    sheet.appendRow(["Key", "Value", "Catatan"]);
+    sheet.appendRow(["initialBalance", payload.vault.initialBalance || 0, "Saldo baseline brankas"]);
+    sheet.appendRow(["baselineTimestamp", payload.vault.baselineTimestamp || new Date().getTime(), "Timestamp"]);
+    sheet.appendRow(["note", payload.vault.note || "", "Keterangan"]);
+    sheet.appendRow(["mutations", JSON.stringify(payload.vault.mutations || []), "Riwayat Tarik/Setor JSON"]);
+    sheet.appendRow(["lastUpdated", payload.vault.lastUpdated || new Date().toISOString(), "Terakhir diubah"]);
+    return createJsonResponse({ status: "success", message: "Kas Utama Owner tersimpan" });
+  }
+
+  if (action === "saveTransaction") {
+    var sheet = ss.getSheetByName("Transaksi");
+    if (!sheet) {
+      sheet = ss.insertSheet("Transaksi");
+      sheet.appendRow(["ID", "Tanggal", "RawDate", "Kasir", "Pelanggan", "Subtotal", "Diskon", "Total", "Metode", "ShiftID", "Detail"]);
+    }
+    var now = new Date();
+    var id = "TRX" + now.getTime().toString().slice(-6);
+    var tgl = Utilities.formatDate(now, "GMT+7", "dd/MM/yyyy, HH:mm");
+    sheet.appendRow([
+      id,
+      tgl,
+      now.toISOString(),
+      payload.kasir || "Kasir",
+      payload.pelanggan || "Pelanggan Umum",
+      payload.subtotal || 0,
+      payload.diskon || 0,
+      payload.total || 0,
+      payload.metode || "Tunai",
+      payload.shiftId || "",
+      JSON.stringify(payload.items || [])
+    ]);
+
+    // Potong stok produk di sheet Menu
+    var menuSheet = ss.getSheetByName("Menu");
+    if (menuSheet && Array.isArray(payload.items)) {
+      var mData = menuSheet.getDataRange().getValues();
+      payload.items.forEach(function(item) {
+        for (var r = 1; r < mData.length; r++) {
+          if (String(mData[r][0]) === String(item.id) || String(mData[r][1]).toLowerCase() === String(item.nama).toLowerCase()) {
+            var currStock = Number(mData[r][5]) || 0;
+            var newStock = Math.max(0, currStock - Number(item.qty));
+            menuSheet.getRange(r + 1, 6).setValue(newStock);
+            mData[r][5] = newStock;
+            break;
+          }
+        }
+      });
+    }
+    return createJsonResponse({ status: "success", id: id });
+  }
+
+  if (action === "saveExpense") {
+    var sheet = ss.getSheetByName("Pengeluaran");
+    if (!sheet) {
+      sheet = ss.insertSheet("Pengeluaran");
+      sheet.appendRow(["ID", "Tanggal", "RawDate", "Nominal", "Keterangan", "Kategori", "Kasir", "ShiftID"]);
+    }
+    var exp = payload.expense;
+    sheet.appendRow([
+      exp.id, exp.tanggal, exp.rawDate, exp.nominal, exp.keterangan, exp.kategori, exp.kasir, exp.shiftId || ""
+    ]);
+    return createJsonResponse({ status: "success" });
+  }
+
+  if (action === "saveShift") {
+    var sheet = ss.getSheetByName("Shift");
+    if (!sheet) {
+      sheet = ss.insertSheet("Shift");
+      sheet.appendRow(["ID", "Kasir", "WaktuBuka", "WaktuTutup", "SaldoAwal", "TotalTunai", "TotalNonTunai", "TotalBelanja", "KasAkhirSistem", "UangFisikKasir", "Status", "Selisih"]);
+    }
+    var s = payload.shift;
+    var data = sheet.getDataRange().getValues();
+    var updated = false;
+    for (var r = 1; r < data.length; r++) {
+      if (String(data[r][0]) === String(s.id)) {
+        sheet.getRange(r + 1, 1, 1, 12).setValues([[
+          s.id, s.kasir, s.waktuBuka, s.waktuTutup, s.saldoAwal, s.totalTunai, s.totalNonTunai, s.totalBelanja, s.kasirAkhirSistem || s.kasAkhirSistem, s.uangFisikKasir, s.status, s.selisih
+        ]]);
+        updated = true;
+        break;
+      }
+    }
+    if (!updated) {
+      sheet.appendRow([
+        s.id, s.kasir, s.waktuBuka, s.waktuTutup, s.saldoAwal, s.totalTunai, s.totalNonTunai, s.totalBelanja, s.kasirAkhirSistem || s.kasAkhirSistem, s.uangFisikKasir, s.status, s.selisih
+      ]);
+    }
+    return createJsonResponse({ status: "success" });
+  }
+
+  if (action === "saveProduct") {
+    var sheet = ss.getSheetByName("Menu");
+    if (!sheet) {
+      sheet = ss.insertSheet("Menu");
+      sheet.appendRow(["ID", "Nama", "Kategori", "Harga Modal", "Harga Jual", "Stok"]);
+    }
+    var p = payload.product;
+    var data = sheet.getDataRange().getValues();
+    var found = false;
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(p.id)) {
+        sheet.getRange(i + 1, 2).setValue(p.nama);
+        sheet.getRange(i + 1, 3).setValue(p.kategori);
+        sheet.getRange(i + 1, 4).setValue(p.hargaModal);
+        sheet.getRange(i + 1, 5).setValue(p.hargaJual);
+        sheet.getRange(i + 1, 6).setValue(p.stok);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      sheet.appendRow([p.id, p.nama, p.kategori, p.hargaModal, p.hargaJual, p.stok]);
+    }
+    return createJsonResponse({ status: "success" });
+  }
+
+  if (action === "saveBatchProducts") {
+    var sheet = ss.getSheetByName("Menu");
+    if (!sheet) {
+      sheet = ss.insertSheet("Menu");
+      sheet.appendRow(["ID", "Nama", "Kategori", "Harga Modal", "Harga Jual", "Stok"]);
+    }
+    sheet.clearContents();
+    sheet.appendRow(["ID", "Nama", "Kategori", "Harga Modal", "Harga Jual", "Stok"]);
+    payload.products.forEach(function(p) {
+      sheet.appendRow([p.id, p.nama, p.kategori, p.hargaModal, p.hargaJual, p.stok]);
+    });
+    return createJsonResponse({ status: "success" });
+  }
+
+  return createJsonResponse({ status: "error", message: "Aksi tidak dikenali" });
+}
+
+function createJsonResponse(data) {
+  return ContentService.createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+
+      const temp = document.createElement('textarea');
+      temp.value = scriptCode;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+
+      showToast("Kode Berhasil Disalin!", "Tempel (paste) kode ini ke Google Apps Script (Code.gs) di Google Sheets Anda lalu Deploy.", "success");
+    };
+
     window.addEventListener('DOMContentLoaded', async () => {
       // 1. Load Shift Kasir
       const savedShift = localStorage.getItem("POS_CURRENT_SHIFT");
@@ -3871,7 +4291,7 @@ _Terima kasih telah berbelanja bersama kami!_ ✨`;
         try { currentShift = JSON.parse(savedShift); } catch(e){}
       }
 
-      // 2. Load Kas Utama / Brankas Owner
+      // 2. Load Kas Utama / Brankas Owner (Default Rp 1.033.000)
       const savedVault = localStorage.getItem("POS_OWNER_VAULT");
       if (savedVault) {
         try {
@@ -3880,6 +4300,8 @@ _Terima kasih telah berbelanja bersama kami!_ ✨`;
             ownerVault = { ...ownerVault, ...parsedV };
           }
         } catch(e){}
+      } else {
+        localStorage.setItem("POS_OWNER_VAULT", JSON.stringify(ownerVault));
       }
 
       // 3. Load Cached Products

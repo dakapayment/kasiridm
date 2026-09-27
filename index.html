@@ -719,14 +719,14 @@
             <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Nominal Saldo Awal (Rp)</label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">Rp</span>
-              <input type="text" inputmode="numeric" id="ownerInitialCashInput" oninput="window.handleFormattedInput(this)" placeholder="1.000.000" class="w-full pl-9 pr-3 py-2 text-base font-black text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
+              <input type="text" inputmode="numeric" id="ownerInitialCashInput" oninput="window.handleFormattedInput(this)" placeholder="1.033.000" class="w-full pl-9 pr-3 py-2 text-base font-black text-slate-900 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500">
             </div>
             <div class="flex gap-1.5 mt-1.5 flex-wrap">
               <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 0)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">Rp 0</button>
               <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 500000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">500k</button>
-              <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 1000000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">1 Juta</button>
+              <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 1033000)" class="px-2.5 py-1 bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 text-[10px] font-black text-emerald-800 rounded-lg">1.033.000</button>
               <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 2000000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">2 Juta</button>
-              <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 5000000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">5 Juta</button>
+              <button type="button" onclick="window.setPresetFormatted('ownerInitialCashInput', 5000000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-[10px] font-bold text-slate-700 rounded-lg">500 Juta</button>
             </div>
           </div>
 
@@ -1315,11 +1315,12 @@
 
     // =========================================================================
     // STATE KAS UTAMA / BRANKAS KESELURUHAN (UANG YANG HARUS DIPEGANG OWNER)
+    // DIATUR KE Rp 1.033.000 SECARA BAWAAN
     // =========================================================================
     let ownerVault = {
-      initialBalance: 0,
+      initialBalance: 1033000,
       note: "Modal awal brankas toko",
-      lastUpdated: null,
+      lastUpdated: new Date().toISOString(),
       mutations: [] // array of { id, tanggal, tipe: 'tarik'|'setor', nominal, keterangan }
     };
     let currentMutationType = 'tarik';
@@ -1589,7 +1590,7 @@
     }
 
     window.openOwnerInitialCashModal = function() {
-      window.setPresetFormatted('ownerInitialCashInput', ownerVault.initialBalance || 0);
+      window.setPresetFormatted('ownerInitialCashInput', ownerVault.initialBalance || 1033000);
       document.getElementById('ownerInitialNoteInput').value = ownerVault.note || "";
       document.getElementById('ownerInitialCashModal').classList.remove('hidden');
     };
@@ -3871,15 +3872,21 @@ _Terima kasih telah berbelanja bersama kami!_ ✨`;
         try { currentShift = JSON.parse(savedShift); } catch(e){}
       }
 
-      // 2. Load Kas Utama / Brankas Owner
+      // 2. Load Kas Utama / Brankas Owner (Fallback ke Rp 1.033.000 jika belum pernah diatur)
       const savedVault = localStorage.getItem("POS_OWNER_VAULT");
       if (savedVault) {
         try {
           const parsedV = JSON.parse(savedVault);
           if (parsedV && typeof parsedV === 'object') {
             ownerVault = { ...ownerVault, ...parsedV };
+            if (!ownerVault.initialBalance || ownerVault.initialBalance === 0) {
+              ownerVault.initialBalance = 1033000;
+              localStorage.setItem("POS_OWNER_VAULT", JSON.stringify(ownerVault));
+            }
           }
         } catch(e){}
+      } else {
+        localStorage.setItem("POS_OWNER_VAULT", JSON.stringify(ownerVault));
       }
 
       // 3. Load Cached Products
